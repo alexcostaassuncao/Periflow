@@ -1,5 +1,5 @@
 import {database} from '../../../db/raw';
-import {isAdmin} from '../../../db/employees';
+import {isAdmin,currentUserEmail,currentUserName} from '../../../db/employees';
 import {moduleSchemas} from '../../../db/module-schemas';
 const rowId='connect-modules-v1';
 const wallets=['C1','C2','C3','C4','all'];
@@ -52,11 +52,11 @@ export async function POST(req:Request){
           p.data.workflow_stage=stage;p.data.status=({briefing:'rascunho',copy:'briefing_completo',designer:'briefing_completo',video:'briefing_completo',review:'em_revisao',sent:'aguardando_aprovacao',approved:'aprovado',adjustments:'ajuste'} as any)[stage];
           p.data.historico=previous?.historico||[];
           if(!previous||previous.workflow_stage!==stage||previous.responsible!==p.data.responsible||stage==='adjustments'&&previous.adjustment_comment!==p.data.adjustment_comment){
-            p.data.historico=[...p.data.historico,{timestamp:now,user_email:req.headers.get('oai-authenticated-user-email'),change_type:!previous?'criacao':stage==='adjustments'?'ajuste':'andamento',campo:'Etapa / responsável',old_value:previous?(previous.workflow_stage||'briefing')+' • '+(previous.responsible||''):'',new_value:stage+' • '+p.data.responsible+(stage==='adjustments'?' • '+p.data.adjustment_comment:'')}].slice(-200);
+            p.data.historico=[...p.data.historico,{timestamp:now,user_email:currentUserEmail(req),change_type:!previous?'criacao':stage==='adjustments'?'ajuste':'andamento',campo:'Etapa / responsável',old_value:previous?(previous.workflow_stage||'briefing')+' • '+(previous.responsible||''):'',new_value:stage+' • '+p.data.responsible+(stage==='adjustments'?' • '+p.data.adjustment_comment:'')}].slice(-200);
           }else{
             const keys=['nome_formulario','tipo','production_type','due_date','priority','briefing','copy','criacao','review_notes'];
             const changed=keys.filter(key=>JSON.stringify(previous[key])!==JSON.stringify(p.data[key]));
-            if(changed.length)p.data.historico=[...p.data.historico,{timestamp:now,user_email:req.headers.get('oai-authenticated-user-email'),change_type:'edicao',campo:changed.join(', '),old_value:'Conteúdo anterior',new_value:'Conteúdo da peça atualizado'}].slice(-200);
+            if(changed.length)p.data.historico=[...p.data.historico,{timestamp:now,user_email:currentUserEmail(req),change_type:'edicao',campo:changed.join(', '),old_value:'Conteúdo anterior',new_value:'Conteúdo da peça atualizado'}].slice(-200);
           }
         }
         if(p.entity==='CRMLead'){
@@ -66,7 +66,7 @@ export async function POST(req:Request){
           if(p.data.data_reuniao&&!Number.isFinite(Date.parse(p.data.data_reuniao)))return Response.json({error:'Data de reunião inválida.'},{status:400});
           id=id||crypto.randomUUID();
           p.data.historico=previous?.historico||[];
-          if(!previous||previous.status!==p.data.status)p.data.historico=[...p.data.historico,{data:now,usuario_email:req.headers.get('oai-authenticated-user-email')||'',usuario_nome:'Adm',status_anterior:previous?.status||'',status_novo:p.data.status||'prospeccao',observacao:p.data.observacoes||''}].slice(-200);
+          if(!previous||previous.status!==p.data.status)p.data.historico=[...p.data.historico,{data:now,usuario_email:currentUserEmail(req)||'',usuario_nome:currentUserName(req),status_anterior:previous?.status||'',status_novo:p.data.status||'prospeccao',observacao:p.data.observacoes||''}].slice(-200);
           const eventIndex=old.records.findIndex((r:any)=>r.entity==='CalendarEvent'&&(r.id===previous?.calendar_event_id||r.data.lead_id===id));
           if(p.data.data_reuniao){
             const event=eventIndex>=0?old.records[eventIndex]:null;
@@ -86,7 +86,7 @@ export async function POST(req:Request){
           if(p.data.total_value<0||(p.data.discount||0)<0||(p.data.discount||0)>p.data.total_value)return Response.json({error:'Confira o valor e o desconto da proposta.'},{status:400});
           p.data.final_value=p.data.total_value-(p.data.discount||0);
           const next=p.data.status==='enviado'?'proposta':p.data.status==='aprovado'||p.data.status==='convertido'?'contrato':null;
-          if(next&&!['cancelado','onboarding','cliente_ativo'].includes(lead.data.status)&&lead.data.status!==next){lead.data.historico=[...(lead.data.historico||[]),{data:now,usuario_email:req.headers.get('oai-authenticated-user-email')||'',usuario_nome:'Adm',status_anterior:lead.data.status||'prospeccao',status_novo:next,observacao:'Etapa atualizada pela proposta.'}].slice(-200);lead.data.status=next;lead.updatedAt=now;}
+          if(next&&!['cancelado','onboarding','cliente_ativo'].includes(lead.data.status)&&lead.data.status!==next){lead.data.historico=[...(lead.data.historico||[]),{data:now,usuario_email:currentUserEmail(req)||'',usuario_nome:currentUserName(req),status_anterior:lead.data.status||'prospeccao',status_novo:next,observacao:'Etapa atualizada pela proposta.'}].slice(-200);lead.data.status=next;lead.updatedAt=now;}
         }
         const copies=p.copies===undefined?1:p.copies;
         if(!Number.isInteger(copies)||copies<1||copies>100||(copies>1&&(index>=0||p.entity!=='FormularioTarefa')))return Response.json({error:'Use de 1 a 100 peças na criação.'},{status:400});
@@ -95,7 +95,7 @@ export async function POST(req:Request){
         if(copies>1){record.data={...p.data,nome_formulario:p.data.nome_formulario+' 01'};for(let i=2;i<=copies;i++)old.records.push({...record,id:crypto.randomUUID(),data:{...p.data,nome_formulario:p.data.nome_formulario+' '+String(i).padStart(2,'0')}});}
       }
     }else return Response.json({error:'Ação inválida.'},{status:400});
-    old.audit.unshift({id:crypto.randomUUID(),action:p.action,entity:p.entity||'Configuração',recordId:id||'',user:'Adm',at:now,wallet:p.wallet||'all',clientId:p.clientId||''});old.audit=old.audit.slice(0,1000);
+    old.audit.unshift({id:crypto.randomUUID(),action:p.action,entity:p.entity||'Configuração',recordId:id||'',user:currentUserName(req),at:now,wallet:p.wallet||'all',clientId:p.clientId||''});old.audit=old.audit.slice(0,1000);
     const json=JSON.stringify({records:old.records,employeeWallets:old.employeeWallets,preferences:old.preferences,audit:old.audit});
     if(json.length>1800000)return Response.json({error:'Limite de registros atingido.'},{status:400});
     const db=database();const result=old.revision===0?await db.prepare('INSERT OR IGNORE INTO connect_state (id,payload,revision) VALUES (?,?,1)').bind(rowId,json).run():await db.prepare('UPDATE connect_state SET payload=?,revision=revision+1 WHERE id=? AND revision=?').bind(json,rowId,old.revision).run();

@@ -1,5 +1,5 @@
-import {env} from 'cloudflare:workers';
 import {database} from '../../../db/raw';
+const env=process.env;
 import {ensureUsers,isAdmin,passwordHash,digest,roles,accesses} from '../../../db/employees';
 const unavailable=()=>Response.json({error:'Não foi possível salvar o cadastro. Tente novamente.'},{status:503});
 export async function GET(req:Request){if(!isAdmin(req))return Response.json({error:'Acesso restrito ao administrador.'},{status:403});try{await ensureUsers();const users=await database().prepare('SELECT id,name,email,phone,role,access,verified,created_at,CASE WHEN password_hash IS NULL THEN 0 ELSE 1 END AS has_password FROM employees ORDER BY created_at,name').all();return Response.json({users:users.results,emailReady:!!((env as any).RESEND_API_KEY&&(env as any).EMAIL_FROM)},{headers:{'Cache-Control':'no-store'}});}catch(e){console.error(e);return unavailable();}}

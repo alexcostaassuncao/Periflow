@@ -1,5 +1,6 @@
-import {env} from 'cloudflare:workers';
-export const siteOrigin='https://periferica-connect.alexcostaa.chatgpt.site';
+const env=process.env;
+// Endereço público do site (ex.: https://periflow.vercel.app). Precisa ser o mesmo cadastrado no app da Meta.
+export const siteOrigin=(env.SITE_URL||'http://localhost:3000').replace(/\/+$/,'');
 export const redirectUri=siteOrigin+'/api/instagram/callback';
 export const scopes=['instagram_business_basic','instagram_business_content_publish'];
 export function config(){return {id:env.INSTAGRAM_APP_ID,secret:env.INSTAGRAM_APP_SECRET,key:env.INSTAGRAM_TOKEN_KEY};}

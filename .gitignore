@@ -30,6 +30,7 @@ yarn-error.log*
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
 # vercel
 .vercel
@@ -44,3 +45,10 @@ next-env.d.ts
 /.codex/
 /outputs/
 /work/
+
+# Arquivos da plataforma antiga (ChatGPT Sites/Cloudflare), mantidos só localmente
+/_plataforma-antiga/
+# Banco SQLite local de desenvolvimento e exportações de dados (contêm dados reais)
+*.db
+*.db-*
+periflow-export*.json
