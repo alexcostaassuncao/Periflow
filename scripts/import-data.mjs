@@ -62,7 +62,7 @@ if(data.permissions?.profiles)upsert('connect-permission-profiles-v1',{profiles:
 // 3. Funcionários (as senhas não saem do site antigo: defina-as de novo em Cadastros)
 let people=0;
 for(const u of data.users?.users||[]){
-  statements.push({sql:'INSERT INTO employees (id,name,email,phone,role,access,password_hash,verified,created_at) VALUES (?,?,?,?,?,?,NULL,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,email=excluded.email,phone=excluded.phone,role=excluded.role,access=excluded.access',args:[u.id,u.name,u.email||null,u.phone||'',u.role,u.access,u.verified?1:0,u.created_at||new Date().toISOString()]});
+  statements.push({sql:'INSERT INTO employees (id,name,email,phone,role,access,password_hash,verified,created_at) VALUES (?,?,?,?,?,?,NULL,?,?) ON CONFLICT(id) DO UPDATE SET name=excluded.name,email=excluded.email,phone=excluded.phone,role=excluded.role,access=excluded.access',args:[u.id,u.name,(u.email==='alexcosta@perferica.me'?'alexcosta@periferica.me':u.email)||null,u.phone||'',u.role,u.access,u.verified?1:0,u.created_at||new Date().toISOString()]});
   people++;
 }
 

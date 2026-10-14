@@ -20,12 +20,16 @@ export async function POST(req:Request){
     await ensureUsers();
     let token:string|null=null;
     const admin=envAdmin();
+    const row:any=await database().prepare('SELECT id,password_hash FROM employees WHERE email=?').bind(email).first();
     if(admin&&email===admin.email&&password===admin.password)token=await signSession({uid:'connect-admin',m:'env',pv:await envAdminVersion()});
-    else{
-      const row:any=await database().prepare('SELECT id,password_hash FROM employees WHERE email=?').bind(email).first();
-      if(row?.password_hash&&await verifyPassword(password,row.password_hash))token=await signSession({uid:row.id,m:'db',pv:await passwordVersion(row.password_hash)});
+    else if(row?.password_hash&&await verifyPassword(password,row.password_hash))token=await signSession({uid:row.id,m:'db',pv:await passwordVersion(row.password_hash)});
+    if(!token){
+      await fail(key);
+      // Mensagens específicas para os casos de configuração (sistema interno da equipe).
+      if(!admin&&!row?.password_hash)return Response.json({error:'O login do administrador ainda não foi configurado no servidor. Defina ADMIN_EMAIL e ADMIN_PASSWORD na Vercel e faça Redeploy.'},{status:503});
+      if(row&&!row.password_hash)return Response.json({error:'Este usuário ainda não tem senha. Entre como administrador e defina a senha em Cadastros → Usuários e funcionários.'},{status:403});
+      return denied();
     }
-    if(!token){await fail(key);return denied();}
     await database().prepare('DELETE FROM login_attempts WHERE key=?').bind(key).run();
     return Response.json({ok:true},{headers:{'Set-Cookie':sessionCookie(token),'Cache-Control':'no-store'}});
   }catch(e){console.error(e);return Response.json({error:'Não foi possível entrar agora. Tente novamente.'},{status:503});}
