@@ -1,0 +1,64 @@
+{
+  "name": "ProjectTemplate",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome do modelo (ex: JDA - Conte\u00fado Mensal)"
+    },
+    "description": {
+      "type": "string"
+    },
+    "recurrence": {
+      "type": "string",
+      "enum": [
+        "mensal",
+        "quinzenal",
+        "pontual"
+      ],
+      "default": "mensal"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo"
+      ],
+      "default": "ativo"
+    },
+    "tasks": {
+      "type": "array",
+      "description": "Tarefas padr\u00e3o do modelo",
+      "items": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "task_type": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number",
+            "default": 1
+          },
+          "priority": {
+            "type": "string"
+          },
+          "events": {
+            "type": "array"
+          },
+          "xp_reward": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "default_squad_id": {
+      "type": "string"
+    }
+  },
+  "required": [
+    "name"
+  ]
+}

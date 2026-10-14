@@ -1,0 +1,45 @@
+{
+  "name": "Item",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome do item"
+    },
+    "code": {
+      "type": "string",
+      "description": "C\u00f3digo do item"
+    },
+    "description": {
+      "type": "string"
+    },
+    "value": {
+      "type": "number",
+      "description": "Valor unit\u00e1rio"
+    },
+    "category": {
+      "type": "string",
+      "enum": [
+        "post",
+        "stories",
+        "reels",
+        "design",
+        "video",
+        "servico",
+        "outros"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo"
+      ],
+      "default": "ativo"
+    }
+  },
+  "required": [
+    "name",
+    "value"
+  ]
+}

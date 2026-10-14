@@ -1,0 +1,62 @@
+{
+  "name": "TimeAdjustmentRequest",
+  "type": "object",
+  "properties": {
+    "employee_email": {
+      "type": "string"
+    },
+    "time_record_id": {
+      "type": "string"
+    },
+    "date": {
+      "type": "string",
+      "format": "date"
+    },
+    "reason": {
+      "type": "string",
+      "enum": [
+        "esqueci_bater_ponto",
+        "problema_tecnico",
+        "falha_conexao",
+        "trabalho_externo",
+        "outro"
+      ]
+    },
+    "reason_details": {
+      "type": "string",
+      "description": "Detalhes adicionais do motivo"
+    },
+    "requested_check_in": {
+      "type": "string",
+      "format": "time"
+    },
+    "requested_check_out": {
+      "type": "string",
+      "format": "time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "aprovado",
+        "rejeitado"
+      ],
+      "default": "pendente"
+    },
+    "admin_notes": {
+      "type": "string"
+    },
+    "reviewed_by": {
+      "type": "string"
+    },
+    "reviewed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "employee_email",
+    "date",
+    "reason"
+  ]
+}

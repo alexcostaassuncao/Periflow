@@ -1,0 +1,67 @@
+{
+  "name": "Notification",
+  "type": "object",
+  "properties": {
+    "user_email": {
+      "type": "string",
+      "description": "Email do usu\u00e1rio que receber\u00e1 a notifica\u00e7\u00e3o"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "reuniao",
+        "comercial",
+        "mencao",
+        "lembrete",
+        "acao_confirmada"
+      ],
+      "description": "Tipo de notifica\u00e7\u00e3o para filtros"
+    },
+    "title": {
+      "type": "string",
+      "description": "T\u00edtulo da notifica\u00e7\u00e3o"
+    },
+    "message": {
+      "type": "string",
+      "description": "Mensagem completa"
+    },
+    "event_id": {
+      "type": "string",
+      "description": "ID do evento/reuni\u00e3o vinculado"
+    },
+    "proposal_id": {
+      "type": "string",
+      "description": "ID do or\u00e7amento vinculado"
+    },
+    "contract_id": {
+      "type": "string",
+      "description": "ID do contrato vinculado"
+    },
+    "is_read": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se foi lida"
+    },
+    "is_pinned": {
+      "type": "boolean",
+      "default": false,
+      "description": "Se est\u00e1 fixada"
+    },
+    "scheduled_for": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data/hora programada para envio"
+    },
+    "sent_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data/hora de envio efetivo"
+    }
+  },
+  "required": [
+    "user_email",
+    "type",
+    "title",
+    "message"
+  ]
+}

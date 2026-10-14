@@ -1,0 +1,120 @@
+{
+  "name": "EquipamentoItem",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do item/equipamento"
+    },
+    "codigo": {
+      "type": "string",
+      "description": "C\u00f3digo ou n\u00famero de patrim\u00f4nio"
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "informatica",
+        "mobiliario",
+        "eletronico",
+        "audio_video",
+        "comunicacao",
+        "ferramenta",
+        "papelaria",
+        "outros"
+      ],
+      "description": "Categoria do item"
+    },
+    "descricao": {
+      "type": "string",
+      "description": "Descri\u00e7\u00e3o detalhada do item"
+    },
+    "quantidade": {
+      "type": "number",
+      "default": 1,
+      "description": "Quantidade dispon\u00edvel"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo",
+        "excluido"
+      ],
+      "default": "ativo",
+      "description": "Status do item"
+    },
+    "localizacao": {
+      "type": "string",
+      "enum": [
+        "estoque",
+        "com_funcionario",
+        "manutencao",
+        "descartado"
+      ],
+      "default": "estoque",
+      "description": "Localiza\u00e7\u00e3o atual do item"
+    },
+    "funcionario_responsavel_email": {
+      "type": "string",
+      "description": "Email do funcion\u00e1rio respons\u00e1vel (quando com funcion\u00e1rio)"
+    },
+    "funcionario_responsavel_nome": {
+      "type": "string",
+      "description": "Nome do funcion\u00e1rio respons\u00e1vel"
+    },
+    "observacoes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es gerais sobre o item"
+    },
+    "cadastrado_por": {
+      "type": "string",
+      "description": "Email do usu\u00e1rio que cadastrou"
+    },
+    "cadastrado_por_nome": {
+      "type": "string",
+      "description": "Nome do usu\u00e1rio que cadastrou"
+    },
+    "historico": {
+      "type": "array",
+      "description": "Hist\u00f3rico de altera\u00e7\u00f5es do item",
+      "items": {
+        "type": "object",
+        "properties": {
+          "tipo_alteracao": {
+            "type": "string"
+          },
+          "campo_alterado": {
+            "type": "string"
+          },
+          "valor_anterior": {
+            "type": "string"
+          },
+          "novo_valor": {
+            "type": "string"
+          },
+          "usuario_email": {
+            "type": "string"
+          },
+          "usuario_nome": {
+            "type": "string"
+          },
+          "data_hora": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "motivo": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "importado_de": {
+      "type": "string",
+      "description": "ID do ImportRecord de origem, se importado"
+    }
+  },
+  "required": [
+    "nome",
+    "categoria"
+  ]
+}

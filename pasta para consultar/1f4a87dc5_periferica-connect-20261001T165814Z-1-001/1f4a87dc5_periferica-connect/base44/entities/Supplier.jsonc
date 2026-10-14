@@ -1,0 +1,70 @@
+{
+  "name": "Supplier",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "pf",
+        "pj"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo"
+      ],
+      "default": "ativo"
+    },
+    "contact_name": {
+      "type": "string"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "service_type": {
+      "type": "string",
+      "description": "Tipo de servi\u00e7o fornecido"
+    },
+    "payment_method": {
+      "type": "string",
+      "enum": [
+        "dinheiro",
+        "pix",
+        "transferencia",
+        "cartao",
+        "boleto"
+      ]
+    },
+    "periodicity": {
+      "type": "string",
+      "enum": [
+        "pontual",
+        "mensal",
+        "trimestral",
+        "anual"
+      ]
+    },
+    "average_value": {
+      "type": "number"
+    },
+    "cost_center": {
+      "type": "string"
+    },
+    "is_also_client": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "name",
+    "status"
+  ]
+}

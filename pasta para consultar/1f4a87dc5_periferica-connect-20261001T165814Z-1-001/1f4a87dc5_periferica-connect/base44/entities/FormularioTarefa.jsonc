@@ -1,0 +1,143 @@
+{
+  "name": "FormularioTarefa",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "modelo_id": {
+      "type": "string"
+    },
+    "nome_formulario": {
+      "type": "string"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "feed",
+        "stories",
+        "reels",
+        "carrossel",
+        "banner_site",
+        "site_pagina",
+        "capa_youtube",
+        "banner_youtube"
+      ]
+    },
+    "briefing": {
+      "type": "object",
+      "properties": {
+        "objetivo": {
+          "type": "string"
+        },
+        "tipo_entrega": {
+          "type": "string"
+        },
+        "plataformas": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "referencias": {
+          "type": "string"
+        },
+        "anexos": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "local_uso": {
+          "type": "string"
+        },
+        "canal_youtube": {
+          "type": "string"
+        },
+        "tipo_site": {
+          "type": "string"
+        },
+        "estrutura_desejada": {
+          "type": "string"
+        }
+      }
+    },
+    "criacao": {
+      "type": "object",
+      "properties": {
+        "direcionamento_criativo": {
+          "type": "string"
+        },
+        "anexos_criacao": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "legenda_post": {
+          "type": "string"
+        },
+        "arte_final": {
+          "type": "string"
+        },
+        "texto_banner": {
+          "type": "string"
+        },
+        "conteudo_textual": {
+          "type": "string"
+        },
+        "assets": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "observacoes_tecnicas": {
+          "type": "string"
+        }
+      }
+    },
+    "historico": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_email": {
+            "type": "string"
+          },
+          "change_type": {
+            "type": "string"
+          },
+          "campo": {
+            "type": "string"
+          },
+          "old_value": {
+            "type": "string"
+          },
+          "new_value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "briefing_completo",
+        "criacao_completa",
+        "aprovado"
+      ],
+      "default": "rascunho"
+    }
+  },
+  "required": [
+    "task_id",
+    "tipo",
+    "nome_formulario"
+  ]
+}

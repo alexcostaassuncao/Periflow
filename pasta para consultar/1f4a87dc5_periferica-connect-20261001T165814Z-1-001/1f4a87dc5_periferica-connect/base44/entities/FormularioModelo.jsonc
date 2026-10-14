@@ -1,0 +1,101 @@
+{
+  "name": "FormularioModelo",
+  "type": "object",
+  "properties": {
+    "nome": {
+      "type": "string",
+      "description": "Nome do modelo (Feed, Stories, Banner, etc.)"
+    },
+    "tipo": {
+      "type": "string",
+      "enum": [
+        "feed",
+        "stories",
+        "reels",
+        "carrossel",
+        "banner_site",
+        "site_pagina",
+        "capa_youtube",
+        "banner_youtube"
+      ]
+    },
+    "categoria": {
+      "type": "string",
+      "enum": [
+        "redes_sociais",
+        "web",
+        "video"
+      ]
+    },
+    "campos_briefing": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "campos_criacao": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "label": {
+            "type": "string"
+          },
+          "type": {
+            "type": "string"
+          },
+          "required": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "template_preview": {
+      "type": "string",
+      "enum": [
+        "instagram",
+        "facebook",
+        "linkedin",
+        "youtube",
+        "site_banner",
+        "site_page"
+      ]
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo"
+      ],
+      "default": "ativo"
+    }
+  },
+  "required": [
+    "nome",
+    "tipo",
+    "categoria"
+  ]
+}

@@ -1,0 +1,125 @@
+{
+  "name": "CalendarEvent",
+  "type": "object",
+  "properties": {
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "event_type": {
+      "type": "string",
+      "enum": [
+        "reuniao_interna",
+        "reuniao_externa",
+        "reuniao_comercial",
+        "gravacao_interna",
+        "gravacao_externa",
+        "falta",
+        "ausencia",
+        "conteudo_programado",
+        "conteudo_publicado"
+      ]
+    },
+    "start_datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "end_datetime": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "location": {
+      "type": "string",
+      "description": "Sala, Est\u00fadio, ou endere\u00e7o externo"
+    },
+    "client_id": {
+      "type": "string"
+    },
+    "prospect_name": {
+      "type": "string",
+      "description": "Nome do prospect se ainda n\u00e3o for cliente"
+    },
+    "participants": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails dos participantes"
+    },
+    "video_maker": {
+      "type": "string",
+      "enum": [
+        "julio",
+        "eduardo"
+      ],
+      "description": "Para grava\u00e7\u00f5es"
+    },
+    "motivo_ausencia": {
+      "type": "string",
+      "enum": [
+        "medico",
+        "consulta",
+        "compromisso_pessoal",
+        "ferias"
+      ],
+      "description": "Para faltas/aus\u00eancias"
+    },
+    "meeting_link": {
+      "type": "string",
+      "description": "Link Meet/Zoom/etc"
+    },
+    "conversion_status": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "fechado",
+        "em_negociacao",
+        "nao_avancou"
+      ],
+      "default": "pendente",
+      "description": "Status da convers\u00e3o comercial"
+    },
+    "conversion_notes": {
+      "type": "string",
+      "description": "Observa\u00e7\u00f5es da convers\u00e3o"
+    },
+    "converted_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Data da convers\u00e3o"
+    },
+    "converted_by": {
+      "type": "string",
+      "description": "Email de quem converteu"
+    },
+    "conversion_history": {
+      "type": "array",
+      "description": "Hist\u00f3rico de convers\u00f5es",
+      "items": {
+        "type": "object",
+        "properties": {
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_email": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  },
+  "required": [
+    "title",
+    "event_type",
+    "start_datetime"
+  ]
+}

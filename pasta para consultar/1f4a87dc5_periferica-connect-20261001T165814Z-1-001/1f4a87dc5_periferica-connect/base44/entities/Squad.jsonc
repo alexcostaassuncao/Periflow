@@ -1,0 +1,45 @@
+{
+  "name": "Squad",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome do squad (ex: C1 - Carteira Christina)"
+    },
+    "code": {
+      "type": "string",
+      "description": "C\u00f3digo do squad (ex: C1, C2, C3)"
+    },
+    "manager_email": {
+      "type": "string",
+      "description": "Email do gestor respons\u00e1vel"
+    },
+    "members": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Emails dos membros do squad"
+    },
+    "clients": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "IDs dos clientes associados"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo"
+      ],
+      "default": "ativo"
+    }
+  },
+  "required": [
+    "name",
+    "code",
+    "manager_email"
+  ]
+}

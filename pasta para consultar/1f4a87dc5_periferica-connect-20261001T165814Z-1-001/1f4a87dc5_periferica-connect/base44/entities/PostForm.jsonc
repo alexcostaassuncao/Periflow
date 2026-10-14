@@ -1,0 +1,128 @@
+{
+  "name": "PostForm",
+  "type": "object",
+  "properties": {
+    "task_id": {
+      "type": "string"
+    },
+    "briefing": {
+      "type": "object",
+      "properties": {
+        "objetivo": {
+          "type": "string"
+        },
+        "produto_servico": {
+          "type": "string"
+        },
+        "tom_comunicacao": {
+          "type": "string"
+        },
+        "publico_alvo": {
+          "type": "string"
+        },
+        "ideias_copy": {
+          "type": "string"
+        },
+        "referencias": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "criacao": {
+      "type": "object",
+      "properties": {
+        "canal": {
+          "type": "string",
+          "enum": [
+            "instagram",
+            "facebook",
+            "linkedin",
+            "tiktok",
+            "twitter"
+          ]
+        },
+        "tipo_post": {
+          "type": "string",
+          "enum": [
+            "feed",
+            "stories",
+            "reels",
+            "carrossel"
+          ]
+        },
+        "imagem_video": {
+          "type": "string"
+        },
+        "legenda": {
+          "type": "string"
+        },
+        "titulo": {
+          "type": "string"
+        },
+        "cta": {
+          "type": "string"
+        },
+        "link": {
+          "type": "string"
+        },
+        "hashtags": {
+          "type": "string"
+        },
+        "marcacoes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "historico": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "timestamp": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "user_email": {
+            "type": "string"
+          },
+          "change_type": {
+            "type": "string"
+          },
+          "old_value": {
+            "type": "string"
+          },
+          "new_value": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "status_briefing": {
+      "type": "string",
+      "enum": [
+        "pendente",
+        "em_criacao",
+        "concluido"
+      ],
+      "default": "pendente"
+    },
+    "status_criacao": {
+      "type": "string",
+      "enum": [
+        "bloqueado",
+        "em_criacao",
+        "concluido"
+      ],
+      "default": "bloqueado"
+    }
+  },
+  "required": [
+    "task_id"
+  ]
+}

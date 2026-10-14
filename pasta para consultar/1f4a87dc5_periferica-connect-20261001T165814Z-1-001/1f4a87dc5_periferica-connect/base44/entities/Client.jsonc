@@ -1,0 +1,104 @@
+{
+  "name": "Client",
+  "type": "object",
+  "properties": {
+    "name": {
+      "type": "string",
+      "description": "Nome principal do cliente/empresa"
+    },
+    "fantasy_name": {
+      "type": "string",
+      "description": "Nome fantasia"
+    },
+    "aliases": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Aliases/sin\u00f4nimos de importa\u00e7\u00e3o (como o nome aparece nos CSVs do eKyte)"
+    },
+    "carteira": {
+      "type": "string",
+      "enum": [
+        "c1",
+        "c2",
+        "c3",
+        "projetos",
+        "cancelados",
+        "nao_definida"
+      ],
+      "default": "nao_definida",
+      "description": "Carteira/Squad ao qual o cliente pertence"
+    },
+    "cpf_cnpj": {
+      "type": "string",
+      "description": "CPF ou CNPJ do cliente"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "pf",
+        "pj"
+      ],
+      "description": "Pessoa F\u00edsica ou Jur\u00eddica"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "ativo",
+        "inativo",
+        "cancelado",
+        "projeto"
+      ],
+      "default": "ativo"
+    },
+    "contact_name": {
+      "type": "string",
+      "description": "Nome do contato principal"
+    },
+    "email": {
+      "type": "string"
+    },
+    "phone": {
+      "type": "string"
+    },
+    "segment": {
+      "type": "string",
+      "description": "Segmento de atua\u00e7\u00e3o"
+    },
+    "services": {
+      "type": "string",
+      "description": "Servi\u00e7os contratados"
+    },
+    "contract_type": {
+      "type": "string",
+      "enum": [
+        "mensal",
+        "projeto",
+        "avulso"
+      ]
+    },
+    "notes": {
+      "type": "string"
+    },
+    "links": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Links externos (drive, site, redes)"
+    },
+    "is_also_supplier": {
+      "type": "boolean",
+      "default": false
+    },
+    "importacao_origem": {
+      "type": "string",
+      "description": "Origem da cria\u00e7\u00e3o (manual, ekyte_import, etc)"
+    }
+  },
+  "required": [
+    "name",
+    "status"
+  ]
+}

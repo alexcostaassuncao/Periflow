@@ -1,0 +1,2713 @@
+{
+  "ChatGroup": {
+    "name": "ChatGroup",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome do grupo (ex: C1 - Carteira Christina)"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "carteira",
+          "squad",
+          "projeto"
+        ],
+        "description": "Tipo do grupo"
+      },
+      "description": {
+        "type": "string"
+      },
+      "members": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Emails dos membros do grupo"
+      },
+      "owner_email": {
+        "type": "string",
+        "description": "Email do gestor responsável"
+      },
+      "avatar_color": {
+        "type": "string",
+        "default": "#ff5000"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "arquivado"
+        ],
+        "default": "ativo"
+      },
+      "last_message_at": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "name",
+      "type",
+      "owner_email"
+    ]
+  },
+  "CRMMeta": {
+    "name": "CRMMeta",
+    "type": "object",
+    "properties": {
+      "mes_referencia": {
+        "type": "string",
+        "description": "YYYY-MM"
+      },
+      "meta_prospeccao": {
+        "type": "number",
+        "default": 50,
+        "description": "Meta de prospecções no mês"
+      },
+      "meta_reunioes": {
+        "type": "number",
+        "default": 50,
+        "description": "Meta de reuniões no mês"
+      },
+      "meta_fechamentos": {
+        "type": "number",
+        "default": 10,
+        "description": "Meta de fechamentos no mês"
+      }
+    },
+    "required": [
+      "mes_referencia"
+    ]
+  },
+  "FormularioTarefa": {
+    "name": "FormularioTarefa",
+    "type": "object",
+    "properties": {
+      "task_id": {
+        "type": "string"
+      },
+      "modelo_id": {
+        "type": "string"
+      },
+      "nome_formulario": {
+        "type": "string"
+      },
+      "tipo": {
+        "type": "string",
+        "enum": [
+          "feed",
+          "stories",
+          "reels",
+          "carrossel",
+          "banner_site",
+          "site_pagina",
+          "capa_youtube",
+          "banner_youtube"
+        ]
+      },
+      "briefing": {
+        "type": "object",
+        "properties": {
+          "objetivo": {
+            "type": "string"
+          },
+          "tipo_entrega": {
+            "type": "string"
+          },
+          "plataformas": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "referencias": {
+            "type": "string"
+          },
+          "anexos": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "local_uso": {
+            "type": "string"
+          },
+          "canal_youtube": {
+            "type": "string"
+          },
+          "tipo_site": {
+            "type": "string"
+          },
+          "estrutura_desejada": {
+            "type": "string"
+          }
+        }
+      },
+      "criacao": {
+        "type": "object",
+        "properties": {
+          "direcionamento_criativo": {
+            "type": "string"
+          },
+          "anexos_criacao": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "legenda_post": {
+            "type": "string"
+          },
+          "arte_final": {
+            "type": "string"
+          },
+          "texto_banner": {
+            "type": "string"
+          },
+          "conteudo_textual": {
+            "type": "string"
+          },
+          "assets": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "observacoes_tecnicas": {
+            "type": "string"
+          }
+        }
+      },
+      "historico": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "user_email": {
+              "type": "string"
+            },
+            "change_type": {
+              "type": "string"
+            },
+            "campo": {
+              "type": "string"
+            },
+            "old_value": {
+              "type": "string"
+            },
+            "new_value": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "rascunho",
+          "briefing_completo",
+          "criacao_completa",
+          "aprovado",
+          "em_revisao",
+          "aguardando_aprovacao",
+          "ajuste"
+        ],
+        "default": "rascunho"
+      },
+      "workflow_stage": {
+        "type": "string",
+        "enum": [
+          "briefing",
+          "copy",
+          "designer",
+          "video",
+          "review",
+          "sent",
+          "approved",
+          "adjustments"
+        ],
+        "default": "briefing"
+      },
+      "responsible": {
+        "type": "string"
+      },
+      "due_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "priority": {
+        "type": "string",
+        "enum": [
+          "baixa",
+          "media",
+          "alta"
+        ],
+        "default": "media"
+      },
+      "production_type": {
+        "type": "string",
+        "enum": [
+          "estatico",
+          "video",
+          "banner",
+          "encarte",
+          "oferta",
+          "spot_radio"
+        ],
+        "default": "estatico"
+      },
+      "copy": {
+        "type": "object",
+        "properties": {
+          "legenda": {
+            "type": "string"
+          },
+          "texto_arte": {
+            "type": "string"
+          },
+          "roteiro": {
+            "type": "string"
+          }
+        }
+      },
+      "adjustment_comment": {
+        "type": "string"
+      },
+      "review_notes": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "task_id",
+      "tipo",
+      "nome_formulario",
+      "responsible",
+      "due_date"
+    ]
+  },
+  "Squad": {
+    "name": "Squad",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome do squad (ex: C1 - Carteira Christina)"
+      },
+      "code": {
+        "type": "string",
+        "description": "Código do squad (ex: C1, C2, C3)"
+      },
+      "manager_email": {
+        "type": "string",
+        "description": "Email do gestor responsável"
+      },
+      "members": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Emails dos membros do squad"
+      },
+      "clients": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "IDs dos clientes associados"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      }
+    },
+    "required": [
+      "name",
+      "code",
+      "manager_email"
+    ]
+  },
+  "Expense": {
+    "name": "Expense",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "software",
+          "trafego",
+          "servico",
+          "estrutura",
+          "pessoal",
+          "marketing",
+          "outros"
+        ]
+      },
+      "cost_center": {
+        "type": "string"
+      },
+      "expense_type": {
+        "type": "string",
+        "enum": [
+          "fixa",
+          "variavel"
+        ]
+      },
+      "value": {
+        "type": "number"
+      },
+      "payment_method": {
+        "type": "string",
+        "enum": [
+          "dinheiro",
+          "pix",
+          "transferencia",
+          "cartao",
+          "boleto"
+        ]
+      },
+      "due_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "recurrence": {
+        "type": "string",
+        "enum": [
+          "pontual",
+          "mensal",
+          "trimestral",
+          "anual"
+        ]
+      },
+      "supplier_id": {
+        "type": "string"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pendente",
+          "pago",
+          "atrasado"
+        ],
+        "default": "pendente"
+      }
+    },
+    "required": [
+      "name",
+      "value",
+      "due_date"
+    ]
+  },
+  "Notification": {
+    "name": "Notification",
+    "type": "object",
+    "properties": {
+      "user_email": {
+        "type": "string",
+        "description": "Email do usuário que receberá a notificação"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "reuniao",
+          "comercial",
+          "mencao",
+          "lembrete",
+          "acao_confirmada"
+        ],
+        "description": "Tipo de notificação para filtros"
+      },
+      "title": {
+        "type": "string",
+        "description": "Título da notificação"
+      },
+      "message": {
+        "type": "string",
+        "description": "Mensagem completa"
+      },
+      "event_id": {
+        "type": "string",
+        "description": "ID do evento/reunião vinculado"
+      },
+      "proposal_id": {
+        "type": "string",
+        "description": "ID do orçamento vinculado"
+      },
+      "contract_id": {
+        "type": "string",
+        "description": "ID do contrato vinculado"
+      },
+      "is_read": {
+        "type": "boolean",
+        "default": false,
+        "description": "Se foi lida"
+      },
+      "is_pinned": {
+        "type": "boolean",
+        "default": false,
+        "description": "Se está fixada"
+      },
+      "scheduled_for": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data/hora programada para envio"
+      },
+      "sent_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data/hora de envio efetivo"
+      }
+    },
+    "required": [
+      "user_email",
+      "type",
+      "title",
+      "message"
+    ]
+  },
+  "CRMLead": {
+    "name": "CRMLead",
+    "type": "object",
+    "properties": {
+      "nome_contato": {
+        "type": "string",
+        "description": "Nome do contato/prospect"
+      },
+      "telefone": {
+        "type": "string"
+      },
+      "nome_empresa": {
+        "type": "string"
+      },
+      "segmento": {
+        "type": "string",
+        "description": "Ramo/segmento de atuação"
+      },
+      "email": {
+        "type": "string"
+      },
+      "observacoes": {
+        "type": "string",
+        "description": "Observações (máx 500 caracteres)"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "prospeccao",
+          "reuniao_marcada",
+          "proposta",
+          "negociacao",
+          "contrato",
+          "onboarding",
+          "cliente_ativo",
+          "cancelado"
+        ],
+        "default": "prospeccao"
+      },
+      "motivo_cancelamento": {
+        "type": "string",
+        "enum": [
+          "sem_retorno",
+          "valor_alto",
+          "fechou_concorrente",
+          "desistiu",
+          "cancelado",
+          "outro"
+        ],
+        "description": "Motivo do encerramento/cancelamento"
+      },
+      "observacoes_cancelamento": {
+        "type": "string"
+      },
+      "data_reuniao": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data e hora da reunião"
+      },
+      "observacoes_reuniao": {
+        "type": "string"
+      },
+      "responsavel_email": {
+        "type": "string",
+        "description": "Email do responsável comercial"
+      },
+      "responsavel_nome": {
+        "type": "string"
+      },
+      "mes_referencia": {
+        "type": "string",
+        "description": "YYYY-MM — mês em que o lead foi criado"
+      },
+      "calendar_event_id": {
+        "type": "string",
+        "description": "ID do evento no CalendarEvent vinculado à reunião"
+      },
+      "dados_contrato": {
+        "type": "object",
+        "description": "Dados do contrato gerado",
+        "properties": {
+          "razao_social": {
+            "type": "string"
+          },
+          "cpf_cnpj": {
+            "type": "string"
+          },
+          "telefone": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string"
+          },
+          "endereco": {
+            "type": "string"
+          },
+          "responsavel": {
+            "type": "string"
+          },
+          "data_entrada": {
+            "type": "string"
+          },
+          "data_encerramento": {
+            "type": "string"
+          },
+          "valor_entrada": {
+            "type": "number"
+          },
+          "valor_mensal": {
+            "type": "number"
+          },
+          "modelo_contrato": {
+            "type": "string"
+          }
+        }
+      },
+      "checklist_onboarding": {
+        "type": "object",
+        "description": "Checklist de onboarding",
+        "properties": {
+          "acesso_recebido": {
+            "type": "boolean",
+            "default": false
+          },
+          "briefing_recebido": {
+            "type": "boolean",
+            "default": false
+          },
+          "grupo_criado": {
+            "type": "boolean",
+            "default": false
+          },
+          "contrato_assinado": {
+            "type": "boolean",
+            "default": false
+          },
+          "pagamento_recebido": {
+            "type": "boolean",
+            "default": false
+          },
+          "squad_definido": {
+            "type": "boolean",
+            "default": false
+          },
+          "inicio_projeto": {
+            "type": "boolean",
+            "default": false
+          }
+        }
+      },
+      "historico": {
+        "type": "array",
+        "description": "Histórico de alterações",
+        "items": {
+          "type": "object",
+          "properties": {
+            "data": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "usuario_email": {
+              "type": "string"
+            },
+            "usuario_nome": {
+              "type": "string"
+            },
+            "status_anterior": {
+              "type": "string"
+            },
+            "status_novo": {
+              "type": "string"
+            },
+            "observacao": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "required": [
+      "nome_contato",
+      "telefone",
+      "nome_empresa"
+    ]
+  },
+  "FormularioModelo": {
+    "name": "FormularioModelo",
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Nome do modelo (Feed, Stories, Banner, etc.)"
+      },
+      "tipo": {
+        "type": "string",
+        "enum": [
+          "feed",
+          "stories",
+          "reels",
+          "carrossel",
+          "banner_site",
+          "site_pagina",
+          "capa_youtube",
+          "banner_youtube"
+        ]
+      },
+      "categoria": {
+        "type": "string",
+        "enum": [
+          "redes_sociais",
+          "web",
+          "video"
+        ]
+      },
+      "campos_briefing": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "campos_criacao": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "template_preview": {
+        "type": "string",
+        "enum": [
+          "instagram",
+          "facebook",
+          "linkedin",
+          "youtube",
+          "site_banner",
+          "site_page"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      }
+    },
+    "required": [
+      "nome",
+      "tipo",
+      "categoria"
+    ]
+  },
+  "ClienteSquad": {
+    "name": "ClienteSquad",
+    "type": "object",
+    "properties": {
+      "workspace_nome": {
+        "type": "string",
+        "description": "Nome do workspace exatamente como aparece no CSV (uppercase, trimado)"
+      },
+      "squad_nome": {
+        "type": "string",
+        "description": "Nome da carteira/squad (ex: Carteira C1)"
+      },
+      "tipo_cliente": {
+        "type": "string",
+        "enum": [
+          "planejamento_recorrente",
+          "campanha",
+          "cancelamento",
+          "outro"
+        ],
+        "default": "planejamento_recorrente"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      },
+      "observacoes": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "workspace_nome",
+      "squad_nome"
+    ]
+  },
+  "PostForm": {
+    "name": "PostForm",
+    "type": "object",
+    "properties": {
+      "task_id": {
+        "type": "string"
+      },
+      "briefing": {
+        "type": "object",
+        "properties": {
+          "objetivo": {
+            "type": "string"
+          },
+          "produto_servico": {
+            "type": "string"
+          },
+          "tom_comunicacao": {
+            "type": "string"
+          },
+          "publico_alvo": {
+            "type": "string"
+          },
+          "ideias_copy": {
+            "type": "string"
+          },
+          "referencias": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "criacao": {
+        "type": "object",
+        "properties": {
+          "canal": {
+            "type": "string",
+            "enum": [
+              "instagram",
+              "facebook",
+              "linkedin",
+              "tiktok",
+              "twitter"
+            ]
+          },
+          "tipo_post": {
+            "type": "string",
+            "enum": [
+              "feed",
+              "stories",
+              "reels",
+              "carrossel"
+            ]
+          },
+          "imagem_video": {
+            "type": "string"
+          },
+          "legenda": {
+            "type": "string"
+          },
+          "titulo": {
+            "type": "string"
+          },
+          "cta": {
+            "type": "string"
+          },
+          "link": {
+            "type": "string"
+          },
+          "hashtags": {
+            "type": "string"
+          },
+          "marcacoes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "historico": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "timestamp": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "user_email": {
+              "type": "string"
+            },
+            "change_type": {
+              "type": "string"
+            },
+            "old_value": {
+              "type": "string"
+            },
+            "new_value": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "status_briefing": {
+        "type": "string",
+        "enum": [
+          "pendente",
+          "em_criacao",
+          "concluido"
+        ],
+        "default": "pendente"
+      },
+      "status_criacao": {
+        "type": "string",
+        "enum": [
+          "bloqueado",
+          "em_criacao",
+          "concluido"
+        ],
+        "default": "bloqueado"
+      }
+    },
+    "required": [
+      "task_id"
+    ]
+  },
+  "ChatMessage": {
+    "name": "ChatMessage",
+    "type": "object",
+    "properties": {
+      "group_id": {
+        "type": "string"
+      },
+      "sender_email": {
+        "type": "string"
+      },
+      "sender_name": {
+        "type": "string"
+      },
+      "content": {
+        "type": "string"
+      },
+      "message_type": {
+        "type": "string",
+        "enum": [
+          "text",
+          "file",
+          "task_link"
+        ],
+        "default": "text"
+      },
+      "file_url": {
+        "type": "string"
+      },
+      "mentions": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Emails mencionados"
+      },
+      "is_pinned": {
+        "type": "boolean",
+        "default": false
+      },
+      "deleted_at": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "group_id",
+      "sender_email",
+      "content"
+    ]
+  },
+  "Plan": {
+    "name": "Plan",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome do plano"
+      },
+      "description": {
+        "type": "string"
+      },
+      "price": {
+        "type": "number"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "social_media",
+          "trafego",
+          "completo",
+          "design",
+          "video"
+        ]
+      },
+      "features": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Lista de recursos incluídos"
+      },
+      "deliverables": {
+        "type": "object",
+        "properties": {
+          "posts": {
+            "type": "number"
+          },
+          "stories": {
+            "type": "number"
+          },
+          "reels": {
+            "type": "number"
+          },
+          "design_pieces": {
+            "type": "number"
+          }
+        }
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      }
+    },
+    "required": [
+      "name",
+      "price",
+      "category"
+    ]
+  },
+  "TimeAdjustmentRequest": {
+    "name": "TimeAdjustmentRequest",
+    "type": "object",
+    "properties": {
+      "employee_email": {
+        "type": "string"
+      },
+      "time_record_id": {
+        "type": "string"
+      },
+      "date": {
+        "type": "string",
+        "format": "date"
+      },
+      "reason": {
+        "type": "string",
+        "enum": [
+          "esqueci_bater_ponto",
+          "problema_tecnico",
+          "falha_conexao",
+          "trabalho_externo",
+          "outro"
+        ]
+      },
+      "reason_details": {
+        "type": "string",
+        "description": "Detalhes adicionais do motivo"
+      },
+      "requested_check_in": {
+        "type": "string",
+        "format": "time"
+      },
+      "requested_check_out": {
+        "type": "string",
+        "format": "time"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "pendente",
+          "aprovado",
+          "rejeitado"
+        ],
+        "default": "pendente"
+      },
+      "admin_notes": {
+        "type": "string"
+      },
+      "reviewed_by": {
+        "type": "string"
+      },
+      "reviewed_at": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "employee_email",
+      "date",
+      "reason"
+    ]
+  },
+  "EkyteRecord": {
+    "name": "EkyteRecord",
+    "type": "object",
+    "properties": {
+      "chave_unica": {
+        "type": "string",
+        "description": "Chave composta para deduplicação: cliente|tipo_tarefa|responsavel|squad"
+      },
+      "cliente": {
+        "type": "string"
+      },
+      "squad": {
+        "type": "string"
+      },
+      "responsavel": {
+        "type": "string"
+      },
+      "tipo_tarefa": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string"
+      },
+      "prazo": {
+        "type": "string"
+      },
+      "data_conclusao": {
+        "type": "string"
+      },
+      "pendencias": {
+        "type": "string"
+      },
+      "mes_referencia": {
+        "type": "string"
+      },
+      "workspace": {
+        "type": "string"
+      },
+      "projeto": {
+        "type": "string"
+      },
+      "id_ekyte": {
+        "type": "string",
+        "description": "ID original da tarefa no eKyte, se disponível"
+      },
+      "ultima_atualizacao_arquivo": {
+        "type": "string",
+        "description": "Nome do último arquivo que atualizou este registro"
+      }
+    },
+    "required": [
+      "chave_unica",
+      "cliente",
+      "status"
+    ]
+  },
+  "EquipamentoItem": {
+    "name": "EquipamentoItem",
+    "type": "object",
+    "properties": {
+      "nome": {
+        "type": "string",
+        "description": "Nome do item/equipamento"
+      },
+      "codigo": {
+        "type": "string",
+        "description": "Código ou número de patrimônio"
+      },
+      "categoria": {
+        "type": "string",
+        "enum": [
+          "informatica",
+          "mobiliario",
+          "eletronico",
+          "audio_video",
+          "comunicacao",
+          "ferramenta",
+          "papelaria",
+          "outros"
+        ],
+        "description": "Categoria do item"
+      },
+      "descricao": {
+        "type": "string",
+        "description": "Descrição detalhada do item"
+      },
+      "quantidade": {
+        "type": "number",
+        "default": 1,
+        "description": "Quantidade disponível"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo",
+          "excluido"
+        ],
+        "default": "ativo",
+        "description": "Status do item"
+      },
+      "localizacao": {
+        "type": "string",
+        "enum": [
+          "estoque",
+          "com_funcionario",
+          "manutencao",
+          "descartado"
+        ],
+        "default": "estoque",
+        "description": "Localização atual do item"
+      },
+      "funcionario_responsavel_email": {
+        "type": "string",
+        "description": "Email do funcionário responsável (quando com funcionário)"
+      },
+      "funcionario_responsavel_nome": {
+        "type": "string",
+        "description": "Nome do funcionário responsável"
+      },
+      "observacoes": {
+        "type": "string",
+        "description": "Observações gerais sobre o item"
+      },
+      "cadastrado_por": {
+        "type": "string",
+        "description": "Email do usuário que cadastrou"
+      },
+      "cadastrado_por_nome": {
+        "type": "string",
+        "description": "Nome do usuário que cadastrou"
+      },
+      "historico": {
+        "type": "array",
+        "description": "Histórico de alterações do item",
+        "items": {
+          "type": "object",
+          "properties": {
+            "tipo_alteracao": {
+              "type": "string"
+            },
+            "campo_alterado": {
+              "type": "string"
+            },
+            "valor_anterior": {
+              "type": "string"
+            },
+            "novo_valor": {
+              "type": "string"
+            },
+            "usuario_email": {
+              "type": "string"
+            },
+            "usuario_nome": {
+              "type": "string"
+            },
+            "data_hora": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "motivo": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "importado_de": {
+        "type": "string",
+        "description": "ID do ImportRecord de origem, se importado"
+      }
+    },
+    "required": [
+      "nome",
+      "categoria"
+    ]
+  },
+  "Proposal": {
+    "name": "Proposal",
+    "type": "object",
+    "properties": {
+      "proposal_number": {
+        "type": "string",
+        "description": "Número do orçamento"
+      },
+      "client_name": {
+        "type": "string"
+      },
+      "client_cpf_cnpj": {
+        "type": "string"
+      },
+      "client_address": {
+        "type": "string"
+      },
+      "client_phone": {
+        "type": "string"
+      },
+      "client_email": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "material_avulso",
+          "campanha",
+          "social_media",
+          "completo"
+        ]
+      },
+      "plan_id": {
+        "type": "string",
+        "description": "Plano selecionado"
+      },
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "description": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "number"
+            },
+            "unit_price": {
+              "type": "number"
+            },
+            "total": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "total_value": {
+        "type": "number"
+      },
+      "discount": {
+        "type": "number",
+        "default": 0
+      },
+      "final_value": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "rascunho",
+          "enviado",
+          "aprovado",
+          "rejeitado",
+          "convertido"
+        ],
+        "default": "rascunho"
+      },
+      "salesperson_email": {
+        "type": "string"
+      },
+      "sdr_email": {
+        "type": "string"
+      },
+      "timeline": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "stage": {
+              "type": "string",
+              "enum": [
+                "contato",
+                "resposta",
+                "reuniao",
+                "proposta_enviada",
+                "negociacao",
+                "fechamento"
+              ]
+            },
+            "date": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "valid_until": {
+        "type": "string",
+        "format": "date"
+      },
+      "lead_id": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "client_name",
+      "type",
+      "total_value"
+    ]
+  },
+  "Contract": {
+    "name": "Contract",
+    "type": "object",
+    "properties": {
+      "contract_number": {
+        "type": "string"
+      },
+      "proposal_id": {
+        "type": "string",
+        "description": "Orçamento que originou o contrato"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "client_name": {
+        "type": "string"
+      },
+      "client_cpf_cnpj": {
+        "type": "string"
+      },
+      "client_address": {
+        "type": "string"
+      },
+      "client_phone": {
+        "type": "string"
+      },
+      "client_email": {
+        "type": "string"
+      },
+      "plan_id": {
+        "type": "string"
+      },
+      "services": {
+        "type": "string",
+        "description": "Descrição dos serviços contratados"
+      },
+      "monthly_value": {
+        "type": "number"
+      },
+      "contract_duration": {
+        "type": "number",
+        "description": "Duração em meses"
+      },
+      "start_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "end_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "payment_method": {
+        "type": "string",
+        "enum": [
+          "boleto",
+          "pix",
+          "transferencia",
+          "cartao"
+        ]
+      },
+      "payment_day": {
+        "type": "number",
+        "description": "Dia do vencimento"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "suspenso",
+          "cancelado",
+          "finalizado"
+        ],
+        "default": "ativo"
+      },
+      "signed_document_url": {
+        "type": "string"
+      },
+      "notes": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "client_name",
+      "monthly_value",
+      "start_date"
+    ]
+  },
+  "TaskTemplate": {
+    "name": "TaskTemplate",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "task_type": {
+        "type": "string",
+        "enum": [
+          "criacao",
+          "revisao",
+          "aprovacao",
+          "planejamento",
+          "reuniao",
+          "outros"
+        ]
+      },
+      "default_priority": {
+        "type": "string",
+        "enum": [
+          "baixa",
+          "media",
+          "alta"
+        ]
+      },
+      "default_checklist": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "text": {
+              "type": "string"
+            },
+            "required": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "default_events": {
+        "type": "array",
+        "description": "Etapas padrão do template",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "duration_days": {
+              "type": "number"
+            },
+            "estimated_time": {
+              "type": "number"
+            },
+            "uses_timer": {
+              "type": "boolean"
+            }
+          }
+        }
+      },
+      "form_fields": {
+        "type": "array",
+        "items": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "string"
+            },
+            "label": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string",
+              "enum": [
+                "text",
+                "textarea",
+                "select",
+                "date",
+                "number",
+                "file",
+                "checkbox"
+              ]
+            },
+            "required": {
+              "type": "boolean"
+            },
+            "options": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "default_xp": {
+        "type": "number",
+        "default": 50
+      }
+    },
+    "required": [
+      "name",
+      "task_type"
+    ]
+  },
+  "TimeRecord": {
+    "name": "TimeRecord",
+    "type": "object",
+    "properties": {
+      "employee_email": {
+        "type": "string"
+      },
+      "date": {
+        "type": "string",
+        "format": "date"
+      },
+      "check_in_time": {
+        "type": "string",
+        "format": "time"
+      },
+      "check_in_photo": {
+        "type": "string"
+      },
+      "check_out_time": {
+        "type": "string",
+        "format": "time"
+      },
+      "check_out_photo": {
+        "type": "string"
+      },
+      "total_hours": {
+        "type": "number"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "checked_in",
+          "completed",
+          "absent"
+        ],
+        "default": "checked_in"
+      },
+      "notes": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "employee_email",
+      "date"
+    ]
+  },
+  "Reward": {
+    "name": "Reward",
+    "type": "object",
+    "properties": {
+      "employee_email": {
+        "type": "string"
+      },
+      "reward_type": {
+        "type": "string",
+        "enum": [
+          "level_up",
+          "bonus",
+          "day_off",
+          "badge",
+          "streak"
+        ]
+      },
+      "title": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "value": {
+        "type": "number",
+        "description": "Valor em reais ou minutos"
+      },
+      "level_achieved": {
+        "type": "number"
+      },
+      "claimed": {
+        "type": "boolean",
+        "default": false
+      },
+      "claimed_at": {
+        "type": "string",
+        "format": "date-time"
+      }
+    },
+    "required": [
+      "employee_email",
+      "reward_type",
+      "title"
+    ]
+  },
+  "Supplier": {
+    "name": "Supplier",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string"
+      },
+      "type": {
+        "type": "string",
+        "enum": [
+          "pf",
+          "pj"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      },
+      "contact_name": {
+        "type": "string"
+      },
+      "email": {
+        "type": "string"
+      },
+      "phone": {
+        "type": "string"
+      },
+      "service_type": {
+        "type": "string",
+        "description": "Tipo de serviço fornecido"
+      },
+      "payment_method": {
+        "type": "string",
+        "enum": [
+          "dinheiro",
+          "pix",
+          "transferencia",
+          "cartao",
+          "boleto"
+        ]
+      },
+      "periodicity": {
+        "type": "string",
+        "enum": [
+          "pontual",
+          "mensal",
+          "trimestral",
+          "anual"
+        ]
+      },
+      "average_value": {
+        "type": "number"
+      },
+      "cost_center": {
+        "type": "string"
+      },
+      "is_also_client": {
+        "type": "boolean",
+        "default": false
+      }
+    },
+    "required": [
+      "name",
+      "status"
+    ]
+  },
+  "ProjectTemplate": {
+    "name": "ProjectTemplate",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome do modelo (ex: JDA - Conteúdo Mensal)"
+      },
+      "description": {
+        "type": "string"
+      },
+      "recurrence": {
+        "type": "string",
+        "enum": [
+          "mensal",
+          "quinzenal",
+          "pontual"
+        ],
+        "default": "mensal"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      },
+      "tasks": {
+        "type": "array",
+        "description": "Tarefas padrão do modelo",
+        "items": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "task_type": {
+              "type": "string"
+            },
+            "quantity": {
+              "type": "number",
+              "default": 1
+            },
+            "priority": {
+              "type": "string"
+            },
+            "events": {
+              "type": "array"
+            },
+            "xp_reward": {
+              "type": "number"
+            }
+          }
+        }
+      },
+      "default_squad_id": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "name"
+    ]
+  },
+  "Item": {
+    "name": "Item",
+    "type": "object",
+    "properties": {
+      "name": {
+        "type": "string",
+        "description": "Nome do item"
+      },
+      "code": {
+        "type": "string",
+        "description": "Código do item"
+      },
+      "description": {
+        "type": "string"
+      },
+      "value": {
+        "type": "number",
+        "description": "Valor unitário"
+      },
+      "category": {
+        "type": "string",
+        "enum": [
+          "post",
+          "stories",
+          "reels",
+          "design",
+          "video",
+          "servico",
+          "outros"
+        ]
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      }
+    },
+    "required": [
+      "name",
+      "value"
+    ]
+  },
+  "EkyteWorkspace": {
+    "name": "EkyteWorkspace",
+    "type": "object",
+    "properties": {
+      "workspace": {
+        "type": "string",
+        "description": "Nome do workspace/cliente exatamente como vem no CSV (trimado e uppercase)"
+      },
+      "mes_referencia": {
+        "type": "string",
+        "description": "YYYY-MM"
+      },
+      "novas": {
+        "type": "number",
+        "default": 0
+      },
+      "concluidas": {
+        "type": "number",
+        "default": 0
+      },
+      "atrasaram": {
+        "type": "number",
+        "default": 0
+      },
+      "esforco": {
+        "type": "string"
+      },
+      "qtd_pecas": {
+        "type": "number",
+        "default": 0
+      },
+      "qtd_formularios": {
+        "type": "number",
+        "default": 0
+      },
+      "qtd_publicacoes": {
+        "type": "number",
+        "default": 0
+      },
+      "novos_tickets": {
+        "type": "number",
+        "default": 0
+      },
+      "concluidos_tickets": {
+        "type": "number",
+        "default": 0
+      },
+      "ultima_atualizacao_arquivo": {
+        "type": "string"
+      },
+      "chave_unica": {
+        "type": "string",
+        "description": "workspace|mes_referencia"
+      }
+    },
+    "required": [
+      "workspace",
+      "mes_referencia",
+      "chave_unica"
+    ]
+  },
+  "EquipamentoImport": {
+    "name": "EquipamentoImport",
+    "type": "object",
+    "properties": {
+      "file_name": {
+        "type": "string"
+      },
+      "file_type": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "xlsx",
+          "csv"
+        ]
+      },
+      "file_url": {
+        "type": "string"
+      },
+      "imported_by": {
+        "type": "string",
+        "description": "Email do usuário que importou"
+      },
+      "imported_by_name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "aguardando",
+          "processando",
+          "concluido",
+          "erro"
+        ],
+        "default": "aguardando"
+      },
+      "progress": {
+        "type": "number",
+        "default": 0
+      },
+      "total_records": {
+        "type": "number",
+        "default": 0
+      },
+      "error_message": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "file_name",
+      "file_type",
+      "imported_by"
+    ]
+  },
+  "ImportRecord": {
+    "name": "ImportRecord",
+    "type": "object",
+    "properties": {
+      "file_name": {
+        "type": "string"
+      },
+      "file_type": {
+        "type": "string",
+        "enum": [
+          "pdf",
+          "xlsx",
+          "csv"
+        ]
+      },
+      "file_url": {
+        "type": "string"
+      },
+      "imported_by": {
+        "type": "string",
+        "description": "Email do usuário que importou"
+      },
+      "imported_by_name": {
+        "type": "string"
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "aguardando",
+          "processando",
+          "concluido",
+          "erro"
+        ],
+        "default": "aguardando"
+      },
+      "progress": {
+        "type": "number",
+        "default": 0
+      },
+      "total_records": {
+        "type": "number",
+        "default": 0
+      },
+      "error_message": {
+        "type": "string"
+      },
+      "records": {
+        "type": "array",
+        "description": "Registros importados (atividades/tarefas)",
+        "items": {
+          "type": "object",
+          "properties": {
+            "cliente": {
+              "type": "string"
+            },
+            "squad": {
+              "type": "string"
+            },
+            "responsavel": {
+              "type": "string"
+            },
+            "tipo_tarefa": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "prazo": {
+              "type": "string"
+            },
+            "data_conclusao": {
+              "type": "string"
+            },
+            "pendencias": {
+              "type": "string"
+            },
+            "mes_referencia": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "mes_referencia": {
+        "type": "string",
+        "description": "Mês de referência (YYYY-MM)"
+      }
+    },
+    "required": [
+      "file_name",
+      "file_type",
+      "imported_by"
+    ]
+  },
+  "CalendarEvent": {
+    "name": "CalendarEvent",
+    "type": "object",
+    "properties": {
+      "title": {
+        "type": "string"
+      },
+      "description": {
+        "type": "string"
+      },
+      "event_type": {
+        "type": "string",
+        "enum": [
+          "reuniao_interna",
+          "reuniao_externa",
+          "reuniao_comercial",
+          "gravacao_interna",
+          "gravacao_externa",
+          "falta",
+          "ausencia",
+          "conteudo_programado",
+          "conteudo_publicado"
+        ]
+      },
+      "start_datetime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "end_datetime": {
+        "type": "string",
+        "format": "date-time"
+      },
+      "location": {
+        "type": "string",
+        "description": "Sala, Estúdio, ou endereço externo"
+      },
+      "client_id": {
+        "type": "string"
+      },
+      "prospect_name": {
+        "type": "string",
+        "description": "Nome do prospect se ainda não for cliente"
+      },
+      "participants": {
+        "type": "array",
+        "items": {
+          "type": "string"
+        },
+        "description": "Emails dos participantes"
+      },
+      "video_maker": {
+        "type": "string",
+        "enum": [
+          "julio",
+          "eduardo"
+        ],
+        "description": "Para gravações"
+      },
+      "motivo_ausencia": {
+        "type": "string",
+        "enum": [
+          "medico",
+          "consulta",
+          "compromisso_pessoal",
+          "ferias"
+        ],
+        "description": "Para faltas/ausências"
+      },
+      "meeting_link": {
+        "type": "string",
+        "description": "Link Meet/Zoom/etc"
+      },
+      "conversion_status": {
+        "type": "string",
+        "enum": [
+          "pendente",
+          "fechado",
+          "em_negociacao",
+          "nao_avancou"
+        ],
+        "default": "pendente",
+        "description": "Status da conversão comercial"
+      },
+      "conversion_notes": {
+        "type": "string",
+        "description": "Observações da conversão"
+      },
+      "converted_at": {
+        "type": "string",
+        "format": "date-time",
+        "description": "Data da conversão"
+      },
+      "converted_by": {
+        "type": "string",
+        "description": "Email de quem converteu"
+      },
+      "conversion_history": {
+        "type": "array",
+        "description": "Histórico de conversões",
+        "items": {
+          "type": "object",
+          "properties": {
+            "date": {
+              "type": "string",
+              "format": "date-time"
+            },
+            "user_email": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "notes": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "lead_id": {
+        "type": "string"
+      },
+      "meeting_status": {
+        "type": "string",
+        "enum": [
+          "agendada",
+          "realizada",
+          "cancelada"
+        ],
+        "default": "agendada"
+      },
+      "responsavel_nome": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "title",
+      "event_type",
+      "start_datetime"
+    ]
+  },
+  "UserRole": {
+    "name": "UserRole",
+    "type": "object",
+    "properties": {
+      "user_email": {
+        "type": "string"
+      },
+      "papel": {
+        "type": "string",
+        "enum": [
+          "admin",
+          "coo",
+          "gerente_admin",
+          "gerente",
+          "gestor_carteira",
+          "consultor",
+          "designer",
+          "video_maker",
+          "copy",
+          "gestor_trafego"
+        ],
+        "description": "Papel do usuário no sistema"
+      },
+      "permissions": {
+        "type": "object",
+        "properties": {
+          "cadastros_visualizar": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_criar_clientes": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_editar_clientes": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_excluir_clientes": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_criar_fornecedores": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_editar_fornecedores": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_excluir_fornecedores": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_criar_funcionarios": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_editar_funcionarios": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_excluir_funcionarios": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_criar_modelos": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_editar_modelos": {
+            "type": "boolean",
+            "default": false
+          },
+          "cadastros_excluir_modelos": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_criar": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_editar": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_excluir": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_criar_por_modelo": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_visualizar_todas": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_visualizar_minhas": {
+            "type": "boolean",
+            "default": true
+          },
+          "tarefas_alterar_responsaveis": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_avancar_etapas": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_voltar_etapas": {
+            "type": "boolean",
+            "default": false
+          },
+          "tarefas_concluir": {
+            "type": "boolean",
+            "default": false
+          },
+          "eventos_visualizar": {
+            "type": "boolean",
+            "default": true
+          },
+          "eventos_avancar": {
+            "type": "boolean",
+            "default": false
+          },
+          "eventos_retornar": {
+            "type": "boolean",
+            "default": false
+          },
+          "eventos_alterar_ordem": {
+            "type": "boolean",
+            "default": false
+          },
+          "eventos_finalizar": {
+            "type": "boolean",
+            "default": false
+          },
+          "eventos_reabrir": {
+            "type": "boolean",
+            "default": false
+          },
+          "formularios_visualizar": {
+            "type": "boolean",
+            "default": true
+          },
+          "formularios_preencher": {
+            "type": "boolean",
+            "default": false
+          },
+          "formularios_editar": {
+            "type": "boolean",
+            "default": false
+          },
+          "formularios_anexar_arquivos": {
+            "type": "boolean",
+            "default": false
+          },
+          "formularios_excluir_anexos": {
+            "type": "boolean",
+            "default": false
+          },
+          "ajustes_solicitar": {
+            "type": "boolean",
+            "default": true
+          },
+          "ajustes_visualizar": {
+            "type": "boolean",
+            "default": true
+          },
+          "ajustes_responder": {
+            "type": "boolean",
+            "default": false
+          },
+          "ajustes_aprovar": {
+            "type": "boolean",
+            "default": false
+          },
+          "ajustes_recusar": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_enviar_aprovacao": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_aprovar": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_solicitar_ajuste": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_programar": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_alterar_data": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_excluir": {
+            "type": "boolean",
+            "default": false
+          },
+          "publicacao_ajustar_pos": {
+            "type": "boolean",
+            "default": false
+          },
+          "monitoramento_visualizar": {
+            "type": "boolean",
+            "default": true
+          },
+          "monitoramento_acompanhar": {
+            "type": "boolean",
+            "default": false
+          },
+          "monitoramento_alterar_plataforma": {
+            "type": "boolean",
+            "default": false
+          },
+          "monitoramento_finalizar": {
+            "type": "boolean",
+            "default": false
+          },
+          "chat_enviar_mensagens": {
+            "type": "boolean",
+            "default": true
+          },
+          "chat_ler_mensagens": {
+            "type": "boolean",
+            "default": true
+          },
+          "chat_criar_grupos": {
+            "type": "boolean",
+            "default": false
+          },
+          "chat_adicionar_membros": {
+            "type": "boolean",
+            "default": false
+          },
+          "chat_remover_membros": {
+            "type": "boolean",
+            "default": false
+          },
+          "chat_excluir_grupo": {
+            "type": "boolean",
+            "default": false
+          },
+          "ponto_bater": {
+            "type": "boolean",
+            "default": true
+          },
+          "ponto_registrar_foto": {
+            "type": "boolean",
+            "default": true
+          },
+          "ponto_visualizar_proprio": {
+            "type": "boolean",
+            "default": true
+          },
+          "ponto_solicitar_ajuste": {
+            "type": "boolean",
+            "default": true
+          },
+          "ponto_visualizar_solicitacoes": {
+            "type": "boolean",
+            "default": false
+          },
+          "ponto_ajustar_terceiros": {
+            "type": "boolean",
+            "default": false
+          },
+          "ponto_aprovar_ajuste": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_criar_orcamento": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_editar_orcamento": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_excluir_orcamento": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_criar_planos": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_editar_planos": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_criar_contrato": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_editar_contrato": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_imprimir_orcamento": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_imprimir_contrato": {
+            "type": "boolean",
+            "default": false
+          },
+          "comercial_converter_contrato": {
+            "type": "boolean",
+            "default": false
+          },
+          "central_dados_visualizar": {
+            "type": "boolean",
+            "default": false
+          },
+          "central_dados_importar": {
+            "type": "boolean",
+            "default": false
+          },
+          "calendario_visualizar": {
+            "type": "boolean",
+            "default": true
+          },
+          "calendario_criar_eventos": {
+            "type": "boolean",
+            "default": false
+          },
+          "calendario_editar_eventos": {
+            "type": "boolean",
+            "default": false
+          },
+          "calendario_excluir_eventos": {
+            "type": "boolean",
+            "default": false
+          },
+          "relatorios_visualizar": {
+            "type": "boolean",
+            "default": false
+          },
+          "crm_visualizar": {
+            "type": "boolean",
+            "default": false
+          },
+          "crm_criar_leads": {
+            "type": "boolean",
+            "default": false
+          },
+          "crm_editar_leads": {
+            "type": "boolean",
+            "default": false
+          },
+          "recompensas_visualizar": {
+            "type": "boolean",
+            "default": true
+          }
+        }
+      },
+      "status": {
+        "type": "string",
+        "enum": [
+          "convidado",
+          "ativo",
+          "inativo"
+        ],
+        "default": "convidado"
+      }
+    },
+    "required": [
+      "user_email",
+      "papel"
+    ]
+  },
+  "EmployeeDetails": {
+    "name": "EmployeeDetails",
+    "type": "object",
+    "properties": {
+      "user_id": {
+        "type": "string",
+        "description": "Reference to User entity"
+      },
+      "avatar_url": {
+        "type": "string"
+      },
+      "contract_type": {
+        "type": "string",
+        "enum": [
+          "clt",
+          "pj",
+          "estagio",
+          "freelancer"
+        ]
+      },
+      "birth_date": {
+        "type": "string",
+        "format": "date",
+        "description": "Data de nascimento (DDMMAAAA)"
+      },
+      "start_date": {
+        "type": "string",
+        "format": "date"
+      },
+      "employee_status": {
+        "type": "string",
+        "enum": [
+          "ativo",
+          "inativo"
+        ],
+        "default": "ativo"
+      },
+      "xp_total": {
+        "type": "number",
+        "default": 0
+      },
+      "current_level": {
+        "type": "number",
+        "default": 1
+      },
+      "accumulated_minutes": {
+        "type": "number",
+        "default": 0,
+        "description": "Minutos acumulados para folga"
+      },
+      "bonus_balance": {
+        "type": "number",
+        "default": 0,
+        "description": "Saldo de bônus monetário em reais"
+      },
+      "tasks_completed": {
+        "type": "number",
+        "default": 0
+      },
+      "streak_days": {
+        "type": "number",
+        "default": 0,
+        "description": "Dias consecutivos com tarefas concluídas"
+      },
+      "theme_prefs": {
+        "type": "object",
+        "description": "Preferências visuais individuais do usuário",
+        "properties": {
+          "themeKey": {
+            "type": "string"
+          },
+          "primaryColor": {
+            "type": "string"
+          },
+          "bgMode": {
+            "type": "string"
+          },
+          "bgType": {
+            "type": "string"
+          },
+          "bgImage": {
+            "type": "string"
+          },
+          "buttonStyle": {
+            "type": "string"
+          }
+        }
+      },
+      "employee_id": {
+        "type": "string"
+      },
+      "department": {
+        "type": "string",
+        "enum": [
+          "social_media",
+          "design",
+          "trafego",
+          "atendimento",
+          "gestao"
+        ],
+        "description": "Setor do funcionário"
+      },
+      "position": {
+        "type": "string",
+        "description": "Cargo do funcionário"
+      }
+    },
+    "required": [
+      "employee_id"
+    ]
+  }
+}

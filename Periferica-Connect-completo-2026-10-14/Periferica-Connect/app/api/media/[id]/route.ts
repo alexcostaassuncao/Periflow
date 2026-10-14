@@ -1,0 +1,2 @@
+import {env} from 'cloudflare:workers';
+export async function GET(req:Request,ctx:{params:Promise<{id:string}>}){try{const {id}=await ctx.params;if(!env.BUCKET)throw Error('Bucket unavailable');const o=await env.BUCKET.get(id);if(!o)return new Response('Arquivo não encontrado',{status:404});return new Response(o.body,{headers:{'Content-Type':o.httpMetadata?.contentType||'application/octet-stream','Cache-Control':'private, max-age=3600','X-Content-Type-Options':'nosniff'}});}catch(e){console.error(e);return new Response('Mídia indisponível',{status:503});}}

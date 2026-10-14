@@ -1,0 +1,45 @@
+{
+  "name": "Reward",
+  "type": "object",
+  "properties": {
+    "employee_email": {
+      "type": "string"
+    },
+    "reward_type": {
+      "type": "string",
+      "enum": [
+        "level_up",
+        "bonus",
+        "day_off",
+        "badge",
+        "streak"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "description": {
+      "type": "string"
+    },
+    "value": {
+      "type": "number",
+      "description": "Valor em reais ou minutos"
+    },
+    "level_achieved": {
+      "type": "number"
+    },
+    "claimed": {
+      "type": "boolean",
+      "default": false
+    },
+    "claimed_at": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "required": [
+    "employee_email",
+    "reward_type",
+    "title"
+  ]
+}

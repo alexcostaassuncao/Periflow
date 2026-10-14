@@ -1,0 +1,120 @@
+{
+  "name": "Proposal",
+  "type": "object",
+  "properties": {
+    "proposal_number": {
+      "type": "string",
+      "description": "N\u00famero do or\u00e7amento"
+    },
+    "client_name": {
+      "type": "string"
+    },
+    "client_cpf_cnpj": {
+      "type": "string"
+    },
+    "client_address": {
+      "type": "string"
+    },
+    "client_phone": {
+      "type": "string"
+    },
+    "client_email": {
+      "type": "string"
+    },
+    "type": {
+      "type": "string",
+      "enum": [
+        "material_avulso",
+        "campanha",
+        "social_media",
+        "completo"
+      ]
+    },
+    "plan_id": {
+      "type": "string",
+      "description": "Plano selecionado"
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "quantity": {
+            "type": "number"
+          },
+          "unit_price": {
+            "type": "number"
+          },
+          "total": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "total_value": {
+      "type": "number"
+    },
+    "discount": {
+      "type": "number",
+      "default": 0
+    },
+    "final_value": {
+      "type": "number"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "rascunho",
+        "enviado",
+        "aprovado",
+        "rejeitado",
+        "convertido"
+      ],
+      "default": "rascunho"
+    },
+    "salesperson_email": {
+      "type": "string"
+    },
+    "sdr_email": {
+      "type": "string"
+    },
+    "timeline": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "stage": {
+            "type": "string",
+            "enum": [
+              "contato",
+              "resposta",
+              "reuniao",
+              "proposta_enviada",
+              "negociacao",
+              "fechamento"
+            ]
+          },
+          "date": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "notes": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "valid_until": {
+      "type": "string",
+      "format": "date"
+    }
+  },
+  "required": [
+    "client_name",
+    "type",
+    "total_value"
+  ]
+}

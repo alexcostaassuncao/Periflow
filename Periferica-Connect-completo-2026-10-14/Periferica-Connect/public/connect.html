@@ -1,0 +1,511 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Periférica Connect</title>
+<link rel="icon" href="/favicon.svg">
+<style>
+:root{--dark:#071222;--dark2:#0c1726;--orange:#ff5b0a;--bg:#f3f6fa;--card:#fff;--text:#111827;--muted:#718096;--line:#dfe6f0;--soft:#fff2ea}
+*{box-sizing:border-box}body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,sans-serif;background:var(--bg);color:var(--text)}button,input,select,textarea{font:inherit}.hidden{display:none!important}
+header{height:78px;background:linear-gradient(110deg,#07111f,#040a13);color:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 22px}.brand{display:flex;align-items:center;gap:12px}.logo{width:42px;height:42px;background:var(--orange);border-radius:11px;display:grid;place-items:center;font-weight:900;font-size:22px}.brand strong{font-size:20px}.brand span{font-weight:400}.brand i{height:26px;width:1px;background:#3b4659}.brand small{color:#aeb9ca}.profile{display:flex;align-items:center;gap:9px}.avatar{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;background:var(--orange);font-weight:800}
+.layout{display:grid;grid-template-columns:145px 145px 1fr;min-height:calc(100vh - 78px)}aside{background:linear-gradient(#091625,#071221);color:#fff;padding:16px 10px;border-right:1px solid #1b2a3b}.label{font-size:10px;letter-spacing:.08em;color:#8794a8;margin-bottom:12px}.nav,.wallet{width:100%;padding:12px 10px;border-radius:10px;border:1px solid #1e2b3d;background:#0b1726;color:#fff;margin-bottom:9px;text-align:left;cursor:pointer}.nav.active,.wallet.active{border-color:var(--orange);background:linear-gradient(90deg,#402016,#17161b)}.wallet small{display:block;color:#bac4d0;font-size:10px;margin-top:3px}
+main{padding:22px}.crumb{font-size:11px;color:#718096;margin:0 0 4px}.head{display:flex;justify-content:space-between;align-items:flex-start}.head h1{margin:0;font-size:31px}.primary,.secondary{border-radius:10px;padding:11px 15px;font-weight:750;cursor:pointer;letter-spacing:0;color:inherit}.primary{border:0;background:var(--orange);color:#fff!important;box-shadow:0 8px 18px #ff5b0a2b}.secondary{background:#fff;border:1px solid #cfd8e5;color:#24344f!important}.clients{display:flex;gap:8px;flex-wrap:wrap;margin:18px 0}.client{border:1px solid #d8e0eb;background:#fff;padding:10px 14px;border-radius:9px;font-weight:650;cursor:pointer}.client.active{background:var(--orange);border-color:var(--orange);color:#fff}
+.plan{background:#fff;border:1px solid #dfe6ef;border-radius:15px;padding:20px}.plan-top{display:flex;justify-content:space-between;align-items:flex-start}.plan h2{margin:0;font-size:23px}.month{display:flex;flex-direction:column;gap:6px;font-size:10px;color:#66758d}.month input{padding:9px;border:1px solid #c3ccd8;border-radius:8px;color:#111827;background:#fff;font-weight:600}.stats{display:flex;align-items:center;gap:34px;margin:28px 0}.stat{display:flex;gap:12px;align-items:center;min-width:190px}.ico{width:50px;height:50px;background:var(--soft);border-radius:14px;display:grid;place-items:center;font-size:24px}.stat small,.stat em{display:block;color:#75839a;font-style:normal}.stat strong{font-size:29px}.divider{width:1px;height:60px;background:#e1e7ef}.actions{display:flex;gap:9px}.tasks{margin-top:20px}.tasks h2{font-size:19px}.empty{height:230px;border:1px dashed #d4dce7;border-radius:14px;background:#f9fbfd;display:grid;place-items:center;text-align:center;color:#8795aa}.task{background:#fff;border:1px solid #dfe6ef;border-radius:14px;padding:14px;margin-bottom:12px;display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:16px;align-items:center;box-shadow:0 5px 16px #10182808}
+.task-preview{border-radius:12px;overflow:hidden;background:#f4f6f9;border:1px solid #e0e6ef;display:grid;place-items:center;color:#8795a8;align-self:start}
+.task-preview.square{width:128px;aspect-ratio:1/1}
+.task-preview.vertical{width:92px;aspect-ratio:9/16}
+.task-preview.landscape{width:150px;aspect-ratio:16/9}
+.task-preview img,.task-preview video{width:100%;height:100%;object-fit:cover;display:block}
+.task-preview .no-preview{font-size:11px;text-align:center;padding:12px;line-height:1.35}
+.task-main{min-width:0}
+.task h3{margin:0 0 5px;font-size:16px}
+.task p{margin:0;color:#718096;font-size:12px}
+.task-description{margin-top:8px!important;color:#435169!important;line-height:1.45;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.task-caption-preview{margin-top:7px!important;color:#66758b!important;font-style:italic;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.task-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap;justify-content:flex-end}.chips{display:flex;gap:6px;flex-wrap:wrap;margin-top:9px}.chip{font-size:10px;background:#f0f3f7;padding:5px 8px;border-radius:999px;color:#526079}
+.modal{position:fixed;inset:0;background:#0d142088;display:grid;place-items:center;padding:18px;z-index:99}.modal-card{width:min(980px,96vw);max-height:94vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 30px 80px #0005;color:#111827}.modal-head{display:flex;justify-content:space-between;align-items:flex-start;padding:18px 22px;border-bottom:1px solid #edf1f5}.modal-head h2{margin:4px 0 0}.modal-head small{color:#77859b}.close{border:0;background:none;font-size:28px;cursor:pointer}.steps{display:grid;grid-template-columns:auto 1fr auto 1fr auto 1fr auto;padding:15px 22px;align-items:center;background:#fff;border-bottom:1px solid #e5e7eb}.steps>span{height:2px;background:#e3e8ef}.step{border:0;background:none;display:flex;align-items:center;gap:7px;color:#4b5563;cursor:pointer}.step b{width:26px;height:26px;border-radius:50%;display:grid;place-items:center;background:#e5e7eb;color:#374151}.step.active{color:var(--orange)}.step.active b{background:var(--orange);color:#fff}
+form{padding:0 22px 18px}.page{display:none;padding:18px 0}.page.active{display:block}.section-head{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:18px}.section-head small{color:var(--orange);font-weight:900}.section-head h3{margin:2px 0 0;font-size:22px}.section-head p{margin:0;max-width:390px;color:#4b5563;font-size:12px}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px}.field{display:flex;flex-direction:column;gap:6px;font-size:12px;font-weight:800;color:#263244}.field input,.field select,.field textarea{width:100%;border:1px solid #c3ccd8;background:#fff;border-radius:9px;padding:11px;outline:none;color:#111827;font-weight:600}
+.field input::placeholder,.field textarea::placeholder{color:#6b7280;opacity:1}
+.field select option{color:#111827;background:#fff}.full{grid-column:1/-1}.channel-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;border:1px solid #cbd5e1;border-radius:9px;padding:10px;background:#fff;color:#111827}.channel-grid label{display:flex;align-items:center;gap:6px;font-weight:500}.channel-grid input{width:auto}.upload{border:1px dashed #b8c2cf;border-radius:12px;padding:15px;background:#fff;display:flex;align-items:center;justify-content:space-between;gap:12px;margin-top:15px}.upload small{display:block;color:#7d899d;margin-top:4px}.upload-btn{background:#eef3f9;color:#3e4f6b;border-radius:9px;padding:10px 13px;font-weight:700;cursor:pointer}.refs{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:10px;margin-top:12px}.ref{border:1px solid #dfe6ef;border-radius:10px;overflow:hidden;background:#fff}.ref img,.ref video{display:block;width:100%;height:110px;object-fit:cover}.ref small{display:block;padding:7px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.linkrow{display:flex;gap:8px}.linkrow input{flex:1}.mini{border:1px solid #ffd2bd;background:#fff2eb;color:#d85217;border-radius:9px;padding:10px 12px;font-weight:700;cursor:pointer}.linkchips{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}.linkchip{font-size:11px;background:#f1f4f8;padding:7px 9px;border-radius:8px}.preview{min-height:240px;border:1px dashed #b8c2cf;border-radius:12px;margin-top:12px;background:#fff;display:grid;place-items:center;color:#8793a7;overflow:hidden}.preview img,.preview video{max-width:100%;max-height:420px}.platform{display:flex;align-items:center;gap:10px;border:1px solid #e0e6ef;border-radius:10px;padding:11px;margin-top:8px}.platform input{width:auto}.social{width:34px;height:34px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:900}.fb{background:#1877f2}.ig{background:linear-gradient(135deg,#f9ce34,#ee2a7b,#6228d7)}.platform small{display:block;color:#7b899d}.note{margin-top:14px;padding:12px;border:1px solid #ffd8c4;background:#fff6f1;border-radius:10px;font-size:12px}.note strong{color:#cc4d12}.footer{display:flex;align-items:center;gap:8px;border-top:1px solid #edf1f5;padding-top:14px}.footer .spacer{flex:1}.detail-tabs{display:flex;gap:6px;padding:12px 22px 0;border-bottom:1px solid #edf1f5}.detail-tab{border:0;background:none;padding:10px 12px;color:#758299;border-bottom:2px solid transparent;cursor:pointer}.detail-tab.active{color:var(--orange);border-color:var(--orange)}.detail-body{padding:18px 22px}.detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.box{border:1px solid #dfe6ef;border-radius:10px;padding:12px;background:#fbfcfe}.box h4{margin:0 0 8px}.box p{white-space:pre-wrap;color:#57667d;font-size:12px}.box img,.box video{max-width:100%;max-height:340px;border-radius:9px}@media(max-width:900px){.layout{grid-template-columns:1fr}.layout aside{display:none}.grid2,.detail-grid{grid-template-columns:1fr}.steps{grid-template-columns:repeat(4,1fr)}.steps>span{display:none}.step span{display:none}.section-head{align-items:flex-start;flex-direction:column}}
+.toast{position:fixed;right:24px;bottom:24px;background:#142033;color:#fff;padding:12px 16px;border-radius:10px;box-shadow:0 12px 35px #0003;z-index:300;font-size:13px}.toast strong{color:#ff7a38}
+
+/* Ajuste visual: campos brancos e textos escuros */
+.task-wizard,
+.task-wizard form,
+.task-wizard .wizard-page,
+.task-wizard .page,
+.task-wizard .modal-head,
+.task-wizard .steps {
+  background:#ffffff !important;
+  color:#111827 !important;
+}
+.task-wizard input,
+.task-wizard select,
+.task-wizard textarea {
+  background:#ffffff !important;
+  color:#111827 !important;
+  border-color:#bfc9d6 !important;
+  -webkit-text-fill-color:#111827 !important;
+  opacity:1 !important;
+}
+.task-wizard input::placeholder,
+.task-wizard textarea::placeholder {
+  color:#6b7280 !important;
+  opacity:1 !important;
+}
+.task-wizard select option {
+  color:#111827 !important;
+  background:#ffffff !important;
+}
+.task-wizard label,
+.task-wizard .field,
+.task-wizard h2,
+.task-wizard h3,
+.task-wizard h4,
+.task-wizard p,
+.task-wizard small {
+  color:#1f2937;
+}
+.task-wizard .section-head small,
+.task-wizard .step.active {
+  color:var(--orange) !important;
+}
+.task-wizard .step:not(.active) {
+  color:#374151 !important;
+}
+
+
+.date-wrap{position:relative;display:flex;align-items:center}
+.date-wrap input{padding-right:48px!important}
+.calendar-btn{
+  position:absolute;right:5px;top:50%;transform:translateY(-50%);
+  width:36px;height:34px;border:0;border-left:1px solid #d8dee8;
+  background:#fff;color:#1f2937;cursor:pointer;border-radius:0 7px 7px 0;
+  display:grid;place-items:center;font-size:16px
+}
+.calendar-btn:hover{background:#f6f7f9}
+input[type="date"]::-webkit-calendar-picker-indicator{opacity:1;cursor:pointer}
+
+
+@media(max-width:1100px){
+  .task{grid-template-columns:auto minmax(0,1fr)}
+  .task-actions{grid-column:1/-1;justify-content:flex-end}
+}
+@media(max-width:700px){
+  .task{grid-template-columns:1fr}
+  .task-preview.square,.task-preview.vertical,.task-preview.landscape{width:min(220px,100%)}
+  .task-actions{grid-column:auto;justify-content:flex-start}
+}
+
+
+/* Fluxo de produção / squad */
+.client-progress-wrap{margin-top:18px;border-top:1px solid #edf1f5;padding-top:16px}
+.progress-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:8px}.progress-head strong{font-size:12px}.progress-head span{font-size:11px;color:#68758b}
+.progress-track{height:9px;background:#edf1f5;border-radius:999px;overflow:hidden}.progress-fill{height:100%;background:linear-gradient(90deg,#ff5b0a,#ff8a4c);border-radius:999px;transition:.25s}
+.squad-box{margin:18px 0 6px;background:#fff;border:1px solid #dfe6ef;border-radius:14px;padding:14px}.squad-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:11px}.squad-head h3{margin:0;font-size:15px}.squad-head small{color:#77859b}.squad-grid{display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:9px}
+.squad-member{border:1px solid #e1e7ef;border-radius:11px;padding:10px;background:#fbfcfe}.squad-person{display:flex;align-items:center;gap:8px}.avatar-mini{width:32px;height:32px;border-radius:50%;display:grid;place-items:center;font-weight:800;color:#fff}.squad-person strong{display:block;font-size:12px}.squad-person small{display:block;color:#7d899b;font-size:9px}.mini-progress{height:5px;background:#e9edf3;border-radius:999px;overflow:hidden;margin-top:8px}.mini-progress span{display:block;height:100%;background:#ff6a20;border-radius:999px}
+.assignee-strip{padding:14px 22px;border-bottom:1px solid #edf1f5;background:#fff}.assignee-strip>strong{display:block;font-size:12px;margin-bottom:9px}.assignees{display:flex;gap:8px;flex-wrap:wrap}.person-chip{display:flex;align-items:center;gap:8px;border:1px solid #dce3ec;background:#fff;padding:7px 10px;border-radius:999px;cursor:pointer}.person-chip.active{border-color:#ff5b0a;background:#fff4ee;box-shadow:0 0 0 2px #ff5b0a12}.person-chip .pc-avatar{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:#fff;font-weight:800;font-size:11px}.person-chip strong{font-size:11px}.person-chip small{display:block;font-size:8px;color:#77859a}
+.workflow-strip{padding:14px 22px;background:#fbfcfe;border-bottom:1px solid #edf1f5}.workflow-title{display:flex;justify-content:space-between;align-items:center;margin-bottom:9px}.workflow-title strong{font-size:12px}.workflow-title span{font-size:10px;color:#758299}.workflow-flow{display:flex;align-items:center;gap:4px;overflow:auto;padding-bottom:2px}.flow-stage{white-space:nowrap;border:1px solid #dce3ec;background:#fff;color:#66758b;border-radius:999px;padding:7px 10px;font-size:10px;cursor:pointer}.flow-stage.done{background:#edf8ef;border-color:#bfe1c5;color:#297a38}.flow-stage.active{background:#ff5b0a;border-color:#ff5b0a;color:#fff;font-weight:800}.flow-arrow{color:#adb6c4;font-size:12px}
+.stage-badge{background:#fff0e8!important;color:#d95218!important}.owner-badge{background:#eef4ff!important;color:#335f9f!important}
+.template-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px;padding-top:14px;border-top:1px solid #edf1f5}.template-bar small{color:#758299}.template-btn{border:1px solid #ffd0ba;background:#fff4ee;color:#d95318;border-radius:9px;padding:9px 12px;font-weight:750;cursor:pointer}
+@media(max-width:1100px){.squad-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:700px){.squad-grid{grid-template-columns:1fr}.assignees{display:grid;grid-template-columns:1fr 1fr}.workflow-flow{padding-bottom:7px}}
+
+
+.syncbar{padding:9px 22px;display:flex;align-items:center;gap:12px;background:#eaf0f5;min-height:38px;font-size:13px;color:#526079}.syncbar .failed{color:#b42318}.syncbar button{padding:5px 10px;font-size:13px}.loading-data .layout{pointer-events:none;opacity:.4}.saving .layout button,.saving .modal button,.saving .client-dialog button{pointer-events:none;opacity:.6}.client-dialog{padding:0;border:0;border-radius:16px;width:min(560px,95vw);max-height:90vh;color:#111827;background:white}.client-dialog::backdrop{background:#0d142088}button:disabled{opacity:.5;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible,textarea:focus-visible{outline:3px solid #ff854b;outline-offset:3px}main{min-width:0}.field,.task p,.box p{font-size:14px}.chip,.flow-stage,.squad-person small,.person-chip small,.month,.crumb,.label{font-size:12px}.squad-person strong,.person-chip strong,.progress-head strong{font-size:14px}.section-head p,.note,.squad-head small{font-size:14px}.layout{min-height:calc(100vh - 116px)}.task-preview.square{width:112px}.task-preview.landscape{width:130px}
+@media(max-width:900px){.layout{grid-template-columns:1fr}.layout aside{display:flex;gap:8px;overflow-x:auto;padding:10px}.layout aside .label{display:none}.nav,.wallet{width:auto;min-width:90px;margin:0}.wallet small{display:none}.squad-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.brand i,.brand>small,.profile{display:none}.head{gap:15px}.head h1{font-size:25px}.stats{gap:16px;flex-wrap:wrap}.stat{min-width:160px}.steps{padding:15px}.modal-head{gap:10px}.detail-tabs{overflow:auto}.task-actions{justify-content:flex-start}.head>.primary{font-size:14px}.plan-top{gap:12px}.plan h2{font-size:20px}.squad-head{gap:10px;flex-wrap:wrap}.detailModal{max-width:100%}}
+@media(max-width:500px){main{padding:16px}.head{flex-wrap:wrap}.plan{padding:16px}.divider{display:none}.stats{display:grid;grid-template-columns:1fr}.squad-grid{grid-template-columns:1fr}.assignees{display:flex}.modal-head h2{font-size:22px}.modal-head>div:last-child{flex-wrap:wrap}.grid2 .full{grid-column:1}.brand strong{font-size:19px}.syncbar{padding:9px 16px;flex-wrap:wrap}.plan-top{flex-wrap:wrap}.task-actions button{padding:9px 11px;font-size:14px}}
+.cancelled-task{background:#f8f9fb;border-color:#d7dce3}.cancelled-badge{background:#fee4e2;color:#b42318}.task button:disabled{opacity:.45;cursor:not-allowed}
+.employees-list{margin-top:22px}.employee-row{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:18px;align-items:center;background:white;border:1px solid #dfe6ef;border-radius:14px;padding:22px;margin-bottom:14px}.employee-avatar{width:48px;height:48px;background:#fff2ea;color:#df5410;border-radius:12px;display:grid;place-items:center;font-size:23px;font-weight:800}.employee-main h3{margin:0 0 6px;font-size:18px}.employee-main p{margin:4px 0;font-size:14px;color:#66758b;overflow-wrap:anywhere}.verified-badge{background:#e7f5e9;color:#24753c}.layout.users-area{grid-template-columns:145px 1fr}.profile small{display:block;color:#aeb9ca;margin-top:3px}.client-dialog form{padding-bottom:22px}.field small{font-size:12px;font-weight:400;line-height:1.4;color:#66758b}@media(max-width:900px){.layout.users-area{grid-template-columns:1fr}.employee-row{grid-template-columns:auto minmax(0,1fr)}.employee-row .task-actions{grid-column:1/-1}}
+</style>
+<link rel="stylesheet" href="/modules.css?v=3"><link rel="stylesheet" href="/workflow.css?v=4"></head>
+<body class="loading-data">
+<header><div class="brand"><div class="logo">P</div><strong>Periférica <span>Connect</span></strong><i></i><small>Carteiras e produção</small></div><div class="profile"><div class="avatar">A</div><div><strong>Adm</strong><small>Administrador</small></div></div></header>
+<div class="syncbar"><span id="saveStatus" role="status">Carregando dados…</span><button id="retrySave" class="secondary hidden">Tentar salvar novamente</button><button id="reloadData" class="secondary hidden">Recarregar</button></div><div class="layout"><aside><div class="label">ÁREAS</div><button id="managementNav" class="nav active">▥ &nbsp; Gestão</button><button id="usersNav" class="nav">♙ &nbsp; Cadastros</button><div id="registrationMenu" class="hidden"><button id="employeeNav" class="nav" style="font-size:12px;padding-left:16px">Usuários / funcionários</button><button id="clientsNav" class="nav" style="font-size:12px;padding-left:16px">Cadastro de clientes</button><button id="accountsNav" class="nav" style="font-size:12px;padding-left:16px">Contas / Acessos</button></div><button class="nav" disabled title="Em uma próxima etapa">📣 &nbsp; Campanhas</button><button class="nav" disabled title="Em uma próxima etapa">📁 &nbsp; Projetos</button></aside><aside><div class="label">CARTEIRAS</div><button class="wallet active">◉ &nbsp; C1 <small>Dienifer</small></button><button class="wallet">◉ &nbsp; C2</button><button class="wallet">◉ &nbsp; C3</button><button class="wallet">◉ &nbsp; C4</button></aside><main>
+<div class="head"><div><p class="crumb">Gestão / <span id="crumbWallet">C1</span> / <span id="crumbClient">Sédia Estamparia</span></p><h1>Clientes e planos</h1></div><button id="addClient" class="primary">+ Cadastrar cliente</button></div><div id="clients" class="clients"></div>
+<section class="plan"><div class="plan-top"><h2 id="clientName">Sédia Estamparia</h2><label class="month">Mês de referência<input id="month" type="month"></label></div><div class="stats"><div class="stat"><div class="ico">🖼️</div><div><small>Artes do plano</small><strong id="arts">0 / 8</strong><em id="artsDone">0 concluídas</em></div></div><div class="divider"></div><div class="stat"><div class="ico">🎥</div><div><small>Vídeos do plano</small><strong id="videos">0 / 2</strong><em id="videosDone">0 concluídos</em></div></div></div><div class="actions"><button id="newTask" class="primary">+ Criar tarefa</button><button id="editPlan" class="secondary">✎ Editar plano</button></div>
+<div class="client-progress-wrap"><div class="progress-head"><strong>Progresso do cliente no mês</strong><span id="clientProgressText">0%</span></div><div class="progress-track"><div id="clientProgressBar" class="progress-fill" style="width:0%"></div></div></div>
+<div class="template-bar"><button id="generateTemplateBtn" class="template-btn" type="button">⚡ Gerar modelo mensal</button><small id="templateDescription">1 reunião + peças previstas no plano</small></div></section>
+<section id="squadBox" class="squad-box"><div class="squad-head"><h3>Progresso do squad</h3><small>tarefas do mês por responsável atual</small></div><div id="squadGrid" class="squad-grid"></div></section>
+<section class="tasks"><h2>Tarefas do mês</h2><div id="taskList"></div></section>
+<section id="usersSection" class="hidden"><div style="display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px"><button id="employeesTab" class="primary" type="button">Usuários e funcionários</button><button id="clientsTab" class="secondary" type="button">Cadastro de clientes</button><button id="accessTab" class="secondary" type="button">Contas dos clientes / Acessos</button></div><div id="employeesPanel"><div class="head"><div><p class="crumb">Cadastros / Usuários e funcionários</p><h1>Usuários e funcionários</h1></div><button id="newEmployee" class="primary">+ Cadastrar usuário</button></div><p style="color:#66758b;line-height:1.5">Gerencie os dados, a função e o nível de acesso de cada funcionário.</p><div id="emailNotice" class="note hidden"><strong>Confirmação por email pendente de configuração.</strong><br>Os cadastros ficam salvos, mas nenhum código será enviado até o serviço de email ser conectado.</div><p id="usersFeedback" role="status"></p><div id="employeesList" class="employees-list"></div></div><div id="clientsPanel" class="hidden"><div class="head"><div><p class="crumb">Cadastros / Clientes</p><h1>Cadastro de clientes</h1></div><button id="registerClient" class="primary" type="button">+ Cadastrar cliente</button></div><p>Cadastre o cliente, sua carteira e o plano mensal. Depois conecte suas contas em Acessos.</p><div id="registeredClientsList" class="employees-list"></div></div><div id="accessPanel" class="hidden"><div class="head"><div><p class="crumb">Cadastros / Contas dos clientes / Acessos</p><h1>Contas dos clientes</h1></div><button id="refreshInstagram" class="secondary" type="button">Atualizar status</button></div><p>Cada cliente cadastrado na Gestão aparece aqui com suas conexões.</p><p id="instagramFeedback" role="status">Carregando conexões…</p><div id="clientAccessList" class="employees-list"></div><div id="unassignedInstagram" class="hidden"><h2>Contas sem cliente</h2><p>Escolha o cliente para vincular uma conta já autorizada.</p><div id="instagramAccounts"></div></div><details style="margin-top:24px"><summary>Configuração do Instagram no Meta</summary><p>Cadastre esta URL em Configurar o login da empresa no Instagram → URIs de redirecionamento OAuth válidos:</p><code style="overflow-wrap:anywhere">https://periferica-connect.alexcostaa.chatgpt.site/api/instagram/callback</code><p>A publicação está disponível pelo botão Publicar de cada tarefa. Facebook permanece em preparação.</p></details></div></section></main></div>
+<div id="modal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><small>Nova tarefa • <span id="modalClient">Sédia Estamparia</span></small><h2>Criar tarefa</h2></div><button id="close" class="close">×</button></div><div class="assignee-strip"><strong>Responsável atual da tarefa</strong><div id="assigneeChips" class="assignees"></div><input id="currentOwner" name="currentOwner" type="hidden" value="Sabrina"></div>
+<div class="workflow-strip"><div class="workflow-title"><strong>Etapa atual do fluxo</strong><span id="workflowHint">Briefing do cliente</span></div><div id="workflowFlow" class="workflow-flow"></div><input id="workflowStage" name="workflowStage" type="hidden" value="briefing"></div>
+<div class="steps"><button class="step active" data-step="1"><b>1</b><span>Geral</span></button><span></span><button class="step" data-step="2"><b>2</b><span>Briefing</span></button><span></span><button class="step" data-step="3"><b>3</b><span>Criação</span></button><span></span><button class="step" data-step="4"><b>4</b><span>Publicação</span></button></div>
+<form id="taskForm"><section class="page active" data-page="1"><div class="section-head"><div><small>ETAPA 1</small><h3>Informações gerais</h3></div><p>O básico da tarefa antes do briefing.</p></div><div class="grid2"><label class="field">Nome da tarefa<input name="name" placeholder="Ex.: Post 01 — Campanha Outubro"></label><label class="field">Tipo<select name="type"><option>Arte</option><option>Vídeo</option><option>Carrossel</option><option>Story</option><option>Reel</option><option>Reunião</option></select></label><label class="field">Prioridade<select name="priority"><option>Baixa</option><option selected>Média</option><option>Alta</option></select></label><label class="field">Prazo
+      <div class="date-wrap">
+        <input id="dueDate" name="dueDate" type="date">
+        <button id="dueCalendarBtn" class="calendar-btn" type="button" aria-label="Abrir calendário">📅</button>
+      </div>
+    </label><label class="field full">Resumo da tarefa<textarea name="summary" rows="4" placeholder="Objetivo geral da peça..."></textarea></label></div></section>
+<section class="page" data-page="2"><div class="section-head"><div><small>ETAPA 2</small><h3>Briefing e referências</h3></div><p>Direcionamento visual, links, imagens e vídeos de referência.</p></div><div class="grid2"><label class="field full">Direcionamento criativo<textarea name="briefing" rows="8" placeholder="O que deve aparecer? O que evitar? Qual estilo? Qual mensagem principal?"></textarea></label><div class="field">Canais previstos<div class="channel-grid"><label><input type="checkbox" name="briefChannel" value="Facebook"> Facebook</label><label><input type="checkbox" name="briefChannel" value="Instagram"> Instagram</label><label><input type="checkbox" name="briefChannel" value="Stories"> Stories</label><label><input type="checkbox" name="briefChannel" value="Meta Ads"> Meta Ads</label></div></div><div class="field">Link de referência<div class="linkrow"><input id="refLink" placeholder="https://..."><button id="addLink" class="mini" type="button">+ Adicionar</button></div><div id="linkchips" class="linkchips"></div></div></div><div class="upload"><div><strong>Imagens ou vídeos de referência</strong><small>Somente para organizar o fluxo visual.</small></div><label class="upload-btn">+ Adicionar mídia<input id="refsInput" type="file" accept="image/*,video/*" multiple hidden></label></div><div id="refs" class="refs"></div></section>
+<section class="page" data-page="3"><div class="section-head"><div><small>ETAPA 3</small><h3>Criação do post</h3></div><p>Legenda, texto da peça e arquivo final pronto.</p></div><div class="grid2"><label class="field full">Legenda do post<textarea name="caption" rows="7" placeholder="Escreva a legenda aqui..."></textarea></label><label class="field full">Texto da imagem / roteiro<textarea name="imageText" rows="5" placeholder="Escreva o texto que vai na imagem ou o roteiro do vídeo..."></textarea></label></div><div class="upload"><div><strong>Post final</strong><small>Arte, vídeo, Reel ou Story pronto.</small></div><label class="upload-btn">+ Adicionar post<input id="finalInput" type="file" accept="image/*,video/*" hidden></label></div><div id="finalPreview" class="preview">Prévia do post final aparecerá aqui.</div></section>
+<section class="page" data-page="4"><div class="section-head"><div><small>ETAPA 4</small><h3>Publicação</h3></div><p>Prepare a publicação na conta do cliente.</p></div><div class="note"><strong>Instagram conectado por cliente.</strong><br>Na janela de publicação, escolha Post, Reels ou Stories, confira a prévia e publique agora ou programe o envio.</div><button id="wizardPublish" type="button" class="primary" style="margin-top:18px">Abrir publicação</button><p>Ao abrir, as alterações da tarefa serão salvas.</p><div class="hidden"><select name="action" id="action"><option value="draft">draft</option><option value="now">now</option><option value="schedule">schedule</option></select><select name="status"><option>Não publicado</option><option>Agendado</option><option>Publicado</option></select><label id="dateField"><input name="publishDate" type="date"></label><label id="timeField"><input name="publishTime" type="time"></label></div></section>
+<div class="footer"><button id="prev" class="secondary hidden" type="button">← Voltar</button><div class="spacer"></div><button id="cancel" class="secondary" type="button">Cancelar</button><button id="next" class="primary" type="button">Continuar →</button><button id="saveTask" class="primary hidden" type="button">Salvar tarefa</button></div></form></div></div>
+<div id="toast" class="toast hidden"><strong>✓</strong> Alteração salva online.</div>
+<div id="detailModal" class="modal hidden"><div class="modal-card"><div class="modal-head">
+      <div><small id="detailClient"></small><h2 id="detailTitle"></h2></div>
+      <div style="display:flex;gap:8px;align-items:center">
+        <button id="detailDuplicate" class="secondary" type="button">Duplicar tarefa</button>
+        <button id="detailEdit" class="secondary" type="button">Editar tarefa</button>
+        <button id="detailCancel" class="secondary" type="button" style="color:#b42318!important;border-color:#f1b8b3;background:#fff7f6">Cancelar tarefa</button>
+        <button id="detailClose" class="close" type="button">×</button>
+      </div>
+    </div><div class="detail-tabs"><button class="detail-tab active" data-tab="brief">Briefing</button><button class="detail-tab" data-tab="creation">Criação</button><button class="detail-tab" data-tab="publication">Publicação</button></div><div id="detailBody" class="detail-body"></div></div></div>
+<dialog id="employeeDialog" class="client-dialog" aria-labelledby="employeeTitle"><div class="modal-head"><div><small>CADASTROS</small><h2 id="employeeTitle">Cadastrar usuário / funcionário</h2></div><button id="employeeClose" class="close" type="button" aria-label="Fechar">×</button></div><form id="employeeForm"><div class="grid2" style="padding-top:20px"><label class="field full">Nome<input id="employeeName" required maxlength="150" autocomplete="name"></label><label class="field full">Email<input id="employeeEmail" type="email" autocomplete="email"><small id="employeeEmailHint">A confirmação será feita por um código enviado a este email.</small></label><label class="field full">Telefone<input id="employeePhone" type="tel" maxlength="40" autocomplete="tel" placeholder="(48) 99999-9999"></label><label class="field">Função<select id="employeeRole"><option>Administrador</option><option>Gestão</option><option>Copy</option><option selected>Designer</option><option>Video Maker</option><option>Consultor</option><option>Outro</option></select></label><label class="field">Acesso<select id="employeeAccess"><option>Administrador</option><option>Gestor</option><option selected>Produção</option><option>Somente leitura</option></select></label><label class="field full">Senha<input id="employeePassword" type="password" minlength="8" maxlength="128" autocomplete="new-password" placeholder="Pelo menos 8 caracteres"><small id="employeePasswordHint">A senha não ficará visível depois do cadastro.</small></label><label class="field full">Confirmar senha<input id="employeePasswordConfirm" type="password" minlength="8" maxlength="128" autocomplete="new-password"></label></div><p id="employeeError" role="alert" style="color:#b42318"></p><div class="footer"><button id="employeeSave" class="primary" type="submit">Salvar cadastro</button></div></form></dialog>
+<dialog id="emailVerifyDialog" class="client-dialog" aria-labelledby="verifyTitle"><div class="modal-head"><div><small>CONFIRMAÇÃO DE EMAIL</small><h2 id="verifyTitle">Confirmar email</h2></div><button id="emailVerifyClose" class="close" type="button" aria-label="Fechar">×</button></div><form id="verifyForm"><p id="verifyEmail"></p><button id="sendEmailCode" class="secondary" type="button">Enviar código por email</button><label class="field" style="margin-top:18px">Código de 6 dígitos<input id="emailCode" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" autocomplete="one-time-code" required></label><p id="verifyFeedback" role="status"></p><div class="footer" style="margin-top:18px"><button id="verifyEmailCode" class="primary" type="submit">Confirmar email</button></div></form></dialog><dialog id="confirmDialog" class="client-dialog" aria-labelledby="confirmTitle"><div class="modal-head"><h2 id="confirmTitle">Confirmar ação</h2></div><div style="padding:22px"><p id="confirmMessage" style="font-size:16px;line-height:1.5;margin:0 0 24px"></p><div style="display:flex;justify-content:flex-end;gap:10px"><button id="confirmBack" type="button" class="secondary">Voltar</button><button id="confirmProceed" type="button" class="primary">Confirmar</button></div></div></dialog><dialog id="clientDialog" class="client-dialog"><div class="modal-head"><h2 id="clientDialogTitle">Cadastrar cliente</h2><button id="clientDialogClose" class="close" type="button" aria-label="Fechar">×</button></div><form id="clientForm"><div class="grid2" style="padding-top:20px"><label class="field full">Cliente<input id="newClientName" required maxlength="150"></label><label class="field">Carteira<select id="clientWallet"><option>C1</option><option>C2</option><option>C3</option><option>C4</option></select></label><label class="field">Artes por mês<input id="planArts" type="number" min="0" max="200" value="0" required></label><label class="field">Vídeos por mês<input id="planVideos" type="number" min="0" max="200" value="0" required></label></div><div class="footer" style="margin-top:20px"><button class="primary" type="submit">Salvar cliente e plano</button></div></form></dialog><div id="publicationModal" class="modal hidden"><div class="modal-card"><div class="modal-head"><div><small id="publicationClient"></small><h2>Publicar no Instagram</h2></div><button id="publicationClose" class="close" aria-label="Fechar publicação">×</button></div><div style="padding:22px"><p id="publicationAccount" role="status">Carregando conta…</p><div class="detail-grid"><div><div style="display:flex;gap:8px;margin-bottom:16px"><button type="button" class="secondary pubFormat" data-format="post">Post</button><button type="button" class="secondary pubFormat" data-format="reels">Reels</button><button type="button" class="secondary pubFormat" data-format="stories">Stories</button></div><label class="field">Tipo de arquivo<select id="pubKind"><option value="image">Imagem JPEG</option><option value="video">Vídeo MP4</option></select></label><label class="field" style="margin-top:12px">Link público direto da mídia<input id="pubUrl" type="url" placeholder="https://.../arquivo.jpg"></label><p style="font-size:12px;color:#66758b">A Meta precisa baixar o arquivo sem login. O anexo protegido da tarefa não funciona como link público. Use a versão final hospedada publicamente, não uma página de compartilhamento.</p><label class="field">Legenda<textarea id="pubCaption" rows="5" maxlength="2200"></textarea></label><small id="pubCount"></small><label class="field" style="margin-top:16px">Quando publicar<select id="pubMode"><option value="now">Publicar agora</option><option value="schedule">Agendar</option><option value="draft">Salvar rascunho</option></select></label><div id="pubSchedule" class="grid2 hidden" style="margin-top:12px"><label class="field">Data<input id="pubDate" type="date"></label><label class="field">Horário de Brasília<input id="pubTime" type="time" step="3600"></label></div><p id="pubSchedulerNotice" style="font-size:12px"></p></div><div><strong>Prévia do formato</strong><p id="pubFormatHint" style="font-size:12px"></p><div id="pubFrame" style="max-width:300px;margin:12px auto;background:#111827;border-radius:16px;overflow:hidden;display:flex;align-items:center;justify-content:center;aspect-ratio:4/5;color:white"></div><p id="pubCaptionPreview" style="white-space:pre-wrap;font-size:12px;overflow-wrap:anywhere"></p><small>A prévia não recorta nem converte o arquivo. A Meta valida as dimensões e a duração.</small></div></div><p id="pubFeedback" role="status" style="white-space:pre-wrap"></p><div class="footer"><button id="pubCancel" class="secondary hidden" type="button">Cancelar envio</button><button id="pubRefresh" class="secondary" type="button">Atualizar status</button><span class="spacer"></span><button id="pubSubmit" class="primary" type="button">Publicar agora</button></div></div></div></div>
+<script>
+function askConfirmation(message,title){return new Promise(resolve=>{const dialog=document.getElementById('confirmDialog');document.getElementById('confirmTitle').textContent=title;document.getElementById('confirmMessage').textContent=message;const finish=value=>{dialog.close();resolve(value);};document.getElementById('confirmBack').onclick=()=>finish(false);document.getElementById('confirmProceed').onclick=()=>finish(true);dialog.oncancel=e=>{e.preventDefault();finish(false)};dialog.onclick=e=>{if(e.target===dialog)finish(false)};dialog.showModal();document.getElementById('confirmBack').focus();});}
+const KEY='periferica-flow-prototype-v1';const DEFAULT={clients:[{id:'sedia',name:'Sédia Estamparia',arts:8,videos:2},{id:'filetto',name:'Filetto Uniformes',arts:8,videos:2},{id:'estacao',name:'Estação Lanches',arts:0,videos:0},{id:'elegance',name:'Elegance Cortinas',arts:0,videos:0}],selected:'sedia',month:new Date().toISOString().slice(0,7),tasks:[]};const USERS=[
+{id:'Alex',name:'Alex costa',role:'Designer',initials:'A',color:'#ff5b0a'},
+{id:'Sabrina',name:'Sabrina',role:'Gestão • Gerente',initials:'S',color:'#7c3aed'},
+{id:'Bruna',name:'Bruna',role:'Consultor',initials:'B',color:'#0ea5e9'},
+{id:'William',name:'William',role:'Copy',initials:'W',color:'#16a34a'},
+{id:'Julio',name:'Julio',role:'Video maker',initials:'J',color:'#e11d48'}
+];
+const STAGES=[
+{id:'briefing',label:'Briefing',owner:'Sabrina',hint:'Reunião e briefing do cliente'},
+{id:'copy',label:'Copy',owner:'William',hint:'Copy cria briefing, legenda e texto da arte'},
+{id:'designer',label:'Designer',owner:'Alex',hint:'Criação das artes'},
+{id:'video',label:'Video maker',owner:'Julio',hint:'Produção e edição de vídeo'},
+{id:'review',label:'Revisão',owner:'Sabrina',hint:'Revisão interna da gestão'},
+{id:'sent',label:'Enviado ao cliente',owner:'Bruna',hint:'Material enviado para aprovação'},
+{id:'approved',label:'Aprovado',owner:'Sabrina',hint:'Peça aprovada pelo cliente'}
+];
+let state=structuredClone(DEFAULT);state.wallet='C1';let revision=0,ready=false,saving=false,dirty=false,conflict=false,uploads=0;let step=1,links=[],refs=[],finalMedia=null,currentTask=null,editingTaskId=null;const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];const save=async()=>{
+ if(!ready||saving||conflict)return false;
+ saving=true;document.body.classList.add('saving');setStatus('Salvando online…');
+ try{const r=await fetch('/api/connect',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({state,revision})});const d=await r.json();if(!r.ok){if(r.status===409)conflict=true;throw Error(d.error)}revision=d.revision;dirty=false;setStatus('Salvo online');return true;
+ }catch(e){dirty=true;setStatus(e.message,true);return false;}finally{saving=false;document.body.classList.remove('saving');}
+};
+function setStatus(text,error=false){const b=document.getElementById('saveStatus');b.textContent=text;b.classList.toggle('failed',error);document.getElementById('retrySave').classList.toggle('hidden',!error||conflict||!ready);document.getElementById('reloadData').classList.toggle('hidden',!error||ready&&!conflict);}
+window.addEventListener('beforeunload',e=>{if(dirty||saving||uploads){e.preventDefault();e.returnValue='';}});
+
+function showToast(){const t=$('#toast');t.classList.remove('hidden');clearTimeout(window.__toastTimer);window.__toastTimer=setTimeout(()=>t.classList.add('hidden'),2200)}const visibleClients=()=>state.clients.filter(c=>(c.wallet||'C1')===(state.wallet||'C1'));const client=()=>visibleClients().find(c=>c.id===state.selected)||visibleClients()[0];const monthTasks=()=>state.tasks.filter(t=>t.clientId===state.selected&&t.month===state.month);const makeId=()=>{try{if(window.crypto&&typeof window.crypto.randomUUID==='function')return window.crypto.randomUUID()}catch{}return 'task-'+Date.now()+'-'+Math.random().toString(36).slice(2,9)};
+const esc=(v='')=>String(v).replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m]));const fmt=v=>{if(!v)return'—';let p=v.split('-');return p.length===3?`${p[2]}/${p[1]}/${p[0]}`:v};function stageIndex(id){const i=STAGES.findIndex(s=>s.id===id);return i<0?0:i}
+function stagePct(id){return ({briefing:0,copy:20,designer:40,video:40,review:60,sent:80,approved:100})[id]||0}
+function stageObj(id){return STAGES.find(s=>s.id===id)||STAGES[0]}
+function userObj(id){return USERS.find(u=>u.id===id)||USERS[0]}
+function taskProgress(t){return stagePct(t.workflowStage||'briefing')}
+function renderAssignees(selected){
+  const chosen=selected||'Sabrina';$('#currentOwner').value=chosen;
+  $('#assigneeChips').innerHTML=USERS.map(u=>`<button type="button" class="person-chip ${u.id===chosen?'active':''}" data-owner="${u.id}"><span class="pc-avatar" style="background:${u.color}">${u.initials}</span><span><strong>${u.name}</strong><small>${u.role}</small></span></button>`).join('');
+  $$('.person-chip').forEach(b=>b.onclick=()=>renderAssignees(b.dataset.owner))
+}
+function renderWorkflow(stageId){
+  const current=stageId||'briefing';$('#workflowStage').value=current;const ci=stageIndex(current);$('#workflowHint').textContent=stageObj(current).hint;
+  $('#workflowFlow').innerHTML=STAGES.map((s,i)=>`${i?'<span class="flow-arrow">→</span>':''}<button type="button" class="flow-stage ${stagePct(s.id)<stagePct(current)?'done':''} ${i===ci?'active':''}" data-stage="${s.id}">${s.label}</button>`).join('');
+  $$('.flow-stage').forEach(b=>b.onclick=()=>{const s=stageObj(b.dataset.stage);renderWorkflow(s.id);renderAssignees(s.owner)})
+}
+function renderSquad(ts){
+  $('#squadGrid').innerHTML=USERS.map(u=>{const owned=ts.filter(t=>!t.cancelled&&(t.currentOwner||t.responsible||'Sabrina')===u.id);const avg=owned.length?Math.round(owned.reduce((a,t)=>a+taskProgress(t),0)/owned.length):0;return `<div class="squad-member"><div class="squad-person"><span class="avatar-mini" style="background:${u.color}">${u.initials}</span><span><strong>${u.name}</strong><small>${u.role} • ${owned.length} tarefa${owned.length===1?'':'s'}</small></span></div><div class="mini-progress"><span style="width:${avg}%"></span></div></div>`}).join('')
+}
+function render(){if(!$('#usersSection').classList.contains('hidden'))return;const c=client();$$('.wallet').forEach((b,i)=>b.classList.toggle('active',state.wallet==='C'+(i+1)));$('#crumbWallet').textContent=state.wallet||'C1';if(!c){$('#clients').innerHTML='';$('.plan').classList.add('hidden');$('#squadBox').classList.add('hidden');$('#taskList').innerHTML='<div class="empty"><p>Esta carteira ainda não tem clientes. Use Cadastrar cliente para começar.</p></div>';return;}$('.plan').classList.remove('hidden');$('#squadBox').classList.remove('hidden');state.selected=c.id;$('#clientName').textContent=c.name;$('#crumbClient').textContent=c.name;$('#modalClient').textContent=c.name;$('#month').value=state.month;$('#clients').innerHTML=visibleClients().map(x=>`<button class="client ${x.id===state.selected?'active':''}" data-id="${x.id}">${esc(x.name)}</button>`).join('');$$('.client').forEach(b=>b.onclick=()=>{state.selected=b.dataset.id;render()});const ts=monthTasks(),arts=ts.filter(t=>!t.cancelled&&['Arte','Carrossel','Story'].includes(t.type)),vids=ts.filter(t=>!t.cancelled&&['Vídeo','Reel'].includes(t.type));const live=ts.filter(t=>!t.cancelled);const avgProgress=live.length?Math.round(live.reduce((a,t)=>a+taskProgress(t),0)/live.length):0;$('#clientProgressText').textContent=`${avgProgress}%`;$('#clientProgressBar').style.width=`${avgProgress}%`;renderSquad(ts);$('#arts').textContent=`${arts.length} / ${c.arts}`;$('#videos').textContent=`${vids.length} / ${c.videos}`;$('#artsDone').textContent=`${arts.filter(t=>t.workflowStage==='approved').length} concluídas`;$('#videosDone').textContent=`${vids.filter(t=>t.workflowStage==='approved').length} concluídos`;const list=$('#taskList');if(!ts.length){list.innerHTML='<div class="empty"><div><div style="font-size:26px">☑</div><p>Nenhuma tarefa criada neste mês.</p></div></div>';return}list.innerHTML=ts.map(t=>{
+    const previewMedia=t.finalMedia || null;
+    const preview=previewMedia
+      ? (previewMedia.type&&previewMedia.type.startsWith('video')
+          ? `<video src="${previewMedia.data}" muted preload="metadata"></video>`
+          : `<img src="${previewMedia.data}" alt="Prévia">`)
+      : `<div class="no-preview">Sem arte final<br>adicionada</div>`;
+    const visibleText=(t.summary||t.briefing||'').trim();
+    const captionText=(t.caption||'').trim();
+    const previewClass=['Story','Reel'].includes(t.type)?'vertical':(['Arte','Carrossel'].includes(t.type)?'square':'landscape');
+    return `<div class="task ${t.cancelled?'cancelled-task':''}">
+      <div class="task-preview ${previewClass}">${preview}</div>
+      <div class="task-main">
+        <h3>${esc(t.name)}</h3>
+        <p>${esc(t.currentOwner||t.responsible||'Sabrina')} • ${esc(t.type)} • Prazo ${fmt(t.dueDate)}</p>
+        <div class="chips">
+          <span class="chip">${esc(t.priority)}</span><span class="chip owner-badge">${esc(t.currentOwner||t.responsible||'Sabrina')}</span><span class="chip stage-badge">${esc(stageObj(t.workflowStage||'briefing').label)}</span>
+          ${(t.channels||[]).map(x=>`<span class="chip">${esc(x)}</span>`).join('')}
+          ${t.action==='schedule'?`<span class="chip">Agendado ${fmt(t.publishDate)} ${esc(t.publishTime||'')}</span>`:''}
+          ${publicationJobs.find(j=>j.task_id===t.id)?`<span class="chip">Instagram: ${esc(pubStatus[publicationJobs.find(j=>j.task_id===t.id).status]||'Na fila')}</span>`:''}
+          ${t.status?`<span class="chip ${t.cancelled?'cancelled-badge':''}">${esc(t.status)}</span>`:''}
+        </div>
+        ${visibleText?`<p class="task-description">${esc(visibleText)}</p>`:''}
+        ${captionText?`<p class="task-caption-preview">Legenda: ${esc(captionText)}</p>`:''}<div class="progress-head" style="margin-top:9px;margin-bottom:5px"><strong style="font-size:10px">Progresso da tarefa</strong><span>${taskProgress(t)}%</span></div><div class="progress-track" style="height:6px"><div class="progress-fill" style="width:${taskProgress(t)}%"></div></div>
+      </div>
+      <div class="task-actions">
+        <button class="primary publishTask" data-publish="${t.id}" ${t.cancelled?'disabled':''}>Publicar</button><button class="secondary duplicateTask" data-duplicate="${t.id}" ${t.cancelled?'disabled':''}>Duplicar tarefa</button>
+        <button class="secondary editTask" data-edit="${t.id}" ${t.cancelled?'disabled':''}>Editar tarefa</button>
+        <button class="secondary cancelTask" data-cancel="${t.id}" ${t.cancelled?'disabled':''} style="color:#b42318!important;border-color:#f1b8b3;background:#fff7f6">Cancelar tarefa</button>
+        <button class="secondary openTask" data-task="${t.id}">Abrir tarefa</button>
+      </div>
+    </div>`;
+  }).join('');$$('.publishTask').forEach(b=>b.onclick=()=>openPublication(b.dataset.publish));$$('.openTask').forEach(b=>b.onclick=()=>openDetail(b.dataset.task));$$('.duplicateTask').forEach(b=>b.onclick=()=>duplicateTask(b.dataset.duplicate));$$('.editTask').forEach(b=>b.onclick=()=>editTask(b.dataset.edit));$$('.cancelTask').forEach(b=>b.onclick=()=>cancelTask(b.dataset.cancel))}$('#month').onchange=e=>{state.month=e.target.value;render()};function showStep(){$$('.page').forEach(p=>p.classList.toggle('active',Number(p.dataset.page)===step));$$('.step').forEach(s=>s.classList.toggle('active',Number(s.dataset.step)===step));$('#prev').classList.toggle('hidden',step===1);$('#next').classList.toggle('hidden',step===4);$('#saveTask').classList.toggle('hidden',step!==4)}function resetDraft(){editingTaskId=null;$('#dateField').classList.add('hidden');$('#timeField').classList.add('hidden');$('#taskForm').reset();links=[];refs=[];finalMedia=null;renderLinks();renderRefs();renderFinal();renderAssignees('Sabrina');renderWorkflow('briefing');step=1;showStep();document.querySelector('#modal .modal-head h2').textContent='Criar tarefa';$('#saveTask').textContent='Salvar tarefa'}$('#newTask').onclick=()=>{resetDraft();$('#modal').classList.remove('hidden')};$('#close').onclick=()=>$('#modal').classList.add('hidden');$('#cancel').onclick=()=>$('#modal').classList.add('hidden');$('#next').onclick=()=>{if(step<4){step++;showStep()}};$('#prev').onclick=()=>{if(step>1){step--;showStep()}};$$('.step').forEach(s=>s.onclick=()=>{step=Number(s.dataset.step);showStep()});$('#action').onchange=e=>{const s=e.target.value==='schedule';$('#dateField').classList.toggle('hidden',!s);$('#timeField').classList.toggle('hidden',!s)};$('#addLink').onclick=()=>{const i=$('#refLink');if(!i.value.trim())return;links.push(i.value.trim());i.value='';renderLinks()};function renderLinks(){$('#linkchips').innerHTML=links.map(x=>`<span class="linkchip">${esc(x)}</span>`).join('')}async function readFile(f,cb,endpoint="/api/media"){if(f.size>30*1024*1024){alert('Use arquivos de até 30 MB.');return;}uploads++;setStatus('Enviando mídia…');try{const body=new FormData();body.append('file',f);const r=await fetch(endpoint,{method:'POST',body});const d=await r.json();if(!r.ok)throw Error(d.error);cb(d);setStatus('Mídia enviada. Salve a tarefa para concluir.');}catch(e){setStatus(e.message,true);}finally{uploads--;}}
+$('#refsInput').onchange=e=>{[...e.target.files].forEach(f=>readFile(f,o=>{refs.push(o);renderRefs()}));e.target.value=''};function renderRefs(){$('#refs').innerHTML=refs.map(m=>`<div class="ref">${m.type.startsWith('video')?`<video src="${m.data}" controls></video>`:`<img src="${m.data}">`}<small>${esc(m.name)}</small></div>`).join('')}$('#finalInput').onchange=e=>{const f=e.target.files[0];if(f)readFile(f,o=>{finalMedia=o;const field=document.querySelector('[name=finalPublicUrl]');if(field)field.value=o.publicUrl||'';renderFinal()},'/api/media/final');e.target.value=''};function renderFinal(){const b=$('#finalPreview');b.innerHTML=finalMedia?(finalMedia.type.startsWith('video')?`<video src="${finalMedia.data}" controls></video>`:`<img src="${finalMedia.data}">`):'Prévia do post final aparecerá aqui.'}function checked(name){return $$(`input[name="${name}"]:checked`).map(x=>x.value)}
+
+function fillTaskForm(t){
+  const form=$('#taskForm');
+  form.elements.name.value=t.name||'';
+  renderAssignees(t.currentOwner||t.responsible||'Sabrina');renderWorkflow(t.workflowStage||'briefing');
+  form.elements.type.value=t.type||'Arte';
+  form.elements.priority.value=t.priority||'Média';
+  form.elements.dueDate.value=t.dueDate||'';
+  form.elements.summary.value=t.summary||'';
+  form.elements.briefing.value=t.briefing||'';
+  form.elements.caption.value=t.caption||'';
+  form.elements.imageText.value=t.imageText||'';
+  form.elements.action.value=t.action||'draft';
+  form.elements.status.value=t.status||'Não publicado';
+  form.elements.publishDate.value=t.publishDate||'';
+  form.elements.publishTime.value=t.publishTime||'';
+
+  $$('input[name="briefChannel"]').forEach(el=>el.checked=(t.briefChannels||[]).includes(el.value));
+  $$('input[name="publishChannel"]').forEach(el=>el.checked=(t.channels||[]).includes(el.value));
+
+  links=[...(t.links||[])];
+  refs=[...(t.refs||[])];
+  finalMedia=t.finalMedia||null;
+  renderLinks();
+  renderRefs();
+  renderFinal();
+
+  const scheduled=(t.action==='schedule');
+  $('#dateField').classList.toggle('hidden',!scheduled);
+  $('#timeField').classList.toggle('hidden',!scheduled);
+}
+
+
+async function duplicateTask(id){
+  if(saving||!ready)return;
+  const source=state.tasks.find(t=>t.id===id);
+  if(!source||source.cancelled)return;
+  const ok=await askConfirmation("Tem certeza que deseja duplicar esta tarefa?", "Duplicar tarefa");
+  if(!ok)return;
+
+  let copy;
+  try{
+    copy=typeof structuredClone==='function' ? structuredClone(source) : JSON.parse(JSON.stringify(source));
+  }catch{
+    copy=JSON.parse(JSON.stringify(source));
+  }
+
+  copy.id=makeId();
+  copy.name=`${source.name} — cópia`;
+  copy.createdAt=new Date().toISOString();
+
+  // Mantém briefing, legenda e arte final, mas evita repetir um agendamento/publicação existente.
+  copy.action='draft';
+  copy.status='Não publicado';
+  copy.publishDate='';
+  copy.publishTime='';
+
+  state.tasks.push(copy);
+  if(!await save())return;
+  $('#detailModal').classList.add('hidden');
+  render();
+  showToast();
+
+  setTimeout(()=>{
+    const button=document.querySelector(`[data-task="${copy.id}"]`);
+    if(button){
+      const card=button.closest('.task');
+      if(card)card.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  },80);
+}
+
+function editTask(id){
+  const t=state.tasks.find(x=>x.id===id);
+  if(!t||t.cancelled)return;
+  editingTaskId=id;
+  fillTaskForm(t);
+  document.querySelector('#modal .modal-head h2').textContent='Editar tarefa';
+  $('#saveTask').textContent='Salvar alterações';
+  step=1;
+  showStep();
+  $('#detailModal').classList.add('hidden');
+  $('#modal').classList.remove('hidden');
+}
+
+async function cancelTask(id){
+  if(saving||!ready)return;
+  const t=state.tasks.find(x=>x.id===id);
+  if(!t||t.cancelled)return;
+  const ok=await askConfirmation("Tem certeza que deseja cancelar esta tarefa?", "Cancelar tarefa");
+  if(!ok)return;
+  t.cancelled=true;t.cancelledAt=new Date().toISOString();t.status='Cancelada';
+  if(!await save())return;
+  if(currentTask&&currentTask.id===id){
+    currentTask=null;
+    $('#detailModal').classList.add('hidden');
+  }
+  render();
+}
+
+async function saveCurrentTask(){
+ if(editingTaskId&&state.tasks.find(t=>t.id===editingTaskId)?.cancelled)return;
+ if(uploads){alert('Aguarde o envio das mídias.');return;}if(saving)return;
+  const formEl=$('#taskForm');
+  const f=new FormData(formEl);
+  const c=client();
+
+  const payload={
+    clientId:c.id,
+    month:state.month,
+    name:String(f.get('name')||'').trim(),
+    responsible:$('#currentOwner').value||'Sabrina',currentOwner:$('#currentOwner').value||'Sabrina',workflowStage:$('#workflowStage').value||'briefing',
+    type:f.get('type')||'Arte',
+    priority:f.get('priority')||'Média',
+    dueDate:f.get('dueDate')||'',
+    summary:f.get('summary')||'',
+    briefing:f.get('briefing')||'',
+    briefChannels:checked('briefChannel'),
+    links:[...links],
+    refs:[...refs],
+    caption:f.get('caption')||'',
+    imageText:f.get('imageText')||'',
+    finalMedia:finalMedia,
+    channels:checked('publishChannel'),
+    action:f.get('action')||'draft',
+    status:f.get('status')||'Não publicado',
+    publishDate:f.get('publishDate')||'',
+    publishTime:f.get('publishTime')||''
+  };
+
+  if(!payload.name){alert('Informe o nome da tarefa.');step=1;showStep();return;}
+  payload.history=[...(editingTaskId?state.tasks.find(t=>t.id===editingTaskId)?.history||[]:[])];if(!payload.history.length||payload.history.at(-1).stage!==payload.workflowStage)payload.history.push({stage:payload.workflowStage,date:new Date().toISOString()});
+  let savedId=editingTaskId;
+  if(editingTaskId){
+    const idx=state.tasks.findIndex(t=>t.id===editingTaskId);
+    if(idx>=0){
+      state.tasks[idx]={...state.tasks[idx],...payload,id:editingTaskId};
+    }
+  }else{
+    savedId=makeId();
+    state.tasks.push({id:savedId,...payload});editingTaskId=savedId;
+  }
+
+  if(!await save())return;
+
+  editingTaskId=null;
+  $('#modal').classList.add('hidden');
+  render();
+  showToast();
+
+  setTimeout(()=>{
+    const button=document.querySelector(`[data-task="${savedId}"]`);
+    if(button){
+      const card=button.closest('.task');
+      if(card) card.scrollIntoView({behavior:'smooth',block:'center'});
+    }
+  },80);
+  return savedId;
+}
+
+$('#saveTask').onclick=saveCurrentTask;
+
+const dueCalendarBtn=$('#dueCalendarBtn');
+if(dueCalendarBtn){
+  dueCalendarBtn.onclick=()=>{
+    const input=$('#dueDate');
+    if(!input) return;
+    try{
+      if(typeof input.showPicker==='function') input.showPicker();
+      else input.focus();
+    }catch{
+      input.focus();
+    }
+  };
+}
+
+function openDetail(id){currentTask=state.tasks.find(t=>t.id===id);$('#detailClient').textContent=client().name;$('#detailTitle').textContent=currentTask.name;$('#detailEdit').disabled=!!currentTask.cancelled;$('#detailCancel').disabled=!!currentTask.cancelled;$('#detailModal').classList.remove('hidden');setTab('brief')}$('#detailClose').onclick=()=>$('#detailModal').classList.add('hidden');
+$('#detailEdit').onclick=()=>{if(currentTask)editTask(currentTask.id)};
+$('#detailCancel').onclick=()=>{if(currentTask)cancelTask(currentTask.id)};$$('.detail-tab').forEach(b=>b.onclick=()=>setTab(b.dataset.tab));function setTab(tab){$$('.detail-tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));let t=currentTask,b=$('#detailBody');const cancelledNotice=t.cancelled?'<div class="note" style="margin:0 0 16px"><strong>Tarefa cancelada — somente consulta.</strong><br>Cancelada em '+esc(new Date(t.cancelledAt).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}))+'</div>':'';if(tab==='brief')b.innerHTML=`<div class="detail-grid"><div class="box"><h4>Fluxo atual</h4><p>Etapa: ${esc(stageObj(t.workflowStage||'briefing').label)}\nResponsável: ${esc(t.currentOwner||t.responsible||'Sabrina')}\nProgresso: ${taskProgress(t)}%</p><h4>Direcionamento</h4><p>${esc(t.briefing||'Sem briefing.')}</p></div><div class="box"><h4>Referências</h4><p>${(t.links||[]).map(esc).join('\n')||'Sem links.'}</p>${(t.refs||[]).map(m=>m.type.startsWith('video')?`<video src="${m.data}" controls></video>`:`<img src="${m.data}">`).join('')}</div></div>`;if(tab==='creation')b.innerHTML=`<div class="detail-grid"><div class="box"><h4>Legenda</h4><p>${esc(t.caption||'Sem legenda.')}</p><h4>Texto da imagem / roteiro</h4><p>${esc(t.imageText||'—')}</p></div><div class="box"><h4>Post final</h4>${t.finalMedia?(t.finalMedia.type.startsWith('video')?`<video src="${t.finalMedia.data}" controls></video>`:`<img src="${t.finalMedia.data}">`):'<p>Nenhum post adicionado.</p>'}</div></div>`;if(tab==='publication')b.innerHTML=`<div class="detail-grid"><div class="box"><h4>Plataformas</h4><p>${(t.channels||[]).map(esc).join(', ')||'Nenhuma.'}</p></div><div class="box"><h4>Publicação</h4><p>Ação: ${esc(t.action)}\nStatus: ${esc(t.status)}\nData: ${fmt(t.publishDate)}\nHorário: ${esc(t.publishTime||'—')}</p></div></div>`;b.insertAdjacentHTML('afterbegin',cancelledNotice)}
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'){
+    if(document.getElementById('confirmDialog').open)return;
+    if(!$('#detailModal').classList.contains('hidden')){
+      $('#detailModal').classList.add('hidden');
+      return;
+    }
+    if(!$('#modal').classList.contains('hidden')){
+      $('#modal').classList.add('hidden');
+      editingTaskId=null;
+    }
+  }
+});
+
+['modal','detailModal'].forEach(id=>{
+  const el=document.getElementById(id);
+  el.addEventListener('click',e=>{
+    if(e.target===el){
+      el.classList.add('hidden');
+      if(id==='modal')editingTaskId=null;
+    }
+  });
+});
+
+
+async function generateMonthlyTemplate(){
+  const c=client();
+  if(saving||!ready)return;
+  if(monthTasks().length && !await askConfirmation('Já existem tarefas neste mês. Deseja adicionar o modelo mesmo assim?', 'Gerar modelo mensal'))return;
+  const add=(name,type,stage,owner)=>{
+    state.tasks.push({id:makeId(),clientId:c.id,month:state.month,name,responsible:owner,currentOwner:owner,workflowStage:stage,type,priority:'Média',dueDate:'',summary:'',briefing:'',briefChannels:['Facebook','Instagram'],links:[],refs:[],caption:'',imageText:'',finalMedia:null,channels:['Facebook','Instagram'],action:'draft',status:'Não publicado',publishDate:'',publishTime:''})
+  };
+  add(`Reunião / briefing — ${c.name}`,'Reunião','briefing','Sabrina');
+  for(let i=1;i<=Number(c.arts||0);i++)add(`Arte ${String(i).padStart(2,'0')} — ${c.name}`,'Arte','copy','William');
+  for(let i=1;i<=Number(c.videos||0);i++)add(`Vídeo ${String(i).padStart(2,'0')} — ${c.name}`,'Vídeo','copy','William');
+  if(!await save())return;render();showToast();
+}
+$('#generateTemplateBtn').onclick=generateMonthlyTemplate;
+
+$('#taskForm').onsubmit=e=>e.preventDefault();
+$('#retrySave').onclick=async()=>{if(await save()){render();showToast();}};
+$('#reloadData').onclick=()=>location.reload();
+$$('.wallet').forEach((b,i)=>b.onclick=()=>{state.wallet='C'+(i+1);state.selected=visibleClients()[0]?.id||'';render();});
+const clientDialog=document.getElementById('clientDialog');
+$('#addClient').onclick=()=>{document.getElementById('clientForm').reset();$('#clientWallet').value=state.wallet||'C1';$('#clientDialogTitle').textContent='Cadastrar cliente';$('#clientForm').dataset.mode='new';clientDialog.showModal();};
+$('#editPlan').onclick=()=>{const c=client();$('#clientDialogTitle').textContent='Editar plano';$('#clientForm').dataset.mode='edit';$('#newClientName').value=c.name;$('#planArts').value=c.arts||0;$('#planVideos').value=c.videos||0;$('#clientWallet').value=c.wallet||'C1';clientDialog.showModal();};
+$('#clientDialogClose').onclick=()=>clientDialog.close();
+$('#clientForm').onsubmit=async e=>{e.preventDefault();const name=$('#newClientName').value.trim();if(!name)return;const changes={name,arts:Number($('#planArts').value),videos:Number($('#planVideos').value),wallet:$('#clientWallet').value};if($('#clientForm').dataset.mode==='edit'){Object.assign(client(),changes);}else{const c={id:makeId(),...changes};state.clients.push(c);state.selected=c.id;$('#clientForm').dataset.mode='edit';}state.wallet=changes.wallet;if(await save()){clientDialog.close();render();renderRegisteredClients();if(!$('#accessPanel').classList.contains('hidden'))loadInstagram();showToast();}};
+async function initialize(){try{const r=await fetch('/api/connect',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);revision=d.revision;state=d.state||structuredClone(DEFAULT);state.wallet=state.wallet||'C1';ready=true;document.body.classList.remove('loading-data');render();renderRegisteredClients();if(!d.state)await save();else setStatus('Salvo online');loadPublications().catch(()=>{});}catch(e){setStatus(e.message,true);}}
+let employeeList=[],employeeEditing=null,verifyEmployee=null,emailReady=false;
+const employeeDialog=$('#employeeDialog'),verifyDialog=$('#emailVerifyDialog');
+function showArea(users){$$('main > *').forEach(el=>el.classList.toggle('hidden',users?el.id!=='usersSection':el.id==='usersSection'));if(!users)render();$('.layout aside:nth-child(2)').classList.toggle('hidden',users);$('.layout').classList.toggle('users-area',users);$('#usersNav').classList.toggle('active',users);$('#registrationMenu').classList.toggle('hidden',!users);$('#managementNav').classList.toggle('active',!users);if(users){loadEmployees();loadInstagram();renderRegisteredClients();}}
+$('#usersNav').onclick=()=>{showArea(true);showRegistrationTab(false);};$('#employeeNav').onclick=()=>{showArea(true);showRegistrationTab(false);};$('#clientsNav').onclick=()=>{showArea(true);showRegistrationTab('clients');};$('#accountsNav').onclick=()=>{showArea(true);showRegistrationTab(true);};$('#managementNav').onclick=()=>showArea(false);
+async function loadEmployees(){try{const r=await fetch('/api/users',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);employeeList=d.users;emailReady=d.emailReady;$('#emailNotice').classList.toggle('hidden',emailReady);$('#usersFeedback').textContent='';renderEmployees();}catch(e){$('#usersFeedback').textContent=e.message;}}
+function renderEmployees(){$('#employeesList').innerHTML=employeeList.map(u=>`<article class="employee-row"><div class="employee-avatar">${esc(u.name.slice(0,1).toUpperCase())}</div><div class="employee-main"><h3>${esc(u.name)}</h3><p>${esc(u.email||'Sem email • perfil administrativo')}</p><p>${esc(u.phone||'Telefone não informado')}</p><div class="chips"><span class="chip">${esc(u.role)}</span><span class="chip owner-badge">${esc(u.access)}</span><span class="chip ${u.verified?'verified-badge':''}">${u.email?(u.verified?'Email confirmado':'Email pendente'):'Email dispensado'}</span><span class="chip">${u.has_password?'Senha definida':'Senha a definir'}</span></div></div><div class="task-actions"><button class="secondary" data-employee="${esc(u.id)}">Editar cadastro</button>${u.email&&!u.verified?`<button class="secondary" data-verify="${esc(u.id)}">Confirmar email</button>`:''}</div></article>`).join('');$$('[data-employee]').forEach(b=>b.onclick=()=>openEmployee(employeeList.find(u=>u.id===b.dataset.employee)));$$('[data-verify]').forEach(b=>b.onclick=()=>openVerification(employeeList.find(u=>u.id===b.dataset.verify)));}
+function openEmployee(u=null){employeeEditing=u;$('#employeeForm').reset();$('#employeeError').textContent='';$('#employeeTitle').textContent=u?'Editar usuário / funcionário':'Cadastrar usuário / funcionário';$('#employeeName').value=u?.name||'';$('#employeeEmail').value=u?.email||'';$('#employeeEmail').required=u?.id!=='connect-admin';$('#employeeEmailHint').textContent=u?.id==='connect-admin'?'O perfil Adm pode ficar sem email.':'A confirmação será feita por um código enviado a este email.';$('#employeePhone').value=u?.phone||'';$('#employeeRole').value=u?.role||'Designer';$('#employeeAccess').value=u?.access||'Produção';$('#employeePassword').required=!u?.has_password;$('#employeePasswordConfirm').required=!u?.has_password;$('#employeePasswordHint').textContent=u?.has_password?'Preencha apenas para trocar a senha.':'Defina uma senha de pelo menos 8 caracteres.';employeeDialog.showModal();}
+$('#newEmployee').onclick=()=>openEmployee();$('#employeeClose').onclick=()=>employeeDialog.close();
+$('#employeeForm').onsubmit=async e=>{e.preventDefault();const password=$('#employeePassword').value;if(password!==$('#employeePasswordConfirm').value){$('#employeeError').textContent='As senhas não coincidem.';return;}const button=$('#employeeSave');button.disabled=true;try{const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:employeeEditing?.id,name:$('#employeeName').value,email:$('#employeeEmail').value,phone:$('#employeePhone').value,role:$('#employeeRole').value,access:$('#employeeAccess').value,password})});const d=await r.json();if(!r.ok)throw Error(d.error);$('#employeePassword').value='';$('#employeePasswordConfirm').value='';employeeDialog.close();await loadEmployees();$('#usersFeedback').textContent='Cadastro salvo.';}catch(e){$('#employeeError').textContent=e.message;}finally{button.disabled=false;}};
+function openVerification(u){verifyEmployee=u;$('#verifyForm').reset();$('#verifyEmail').textContent=u.email;$('#verifyFeedback').textContent=emailReady?'Solicite o código e confira sua caixa de entrada.':'O serviço de email ainda precisa ser conectado. Nenhum código foi enviado.';$('#sendEmailCode').disabled=!emailReady;$('#verifyEmailCode').disabled=!emailReady;verifyDialog.showModal();}
+$('#emailVerifyClose').onclick=()=>verifyDialog.close();
+async function emailAction(action){const b=$('#sendEmailCode'),v=$('#verifyEmailCode');b.disabled=true;v.disabled=true;try{const r=await fetch('/api/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action,id:verifyEmployee.id,code:$('#emailCode').value})});const d=await r.json();if(!r.ok)throw Error(d.error);$('#verifyFeedback').textContent=d.message;if(action==='verify'){verifyDialog.close();await loadEmployees();$('#usersFeedback').textContent='Email confirmado.';}}catch(e){$('#verifyFeedback').textContent=e.message;}finally{b.disabled=!emailReady;v.disabled=!emailReady;}}
+$('#sendEmailCode').onclick=()=>emailAction('send');$('#verifyForm').onsubmit=e=>{e.preventDefault();emailAction('verify');};
+loadEmployees();
+function showRegistrationTab(value){const tab=value==='clients'?'clients':value?'access':'employees';for(const [key,panel,top,nav] of [['employees','employeesPanel','employeesTab','employeeNav'],['clients','clientsPanel','clientsTab','clientsNav'],['access','accessPanel','accessTab','accountsNav']]){$('#'+panel).classList.toggle('hidden',key!==tab);$('#'+top).className=key===tab?'primary':'secondary';$('#'+nav).classList.toggle('active',key===tab);}if(tab==='access')loadInstagram();if(tab==='clients')renderRegisteredClients();}
+$('#employeesTab').onclick=()=>showRegistrationTab(false);$('#clientsTab').onclick=()=>showRegistrationTab('clients');$('#accessTab').onclick=()=>showRegistrationTab(true);
+$('#registerClient').onclick=()=>$('#addClient').onclick();
+function renderRegisteredClients(){const list=$('#registeredClientsList');list.replaceChildren();const clients=state.clients||[];if(!clients.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Nenhum cliente cadastrado. Clique em Cadastrar cliente para começar.';list.append(empty);return;}for(const c of clients){const card=document.createElement('article');card.className='employee-row';const info=document.createElement('div');info.className='employee-main';const title=document.createElement('h3');title.textContent=c.name;const plan=document.createElement('p');plan.textContent=(c.wallet||'Sem carteira')+' • Plano mensal: '+(c.arts||0)+' artes e '+(c.videos||0)+' vídeos';info.append(title,plan);const actions=document.createElement('div');actions.className='task-actions';const edit=document.createElement('button');edit.className='secondary';edit.textContent='Editar cliente e plano';edit.onclick=()=>{state.selected=c.id;state.wallet=c.wallet||'C1';$('#editPlan').onclick();$('#clientDialogTitle').textContent='Editar cliente e plano';};const accounts=document.createElement('button');accounts.className='primary';accounts.textContent='Conectar contas';accounts.onclick=()=>{focusAccessClient=c.id;showRegistrationTab(true);};actions.append(edit,accounts);card.append(info,actions);list.append(card);}}
+let focusAccessClient=null;
+async function loadInstagram(){try{const r=await fetch('/api/instagram',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error||'Não foi possível consultar as conexões.');$('#instagramFeedback').textContent=instagramMessages[new URLSearchParams(location.search).get('instagram')]||(d.ready?'Escolha um cliente e conecte a conta correspondente.':'O aplicativo do Instagram aguarda configuração no servidor.');renderClientAccesses(d);}catch(e){$('#instagramFeedback').textContent=e.message;}}
+function renderClientAccesses(d){const clients=d.clients||[],connections=d.connections||[];const list=$('#clientAccessList');list.replaceChildren();if(!clients.length){const empty=document.createElement('div');empty.className='empty';empty.textContent='Cadastre um cliente em Gestão para conectar suas contas.';list.append(empty);}
+for(const c of clients){const card=document.createElement('article');card.dataset.accessClient=c.id;card.className='plan';card.style.margin='0';const head=document.createElement('div');head.className='head';const title=document.createElement('h2');title.textContent=c.name;const wallet=document.createElement('span');wallet.className='chip';wallet.textContent=(c.wallet||'Sem carteira')+' • '+(c.arts||0)+' artes / '+(c.videos||0)+' vídeos';head.append(title,wallet);card.append(head);const platforms=document.createElement('div');platforms.style.cssText='display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:16px';const connection=connections.find(x=>x.client_id===c.id);const instagram=document.createElement('div');instagram.className='note';const label=document.createElement('strong');label.textContent='Instagram';const status=document.createElement('p');status.textContent=connection?(Number(connection.expires_at)>Date.now()?'Conectado • @':'Acesso expirado • @')+connection.username:'Não conectado';instagram.append(label,status);const connect=document.createElement('a');connect.className='primary';connect.style.cssText='display:inline-block;text-decoration:none';connect.textContent=connection?'Reconectar Instagram':'Conectar Instagram';connect.href='/api/instagram/start?client='+encodeURIComponent(c.id);connect.target='_top';if(d.ready)instagram.append(connect);else{const pending=document.createElement('p');pending.textContent='Configuração do aplicativo pendente.';instagram.append(pending);}if(connection){const validity=document.createElement('p');validity.textContent='Validade do acesso: '+new Date(Number(connection.expires_at)).toLocaleDateString('pt-BR');const remove=document.createElement('button');remove.className='secondary';remove.style.marginTop='12px';remove.textContent='Desconectar do sistema';remove.onclick=()=>disconnectInstagram(connection.id);instagram.append(validity,remove);}const facebook=document.createElement('div');facebook.className='note';const fTitle=document.createElement('strong');fTitle.textContent='Facebook';const fStatus=document.createElement('p');fStatus.textContent='Não conectado';const fPending=document.createElement('p');fPending.textContent='Conexão com a Página do Facebook em preparação.';const fButton=document.createElement('button');fButton.className='secondary';fButton.textContent='Conectar Facebook';fButton.disabled=true;fButton.title='A integração do Facebook ainda precisa ser configurada.';facebook.append(fTitle,fStatus,fPending,fButton);platforms.append(instagram,facebook);card.append(platforms);list.append(card);}
+if(focusAccessClient){const target=Array.from(list.children).find(card=>card.dataset.accessClient===focusAccessClient);if(target){target.scrollIntoView({behavior:'smooth',block:'center'});target.style.outline='2px solid #ff6500';}focusAccessClient=null;}
+const unassigned=connections.filter(x=>!x.client_id||!clients.some(c=>c.id===x.client_id));$('#unassignedInstagram').classList.toggle('hidden',!unassigned.length);const loose=$('#instagramAccounts');loose.replaceChildren();for(const connection of unassigned){const row=document.createElement('div');row.className='note';const name=document.createElement('strong');name.textContent='@'+connection.username;const select=document.createElement('select');select.style.margin='12px';const placeholder=document.createElement('option');placeholder.value='';placeholder.textContent='Escolha o cliente';select.append(placeholder);for(const c of clients.filter(c=>!connections.some(x=>x.client_id===c.id))){const option=document.createElement('option');option.value=c.id;option.textContent=c.name;select.append(option);}const bind=document.createElement('button');bind.className='primary';bind.textContent='Vincular ao cliente';bind.onclick=async()=>{if(!select.value){$('#instagramFeedback').textContent='Escolha um cliente para vincular.';return;}try{const r=await fetch('/api/instagram',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:connection.id,clientId:select.value})});const result=await r.json();if(!r.ok)throw Error(result.error);await loadInstagram();}catch(e){$('#instagramFeedback').textContent=e.message;}};row.append(name,select,bind);loose.append(row);}}
+async function disconnectInstagram(id){if(!await askConfirmation('Tem certeza que deseja desconectar esta conta do sistema?','Desconectar Instagram'))return;try{const r=await fetch('/api/instagram',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id})});if(!r.ok)throw Error('Não foi possível desconectar.');await loadInstagram();}catch(e){$('#instagramFeedback').textContent=e.message;}}
+$('#refreshInstagram').onclick=loadInstagram;
+const instagramMessages={client:'Escolha um cliente cadastrado para conectar o Instagram.',account_used:'Esta conta já está vinculada a outro cliente. Desconecte o vínculo anterior para trocar.',client_busy:'Este cliente já tem um Instagram. Desconecte a conta anterior para trocar.',connected:'Conta conectada com sucesso.',cancelled:'Autorização cancelada. Você pode tentar novamente.',state:'A autorização expirou ou já foi usada. Clique em Conectar Instagram novamente.',configuration:'A conexão aguarda configuração do aplicativo no servidor.',denied:'A conexão está restrita ao administrador.',failed:'Não foi possível concluir a conexão. Confira a URL de retorno, as permissões e a chave do aplicativo no Meta.'};
+const instagramResult=new URLSearchParams(location.search).get('instagram');
+if(instagramResult){showArea(true);showRegistrationTab(true);}
+initialize();
+
+let publicationTaskId=null,publicationFormat='post',publicationJobs=[],schedulerReady=false,publicationBusy=false;
+const pubStatus={queued:'Na fila de publicação',processing:'Mídia em processamento na Meta',publishing:'Enviado; aguardando confirmação da Meta',published:'Publicado no Instagram',failed:'Falha na publicação',cancelled:'Publicação cancelada'};
+async function loadPublications(){const r=await fetch('/api/publications',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);publicationJobs=d.jobs;schedulerReady=d.schedulerReady;render();}
+function drawPublication(){const task=state.tasks.find(t=>t.id===publicationTaskId);$$('.pubFormat').forEach(b=>b.className=b.dataset.format===publicationFormat?'primary pubFormat':'secondary pubFormat');const vertical=publicationFormat!=='post';$('#pubFrame').style.aspectRatio=vertical?'9/16':'4/5';$('#pubFormatHint').textContent=publicationFormat==='post'?'Feed: imagem JPEG. Prévia em 4:5.':publicationFormat==='reels'?'Reels: vídeo MP4 vertical. Prévia em 9:16.':'Stories: imagem JPEG ou vídeo MP4. Prévia em 9:16. A conta deve aceitar publicação de Stories.';const frame=$('#pubFrame');frame.replaceChildren();const raw=$('#pubUrl').value.trim();let source=task?.finalMedia?.data||'';try{const u=new URL(raw);if(u.protocol==='https:'&&!u.username&&!u.password)source=u.href;}catch{}if(source){const video=$('#pubKind').value==='video';const el=document.createElement(video?'video':'img');el.src=source;el.style.cssText='width:100%;height:100%;object-fit:contain';if(video)el.controls=true;else el.alt='Prévia da publicação';frame.append(el);}else frame.textContent='Adicione a mídia final';$('#pubCaptionPreview').textContent=publicationFormat==='stories'?'Stories não exibem esta legenda.':$('#pubCaption').value;$('#pubCount').textContent=$('#pubCaption').value.length+'/2200';const schedule=$('#pubMode').value==='schedule';$('#pubSchedule').classList.toggle('hidden',!schedule);$('#pubSchedulerNotice').textContent=schedule?(schedulerReady?'Agendamento em horários cheios, como 14:00 ou 15:00 (Brasília). A fila é verificada a cada hora. O processamento da Meta pode atrasar a publicação.':'Disparo automático pendente. Você pode salvar o planejamento como rascunho.'):'Horários no fuso de Brasília.';$('#pubSubmit').textContent=$('#pubMode').value==='draft'?'Salvar rascunho':schedule?'Confirmar agendamento':'Publicar agora';const job=publicationJobs.find(j=>j.task_id===publicationTaskId);$('#pubSubmit').disabled=publicationBusy||!!job&&!['failed','cancelled'].includes(job.status)||schedule&&!schedulerReady;$('#pubCancel').classList.toggle('hidden',!job||!['queued','processing'].includes(job.status));if(job)$('#pubFeedback').textContent=(pubStatus[job.status]||job.status)+(job.due_at>Date.now()?' • '+new Date(job.due_at).toLocaleString('pt-BR',{timeZone:'America/Sao_Paulo'}):'')+(job.error?'\n'+job.error:'');}
+async function openPublication(id){const task=state.tasks.find(t=>t.id===id);if(!task||task.cancelled)return;publicationTaskId=id;const draft=task.publicationDraft||{};publicationFormat=draft.format||'post';$('#publicationClient').textContent=(state.clients.find(c=>c.id===task.clientId)?.name||'Cliente')+' • '+task.name;$('#pubUrl').value=draft.mediaUrl||'';$('#pubCaption').value=draft.caption??task.caption??'';$('#pubKind').value=draft.mediaKind||(task.finalMedia?.type?.startsWith('video')?'video':'image');$('#pubMode').value=draft.mode||'now';$('#pubDate').value=draft.date||'';$('#pubTime').value=draft.time||'';$('#pubFeedback').textContent='';$('#publicationModal').classList.remove('hidden');$('#pubSubmit').disabled=true;try{const r=await fetch('/api/instagram',{cache:'no-store'});const d=await r.json();if(!r.ok)throw Error(d.error);const account=d.connections.find(a=>a.client_id===task.clientId);$('#publicationAccount').textContent=account?'Conta: @'+account.username+(account.expires_at<=Date.now()?' • acesso expirado':''):'Este cliente ainda não tem Instagram conectado. Vincule a conta em Cadastros → Acessos.';await loadPublications();drawPublication();}catch(e){$('#pubFeedback').textContent=e.message;}}
+$('#publicationClose').onclick=()=>{if(!publicationBusy)$('#publicationModal').classList.add('hidden');};
+$$('.pubFormat').forEach(b=>b.onclick=()=>{publicationFormat=b.dataset.format;if(publicationFormat==='reels')$('#pubKind').value='video';if(publicationFormat==='post')$('#pubKind').value='image';drawPublication();});
+for(const id of ['pubUrl','pubKind','pubCaption','pubMode'])$('#'+id).addEventListener('input',drawPublication);
+$('#wizardPublish').onclick=async()=>{const id=await saveCurrentTask();if(id)openPublication(id);};
+$('#pubCancel').onclick=async()=>{const job=publicationJobs.find(j=>j.task_id===publicationTaskId);if(!job||!await askConfirmation('Cancelar este envio ao Instagram? A tarefa continuará disponível.','Cancelar publicação'))return;try{const r=await fetch('/api/publications',{method:'DELETE',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:job.id})});const d=await r.json();if(!r.ok)throw Error(d.error);await loadPublications();drawPublication();}catch(e){$('#pubFeedback').textContent=e.message;}};
+$('#pubRefresh').onclick=async()=>{try{const job=publicationJobs.find(j=>j.task_id===publicationTaskId);if(job&&['queued','processing','publishing'].includes(job.status)){const r=await fetch('/api/publications',{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({id:job.id})});const d=await r.json();if(!r.ok)throw Error(d.error);}await loadPublications();drawPublication();}catch(e){$('#pubFeedback').textContent=e.message;}};
+$('#pubSubmit').onclick=async()=>{const task=state.tasks.find(t=>t.id===publicationTaskId);if(publicationBusy||!task||task.cancelled)return;const draft={format:publicationFormat,mediaKind:$('#pubKind').value,mediaUrl:$('#pubUrl').value.trim(),caption:$('#pubCaption').value,mode:$('#pubMode').value,date:$('#pubDate').value,time:$('#pubTime').value};let dueAt=null;if(draft.mode==='schedule'){dueAt=Date.parse(draft.date+'T'+draft.time+':00-03:00');if(!Number.isFinite(dueAt)||dueAt<=Date.now()||dueAt%3600000!==0){ $('#pubFeedback').textContent='Escolha uma data futura e um horário cheio, como 14:00 (Brasília).';return;}}if(draft.mode!=='draft'){try{const u=new URL(draft.mediaUrl);if(u.protocol!=='https:'||u.hostname===location.hostname)throw Error();}catch{$('#pubFeedback').textContent='Informe um link HTTPS público direto da mídia, fora deste site privado.';return;}}if(draft.mode!=='draft'&&!await askConfirmation(draft.mode==='schedule'?'Confirmar o agendamento desta publicação na conta do cliente?':'Publicar agora na conta do cliente?','Publicação no Instagram'))return;publicationBusy=true;drawPublication();try{task.publicationDraft=draft;if(!await save())throw Error('Não foi possível salvar a preparação da publicação.');if(draft.mode==='draft'){$('#pubFeedback').textContent='Rascunho salvo. Nenhuma publicação enviada.';return;}const r=await fetch('/api/publications',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({taskId:task.id,...draft,dueAt,accountId:$('#publicationNetwork')?.value})});const d=await r.json();if(!r.ok)throw Error(d.error);await loadPublications();drawPublication();}catch(e){$('#pubFeedback').textContent=e.message;}finally{publicationBusy=false;drawPublication();}};
+
+</script>
+<script src="/modules.js?v=2"></script><script src="/evolution.js?v=3"></script><script src="/workflow.js?v=5"></script><script src="/permissions.js?v=1"></script><script src="/business.js?v=2"></script><script src="/publication-ui.js?v=1"></script><script src="/calendar-ui.js?v=1"></script></body></html>
