@@ -1,0 +1,39 @@
+/* Identidade visual Periférica (a mesma do antigo GestãoPro): carregado por último para valer sobre os outros estilos.
+   Cores da marca: laranja #FF5000, preto/grafite (#000, #0a0a0a, #111) e fundo claro #F8F9FA.
+   Tipografia: fonte do sistema, títulos em peso black e maiúsculas, rótulos pequenos e espaçados. */
+
+:root{--orange:#ff5000;--dark:#0a0a0a;--dark2:#111;--bg:#f8f9fa;--brand-font:ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif}
+body{font-family:var(--brand-font)}
+
+/* Marca no cabeçalho: símbolo "é" + PERI(branco)FLOW(laranja) */
+.brand .logo-img{width:34px;height:42px;object-fit:contain;display:block}
+.brand strong{font-weight:900;text-transform:uppercase;letter-spacing:-.04em}
+.brand strong .brand-accent{color:var(--orange);font-weight:900}
+.brand small{text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:800}
+
+/* Títulos de página e de seção */
+.head h1,.plan h2,.tasks>h2,.squad-head h3,.section-head h3,.modal-head h2,#usersSection h1,main h1{font-weight:900;text-transform:uppercase;letter-spacing:-.035em}
+.head h1{font-size:28px}
+
+/* Rótulos pequenos (como os do GestãoPro: 10px, black, maiúsculas, espaçados) */
+.label,.crumb,.section-head small,.month,.stat small,.squad-head small,.modal-head small,.progress-head strong{text-transform:uppercase;letter-spacing:.14em;font-size:10px;font-weight:900}
+.field{text-transform:uppercase;letter-spacing:.12em;font-size:10px;font-weight:900;color:#9ca3af}
+.field input,.field select,.field textarea,.field small,.field option,.field label,.field span{text-transform:none;letter-spacing:normal;font-size:13px;font-weight:600;color:#111827}
+.field small{font-size:12px;font-weight:400;color:#6b7280}
+
+/* Botões */
+.primary,.secondary,.logout,.template-btn{text-transform:uppercase;letter-spacing:.12em;font-size:11px;font-weight:900;border-radius:6px}
+.primary{box-shadow:0 8px 18px #ff50002b}
+.primary:hover{filter:brightness(.95)}
+.secondary:hover{border-color:var(--orange)}
+
+/* Menu lateral */
+.nav,.wallet{border-radius:8px;font-weight:700}
+.nav.active,.wallet.active{background:#1c1c1c;border-color:var(--orange)}
+
+/* Cartões com cantos mais retos */
+.plan,.task,.employee-row,.squad-box,.stat{border-radius:10px}
+.modal-card{border-radius:10px}
+
+/* Barra de status: cinza neutro no lugar do azulado */
+.syncbar{background:#f1f1f1;color:#525252}
