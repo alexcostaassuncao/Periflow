@@ -27,9 +27,30 @@ body{font-family:var(--brand-font)}
 .primary:hover{filter:brightness(.95)}
 .secondary:hover{border-color:var(--orange)}
 
-/* Menu lateral */
-.nav,.wallet{border-radius:8px;font-weight:700}
-.nav.active,.wallet.active{background:#1c1c1c;border-color:var(--orange)}
+/* Menu lateral no estilo do GestãoPro: fundo escuro, ícones, item ativo em grafite com ícone laranja.
+   As carteiras C1–C4 aparecem como subitens da Gestão (a segunda coluna fica oculta). */
+.layout,.layout.global-area,.layout.users-area{grid-template-columns:230px minmax(0,1fr)}
+.layout>aside:nth-child(2){display:none!important}
+.layout>aside:first-child{background:#111;border-right:1px solid #ffffff0d;padding:18px 14px}
+.layout aside .label{color:#6b7280;padding:0 6px;margin-bottom:10px}
+.nav{display:flex;align-items:center;gap:12px;width:100%;padding:12px 14px;margin:0 0 4px;border:1px solid transparent;border-radius:8px;background:transparent;color:#9ca3af;font-size:14px;font-weight:700;text-align:left;transition:background .15s,color .15s}
+.nav:hover{background:#1c1c1c;color:#fff}
+.nav.active{background:#1c1c1c;border-color:transparent;color:#fff}
+.nav-ico{width:18px;height:18px;flex:none;display:inline-grid;place-items:center}
+.nav.active .nav-ico{color:var(--orange)}
+.wallet-group{margin:2px 0 8px 22px;padding-left:12px;border-left:1px solid #2a2a2a}
+.layout.global-area .wallet-group{display:none}
+.wallet-group .wallet{display:flex;align-items:center;gap:6px;width:100%;padding:8px 12px;margin:0 0 2px;border:0;border-radius:6px;background:transparent;color:#9ca3af;font-size:13px;font-weight:700;text-align:left}
+.wallet-group .wallet:hover{background:#1c1c1c;color:#fff}
+.wallet-group .wallet.active{background:#1c1c1c;color:#fff;box-shadow:inset 2px 0 0 var(--orange)}
+.wallet-group .wallet small{display:inline;margin:0 0 0 auto;color:#6b7280;font-size:10px;font-weight:700}
+@media(max-width:900px){
+  .layout,.layout.global-area{grid-template-columns:1fr}
+  .layout>aside:first-child{padding:10px}
+  .nav,.wallet-group .wallet{width:auto;white-space:nowrap;margin:0}
+  .wallet-group{display:contents}
+  .layout.global-area .wallet-group{display:none}
+}
 
 /* Cartões com cantos mais retos */
 .plan,.task,.employee-row,.squad-box,.stat{border-radius:10px}
