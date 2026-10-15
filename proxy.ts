@@ -6,10 +6,10 @@ import {userFromToken} from './lib/auth';
 // O usuário logado é repassado às rotas pelos cabeçalhos x-periflow-* (sempre recriados aqui,
 // nunca aceitos do navegador).
 
-const PUBLIC_PATHS=new Set(['/login.html','/api/auth/login','/api/auth/logout','/favicon.svg','/api/publications/run']);
+const PUBLIC_PATHS=new Set(['/login.html','/api/auth/login','/api/auth/logout','/favicon.svg','/api/publications/run','/api/projetos/banners']);
 // Scripts, estilos e imagens da interface não têm dados; liberá-los evita consultas ao banco a cada arquivo.
 const PUBLIC_ASSET=/\.(js|css|svg|png|jpg|jpeg|webp|ico|woff2?)$/i;
-const IDENTITY_HEADERS=['x-periflow-user-id','x-periflow-user-email','x-periflow-user-name','x-periflow-admin'];
+const IDENTITY_HEADERS=['x-periflow-user-id','x-periflow-user-email','x-periflow-user-name','x-periflow-admin','x-periflow-user-access'];
 
 export async function proxy(req:NextRequest){
   const {pathname,search}=req.nextUrl;
@@ -29,6 +29,7 @@ export async function proxy(req:NextRequest){
   headers.set('x-periflow-user-email',encodeURIComponent(user.email));
   headers.set('x-periflow-user-name',encodeURIComponent(user.name));
   headers.set('x-periflow-admin',user.admin?'1':'0');
+  headers.set('x-periflow-user-access',encodeURIComponent(user.access));
   return NextResponse.next({request:{headers}});
 }
 

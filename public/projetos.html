@@ -1,0 +1,1574 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projetos — Periflow</title>
+    <link rel="icon" href="/favicon.svg">
+
+    <!-- Bibliotecas Base -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Configuração do Tailwind -->
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        important: '#leads-periferica-root',
+        theme: {
+          extend: {
+            colors: {
+              brand: '#ff5b0a',
+              darkbg: '#071222',
+              darkpanel: '#0c1726',
+            }
+          }
+        }
+      }
+    </script>
+    
+    <!-- React & ReactDOM -->
+    <script crossorigin src="https://unpkg.com/react@18.3.1/umd/react.production.min.js"></script>
+    <script crossorigin src="https://unpkg.com/react-dom@18.3.1/umd/react-dom.production.min.js"></script>
+    
+    <!-- Dependências -->
+    <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
+    <script>
+      window.react = window.React;
+      window.PropTypes = window.PropTypes || window.propTypes;
+    </script>
+    <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.js"></script>
+    <script src="https://unpkg.com/lucide-react@0.344.0/dist/umd/lucide-react.js"></script>
+    <script src="https://unpkg.com/@babel/standalone@7.23.0/babel.min.js"></script>
+
+
+    <style>
+        html, body {
+            margin: 0 !important; 
+            padding: 0 !important;
+        }
+
+        #leads-periferica-root {
+            width: 100%;
+            min-height: 100vh;
+            font-family: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif !important;
+            display: flex;
+            text-align: left !important;
+            background-color: #f3f6fa;
+            overflow: hidden;
+        }
+
+        #leads-periferica-root a, 
+        #leads-periferica-root button {
+            text-decoration: none !important;
+            outline: none !important;
+            box-shadow: none !important;
+            border: none;
+        }
+
+        #leads-periferica-root * { box-sizing: border-box !important; }
+
+        .dark input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; height: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background-color: #ff5b0a; border-radius: 4px; }
+        
+        .fade-in { animation: fadeIn 0.4s ease-out; }
+        @keyframes fadeIn { 
+            from { opacity: 0; transform: translateY(5px); } 
+            to { opacity: 1; transform: translateY(0); } 
+        }
+    </style>
+</head>
+<body>
+    
+    <div id="leads-periferica-root">
+        <div style="width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background: #f3f6fa; color: #ff5b0a; font-family: sans-serif; font-weight: bold;">
+            CARREGANDO PROJETOS...
+        </div>
+    </div>
+
+    <script type="text/babel" data-presets="react,env">
+        /** @jsx React.createElement */
+        /** @jsxFrag React.Fragment */
+
+        const { useState, useEffect, useMemo, useRef } = React;
+        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip: RechartsTooltip, ResponsiveContainer, Cell } = window.Recharts;
+        const { 
+            LayoutDashboard, FolderKanban, Search, Calendar, Edit2, Plus, X, Clock, 
+            ArrowRightLeft, Trash2, User, Eye, EyeOff, Users, LogOut, ShieldAlert,
+            CheckCircle, AlertTriangle, ChevronRight, MessageSquare, History, FileText, 
+            PlusCircle, Check, Sun, Moon, ExternalLink, UploadCloud, Download, Menu, Filter, DollarSign, Building, Key, Copy, Bell
+        } = window.LucideReact;
+
+        // Dados vêm da API do Periflow (/api/projetos). O login é o do Periflow (proxy.ts).
+        const apiPost = async (action, body = {}) => {
+            const r = await fetch('/api/projetos', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action, ...body }) });
+            const data = await r.json().catch(() => ({}));
+            if (r.status === 401) { window.top.location.href = '/login.html'; throw new Error('Sessão expirada'); }
+            if (!r.ok) { alert(data.error || 'Não foi possível salvar. Tente novamente.'); throw new Error(data.error || 'HTTP ' + r.status); }
+            return data;
+        };
+
+        const TAG_COLOR_OPTIONS = [
+            { label: 'Verde', bg: 'bg-green-100 dark:bg-green-500/10', text: 'text-green-700 dark:text-green-400', border: 'border-green-300 dark:border-green-500/30', hex: '#22c55e' },
+            { label: 'Azul', bg: 'bg-blue-100 dark:bg-blue-500/10', text: 'text-blue-700 dark:text-blue-400', border: 'border-blue-300 dark:border-blue-500/30', hex: '#3b82f6' },
+            { label: 'Laranja', bg: 'bg-orange-100 dark:bg-orange-500/10', text: 'text-orange-700 dark:text-orange-400', border: 'border-orange-300 dark:border-orange-500/30', hex: '#f97316' },
+            { label: 'Vermelho', bg: 'bg-red-100 dark:bg-red-500/10', text: 'text-red-700 dark:text-red-400', border: 'border-red-300 dark:border-red-500/30', hex: '#ef4444' },
+            { label: 'Cinza', bg: 'bg-gray-100 dark:bg-white/5', text: 'text-gray-700 dark:text-gray-400', border: 'border-gray-300 dark:border-white/10', hex: '#6b7280' },
+        ];
+
+        const FIXED_STATUSES = [
+            { name: 'Em Processo', color: TAG_COLOR_OPTIONS[1] },
+            { name: 'Aguardando Informação', color: TAG_COLOR_OPTIONS[2] },
+            { name: 'Finalizado', color: TAG_COLOR_OPTIONS[0] },
+            { name: 'Não vai dar continuidade', color: TAG_COLOR_OPTIONS[4] }
+        ];
+
+        const monthsList = ['Todos', 'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+
+        const toInputDate = (brDate) => { 
+            if (!brDate) return ''; 
+            const parts = brDate.split('/'); 
+            return parts.length === 3 ? `${parts[2]}-${parts[1]}-${parts[0]}` : brDate; 
+        };
+        
+        const toBRDate = (inputDate) => { 
+            if (!inputDate) return ''; 
+            const parts = inputDate.split('-'); 
+            return parts.length === 3 ? `${parts[2]}/${parts[1]}/${parts[0]}` : inputDate; 
+        };
+
+        const safeLower = (val) => (val || '').toString().toLowerCase().trim();
+
+        const fallbackCopyTextToClipboard = (text) => {
+            const textArea = document.createElement("textarea");
+            textArea.value = text;
+            textArea.style.top = "0";
+            textArea.style.left = "0";
+            textArea.style.position = "fixed";
+            document.body.appendChild(textArea);
+            textArea.focus();
+            textArea.select();
+            try {
+                document.execCommand('copy');
+            } catch (err) {
+                console.error('Não foi possível copiar.');
+            }
+            document.body.removeChild(textArea);
+        };
+
+        const MultiSelectDropdown = ({ options, selected, onChange, placeholder }) => {
+            const [isOpen, setIsOpen] = useState(false);
+            const dropdownRef = useRef(null);
+
+            useEffect(() => {
+                const handleClickOutside = (event) => {
+                    if (dropdownRef.current && !dropdownRef.current.contains(event.target)) { setIsOpen(false); }
+                };
+                document.addEventListener('mousedown', handleClickOutside);
+                return () => document.removeEventListener('mousedown', handleClickOutside);
+            }, []);
+
+            const toggleOption = (opt) => {
+                if (selected.includes(opt)) { onChange(selected.filter(item => item !== opt)); } 
+                else { onChange([...selected, opt]); }
+            };
+
+            const displayText = selected.length === 0 ? placeholder : selected.length === 1 ? selected[0] : `${selected.length} Selecionados`;
+
+            return (
+                <div className="relative shrink-0 flex-1 min-w-[140px] max-w-[200px]" ref={dropdownRef}>
+                    <button type="button" onClick={() => setIsOpen(!isOpen)} className="w-full flex items-center justify-between bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 px-4 py-3 rounded-md text-[11px] font-bold outline-none shadow-sm cursor-pointer transition-colors dark:text-white text-gray-900">
+                        <span className="truncate mr-2">{displayText}</span>
+                        <ChevronRight className={`text-gray-400 transition-transform ${isOpen ? '-rotate-90' : 'rotate-90'} shrink-0`} size={14} />
+                    </button>
+                    
+                    {isOpen && (
+                        <div className="absolute top-full mt-2 left-0 w-64 max-h-72 overflow-y-auto bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-md shadow-2xl z-[9999] custom-scrollbar">
+                            <div className="px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer border-b border-gray-100 dark:border-white/5 transition-colors sticky top-0 bg-white dark:bg-[#1a1a1a] z-10" onClick={() => { onChange([]); setIsOpen(false); }}>
+                                <span className={`text-[11px] font-black ${selected.length === 0 ? 'text-brand' : 'text-gray-500 dark:text-gray-400'}`}>{placeholder} (Limpar Tudo)</span>
+                            </div>
+                            {options.length === 0 && <div className="px-4 py-3 text-[10px] text-gray-400 italic">Sem opções...</div>}
+                            {options.map(opt => (
+                                <div key={opt} onClick={() => toggleOption(opt)} className="flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-white/5 cursor-pointer transition-colors border-b border-gray-50 dark:border-white/5 last:border-0">
+                                    <div className={`w-3.5 h-3.5 rounded flex items-center justify-center border mr-3 shrink-0 transition-colors ${selected.includes(opt) ? 'bg-brand border-brand text-white' : 'bg-white dark:bg-[#222] border-gray-300 dark:border-gray-600'}`}>
+                                        {selected.includes(opt) && <Check size={10} strokeWidth={4} />}
+                                    </div>
+                                    <span className={`text-[11px] font-bold truncate ${selected.includes(opt) ? 'text-gray-900 dark:text-white' : 'text-gray-600 dark:text-gray-400'}`}>{opt}</span>
+                                </div>
+                            ))}
+                        </div>
+                    )}
+                </div>
+            );
+        };
+
+        function App() {
+            const [me, setMe] = useState(null);
+            const [loadError, setLoadError] = useState('');
+            const [loading, setLoading] = useState(true);
+            // Mantém os nomes usados no restante da tela (antes vinham do Firebase Auth)
+            const user = me ? { uid: me.id } : null;
+            const profile = me ? { name: me.name, role: me.role } : null;
+            const [activeTab, setActiveTab] = useState('dashboard');
+            const fileInputRef = useRef(null); 
+            
+            const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+            const [showMobileFilters, setShowMobileFilters] = useState(false);
+            
+            const [isDark, setIsDark] = useState(() => {
+                try { return localStorage.getItem('periflow-projetos-theme') === 'dark'; } catch(e) { return false; }
+            });
+
+            useEffect(() => {
+                const root = document.getElementById('leads-periferica-root');
+                if (root) {
+                    root.classList.toggle('dark', isDark);
+                    try { localStorage.setItem('periflow-projetos-theme', isDark ? 'dark' : 'light'); } catch(e) {}
+                }
+            }, [isDark]);
+            
+            const [projects, setProjects] = useState([]);
+            const [teamUsers, setTeamUsers] = useState([]);
+            const [companies, setCompanies] = useState([]); 
+
+            const [selectedMonths, setSelectedMonths] = useState([]);
+            const [searchQuery, setSearchQuery] = useState('');
+            const [dateRange, setDateRange] = useState({ start: '', end: '' });
+            
+            const [filterStatus, setFilterStatus] = useState([]);
+            const [filterCategory, setFilterCategory] = useState([]);
+            const [filterClient, setFilterClient] = useState([]); 
+            
+            const [filterUser, setFilterUser] = useState('Todos'); 
+            const [sortOrder, setSortOrder] = useState('newest'); 
+            const [riskOnly, setRiskOnly] = useState(false);
+
+            const [accessSubTab, setAccessSubTab] = useState('tray');
+
+            const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+            const [currentProject, setCurrentProject] = useState(null);
+            const [noteTitle, setNoteTitle] = useState('');
+            const [noteText, setNoteText] = useState('');
+            const [noteIsAlert, setNoteIsAlert] = useState(false);
+            const [editingNoteIndex, setEditingNoteIndex] = useState(null);
+            const [expandedNotes, setExpandedNotes] = useState({});
+            const [transferModal, setTransferModal] = useState({ isOpen: false, project: null, toMonth: '', motivo: '' });
+            const [showAddCategory, setShowAddCategory] = useState(false);
+            const [newCategoryVal, setNewCategoryVal] = useState('');
+
+            // Evita que a edição de uma nota "vaze" para outro projeto aberto em seguida
+            useEffect(() => {
+                setEditingNoteIndex(null);
+                setExpandedNotes({});
+            }, [currentProject?.id, isEditModalOpen]);
+
+            const [isCompanyModalOpen, setIsCompanyModalOpen] = useState(false);
+            const [currentCompany, setCurrentCompany] = useState({ 
+                id: null, nome: '', tipos: [], temSuporte: false, suporteInicio: '', suporteFim: '', diaLembrete: '', linkGrupoWhatsapp: '', webhookUrl: '',
+                codigoLoja: '', usuarioLoja: '', senhaLoja: '', dominio: '', usuarioDominio: '', senhaDominio: '', provedorDominio: 'Registro Br', ultimoLembreteEnviado: ''
+            });
+            const [showExpirationModal, setShowExpirationModal] = useState(false);
+            const [expiringPopupDismissed, setExpiringPopupDismissed] = useState(false);
+            const [showBannerModal, setShowBannerModal] = useState(false);
+            const [bannerPopupDismissed, setBannerPopupDismissed] = useState(false);
+
+            // Carrega tudo da API; recarrega a cada 30s para ver o que a equipe alterou
+            const reload = async () => {
+                try {
+                    const r = await fetch('/api/projetos', { cache: 'no-store' });
+                    if (r.status === 401) { window.top.location.href = '/login.html'; return null; }
+                    const data = await r.json();
+                    if (!r.ok) throw new Error(data.error);
+                    setMe(data.me); setProjects(data.projetos); setCompanies(data.empresas); setTeamUsers(data.equipe);
+                    setLoadError('');
+                    return data;
+                } catch (err) {
+                    setLoadError(err.message || 'Não foi possível carregar os projetos.');
+                    return null;
+                } finally { setLoading(false); }
+            };
+
+            useEffect(() => {
+                reload();
+                const timer = setInterval(() => { if (document.visibilityState === 'visible') reload(); }, 30000);
+                return () => clearInterval(timer);
+            }, []);
+
+            // Após alterar notas, atualiza só a lista de notas do projeto aberto (sem perder o que está sendo digitado)
+            const reloadNotes = async (projectId) => {
+                const data = await reload();
+                const fresh = data?.projetos.find(p => p.id === projectId);
+                if (fresh) setCurrentProject(cp => cp && cp.id === projectId ? { ...cp, anotacoes: fresh.anotacoes } : cp);
+            };
+
+            const ownerOptions = useMemo(() => {
+                const map = new Map(teamUsers.map(u => [u.id, { id: u.id, name: u.name || 'Sem nome' }]));
+                projects.forEach(p => { if (p.ownerId && !map.has(p.ownerId)) map.set(p.ownerId, { id: p.ownerId, name: p.ownerName || 'Sem nome' }); });
+                return Array.from(map.values()).sort((a, b) => a.name.localeCompare(b.name));
+            }, [teamUsers, projects]);
+
+            const isAdmin = profile?.role === 'admin';
+            const isViewer = profile?.role === 'viewer';
+            const canEdit = isAdmin || profile?.role === 'collaborator';
+            
+            const hasActiveFilters = filterCategory.length > 0 || filterStatus.length > 0 || filterClient.length > 0 || searchQuery !== '' || dateRange.start !== '' || dateRange.end !== '';
+
+            const getDiasParaVencer = (dataFim) => {
+                if (!dataFim) return null;
+                const [ano, mes, dia] = dataFim.split('-');
+                const fim = new Date(ano, mes - 1, dia, 23, 59, 59).getTime();
+                const hoje = new Date().getTime();
+                return Math.ceil((fim - hoje) / (1000 * 3600 * 24));
+            };
+
+            const expiringCompanies = useMemo(() => {
+                return companies.filter(c => {
+                    if (!c.temSuporte || !c.suporteFim) return false;
+                    const dias = getDiasParaVencer(c.suporteFim);
+                    return dias !== null && dias <= 15;
+                });
+            }, [companies]);
+
+            useEffect(() => {
+                if (expiringCompanies.length > 0 && !expiringPopupDismissed) {
+                    setShowExpirationModal(true);
+                }
+            }, [expiringCompanies, expiringPopupDismissed]);
+
+            const pendingBanners = useMemo(() => {
+                const today = new Date();
+                const currentDay = today.getDate();
+                const currentMonthYear = `${today.getMonth() + 1}-${today.getFullYear()}`;
+                const lastDayOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0).getDate();
+
+                return companies.filter(c => {
+                    if (!c.tipos?.includes('E-commerce')) return false;
+                    if (!c.diaLembrete) return false;
+                    if (c.ultimoLembreteEnviado === currentMonthYear) return false;
+                    // Dia 29-31 em meses mais curtos dispara no último dia do mês
+                    return currentDay >= Math.min(parseInt(c.diaLembrete, 10), lastDayOfMonth);
+                });
+            }, [companies]);
+
+            // Empresas com webhook são enviadas pelo cron do servidor (api/cron-banners.js).
+            // Aqui só avisamos sobre as que precisam de envio manual pelo WhatsApp.
+            const manualBanners = useMemo(() => pendingBanners.filter(c => !c.webhookUrl || c.webhookUrl.trim() === ''), [pendingBanners]);
+
+            useEffect(() => {
+                if (manualBanners.length > 0 && !bannerPopupDismissed) {
+                    setShowBannerModal(true);
+                }
+            }, [manualBanners, bannerPopupDismissed]);
+
+            const handleEnviarMensagemBanner = (empresa) => {
+                const msg = `Olá equipe da ${empresa.nome}!\n\nPassando para lembrar que, como parte do nosso serviço, vocês têm direito a solicitar até *2 banners* este mês para o E-commerce.\n\nLembramos que eles não são acumulativos, então nos enviem os pedidos de criação quando quiserem aproveitar!`;
+                fallbackCopyTextToClipboard(msg);
+                if (empresa.linkGrupoWhatsapp) {
+                    setTimeout(() => { window.open(empresa.linkGrupoWhatsapp, '_blank'); }, 500);
+                }
+            };
+
+            const handleMarcarLembreteEnviado = async (empresa) => {
+                if (!canEdit) return;
+                const currentMonthYear = `${new Date().getMonth() + 1}-${new Date().getFullYear()}`;
+                await apiPost('setLembrete', { id: empresa.id, value: currentMonthYear });
+                reload();
+            };
+
+            const handleDesmarcarLembreteEnviado = async (empresa) => {
+                if (!canEdit) return;
+                await apiPost('setLembrete', { id: empresa.id, value: '' });
+                reload();
+            };
+
+            const isRiskProject = (p) => {
+                const sLow = safeLower(p.status);
+                if (sLow === 'finalizado' || sLow.includes('continuidade') || sLow === 'cancelado') return false;
+                return p.anotacoes && p.anotacoes.some(n => n.isAlert === true);
+            };
+
+            const projectsForSelectedUser = useMemo(() => {
+                return projects.filter(p => filterUser === 'Todos' || p.ownerId === filterUser);
+            }, [projects, filterUser]);
+
+            const activeClients = useMemo(() => {
+                const clMap = new Map();
+                projectsForSelectedUser.forEach(p => {
+                    const c = (p.cliente || '').trim();
+                    if(c && !clMap.has(safeLower(c))) clMap.set(safeLower(c), c);
+                });
+                return Array.from(clMap.values()).sort((a,b) => a.localeCompare(b));
+            }, [projectsForSelectedUser]);
+
+            const activeCategories = useMemo(() => {
+                const catMap = new Map();
+                projectsForSelectedUser.forEach(p => {
+                    const c = (p.tipo || '').trim();
+                    if(c && !catMap.has(safeLower(c))) catMap.set(safeLower(c), c);
+                });
+                return Array.from(catMap.values()).sort((a,b) => a.localeCompare(b));
+            }, [projectsForSelectedUser]);
+
+            const filteredProjects = useMemo(() => {
+                let result = projectsForSelectedUser.filter(project => {
+                    const matchMonth = selectedMonths.length === 0 || selectedMonths.includes(project.mes);
+                    
+                    const matchTag = filterStatus.length === 0 || filterStatus.some(s => safeLower(project.status) === safeLower(s));
+                    const matchCategory = filterCategory.length === 0 || filterCategory.some(c => safeLower(project.tipo) === safeLower(c));
+                    const matchClientFilter = filterClient.length === 0 || filterClient.some(c => safeLower(project.cliente) === safeLower(c));
+                    
+                    const matchRisk = !riskOnly || isRiskProject(project);
+                    
+                    const searchLower = safeLower(searchQuery);
+                    const matchSearch = safeLower(project.cliente).includes(searchLower) || 
+                                        safeLower(project.tipo).includes(searchLower) || 
+                                        safeLower(project.status).includes(searchLower);
+                    
+                    let matchDateRange = true;
+                    if (dateRange.start || dateRange.end) {
+                        try {
+                            let pYear, pMonth, pDay;
+                            const cleanDate = project.criadoEm?.trim().split(' ')[0] || '';
+                            if (cleanDate.includes('/')) {
+                                const parts = cleanDate.split('/');
+                                if (parts.length === 3) { pDay = parseInt(parts[0], 10); pMonth = parseInt(parts[1], 10) - 1; pYear = parseInt(parts[2], 10); }
+                            } else if (cleanDate.includes('-')) {
+                                const parts = cleanDate.split('-');
+                                if (parts.length === 3) { pYear = parseInt(parts[0], 10); pMonth = parseInt(parts[1], 10) - 1; pDay = parseInt(parts[2], 10); }
+                            }
+
+                            if (pYear !== undefined && !isNaN(pYear)) {
+                                const projTime = new Date(pYear, pMonth, pDay, 12, 0, 0).getTime();
+                                
+                                if (dateRange.start) {
+                                    const sParts = dateRange.start.split('-');
+                                    const sT = new Date(parseInt(sParts[0], 10), parseInt(sParts[1], 10) - 1, parseInt(sParts[2], 10), 0, 0, 0).getTime();
+                                    if (projTime < sT) matchDateRange = false;
+                                }
+                                
+                                if (dateRange.end) {
+                                    const eParts = dateRange.end.split('-');
+                                    const eT = new Date(parseInt(eParts[0], 10), parseInt(eParts[1], 10) - 1, parseInt(eParts[2], 10), 23, 59, 59).getTime();
+                                    if (projTime > eT) matchDateRange = false;
+                                }
+                            } else {
+                                matchDateRange = false;
+                            }
+                        } catch(e) { matchDateRange = false; }
+                    }
+                    return matchMonth && matchSearch && matchDateRange && matchTag && matchCategory && matchClientFilter && matchRisk;
+                });
+
+                result.sort((a, b) => {
+                    const parseDate = (dStr) => {
+                        if (!dStr) return 0;
+                        const clean = dStr.trim().split(' ')[0];
+                        if (clean.includes('/')) {
+                            const p = clean.split('/');
+                            if (p.length === 3) return new Date(parseInt(p[2],10), parseInt(p[1],10)-1, parseInt(p[0],10)).getTime();
+                        } else if (clean.includes('-')) {
+                            const p = clean.split('-');
+                            if (p.length === 3) return new Date(parseInt(p[0],10), parseInt(p[1],10)-1, parseInt(p[2],10)).getTime();
+                        }
+                        return 0;
+                    };
+                    const dateA = parseDate(a.criadoEm);
+                    const dateB = parseDate(b.criadoEm);
+                    
+                    if (dateA !== dateB) {
+                        return sortOrder === 'newest' ? dateB - dateA : dateA - dateB;
+                    }
+
+                    const timeA = a.timestamp || 0;
+                    const timeB = b.timestamp || 0;
+                    
+                    if (timeA !== timeB) {
+                        return sortOrder === 'newest' ? timeB - timeA : timeA - timeB;
+                    }
+
+                    return sortOrder === 'newest' 
+                        ? (b.id || '').localeCompare(a.id || '') 
+                        : (a.id || '').localeCompare(b.id || '');
+                });
+
+                return result;
+            }, [projectsForSelectedUser, selectedMonths, searchQuery, dateRange, filterStatus, filterCategory, filterClient, riskOnly, sortOrder]);
+
+            const stats = useMemo(() => {
+                const total = filteredProjects.length;
+                const done = filteredProjects.filter(p => safeLower(p.status) === 'finalizado' || safeLower(p.status) === 'concluído' || safeLower(p.status) === 'concluido').length;
+                const canceled = filteredProjects.filter(p => safeLower(p.status).includes('continuidade') || safeLower(p.status) === 'cancelado').length;
+                const risk = filteredProjects.filter(p => isRiskProject(p)).length;
+                const ongoing = total - done - canceled - risk;
+                return { total, done, ongoing, risk };
+            }, [filteredProjects]);
+
+            const chartData = useMemo(() => {
+                const c = {};
+                filteredProjects.forEach(p => { 
+                    const s = p.status ? p.status.trim() : 'Sem Status'; 
+                    c[s] = (c[s] || 0) + 1; 
+                });
+                return Object.keys(c).map(n => ({ name: n, Quantidade: c[n] }));
+            }, [filteredProjects]);
+
+            const getFixedTagColor = (tagName) => {
+                const found = FIXED_STATUSES.find(s => safeLower(s.name) === safeLower(tagName));
+                return found ? found.color : TAG_COLOR_OPTIONS[4]; 
+            };
+
+            const clearFilters = () => { 
+                setFilterCategory([]); 
+                setFilterStatus([]); 
+                setFilterClient([]); 
+                setSearchQuery(''); 
+                setDateRange({ start: '', end: '' }); 
+            };
+
+            const handleExportCSV = () => {
+                if (filteredProjects.length === 0) {
+                    alert("Atenção: Não existem projetos para exportar com estes filtros.");
+                    return;
+                }
+                const headers = ['Mês', 'Criado em', 'Cliente', 'Link', 'Tipo de Serviço', 'Início', 'Entrega', 'Status', 'Responsável', 'Pago'];
+                const escapeCSV = (str) => {
+                    if (str === null || str === undefined) return '""';
+                    const s = String(str).replace(/"/g, '""');
+                    return `"${s}"`;
+                };
+                const csvContent = [
+                    headers.join(';'),
+                    ...filteredProjects.map(p => [
+                        escapeCSV(p.mes), escapeCSV(p.criadoEm), escapeCSV(p.cliente),
+                        escapeCSV(p.link), escapeCSV(p.tipo), escapeCSV(p.inicio),
+                        escapeCSV(p.entrega), escapeCSV(p.status), escapeCSV(p.ownerName || 'Desconhecido'),
+                        escapeCSV(p.pago ? 'Sim' : 'Não')
+                    ].join(';'))
+                ].join('\n');
+
+                const blob = new Blob(['\uFEFF' + csvContent], { type: 'text/csv;charset=utf-8;' });
+                const url = URL.createObjectURL(blob);
+                const link = document.createElement('a');
+                link.setAttribute('href', url);
+                link.setAttribute('download', `projetos_leads_${new Date().toISOString().slice(0,10)}.csv`);
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            };
+
+            const handleNewProject = () => {
+                const today = new Date().toLocaleDateString('pt-BR');
+                const curMonth = monthsList[new Date().getMonth() + 1];
+                setCurrentProject({ 
+                    id: null, cliente: '', link: '', 
+                    tipo: activeCategories.length > 0 ? activeCategories[0] : 'Site', 
+                    mes: selectedMonths.length > 0 ? selectedMonths[selectedMonths.length - 1] : curMonth, 
+                    criadoEm: today, inicio: today, entrega: '', 
+                    status: 'Em Processo', 
+                    anotacoes: [], historicoTransferencias: [],
+                    ownerId: user.uid, ownerName: profile.name,
+                    pago: false
+                });
+                setNoteTitle(''); setNoteText(''); setNoteIsAlert(false); setEditingNoteIndex(null); 
+                setShowAddCategory(false); setIsEditModalOpen(true);
+            };
+
+            const handleSaveProject = async (e) => {
+                e.preventDefault(); if (!canEdit) return;
+                await apiPost('saveProject', { project: currentProject });
+                await reload();
+                setIsEditModalOpen(false); setNoteTitle(''); setNoteText(''); setNoteIsAlert(false);
+            };
+
+            const handleSaveCompany = async (e) => {
+                e.preventDefault(); if (!canEdit) return;
+                await apiPost('saveCompany', { company: currentCompany });
+                await reload();
+                setIsCompanyModalOpen(false);
+            };
+
+            const handleDeleteCompany = async (empresa) => {
+                if (!canEdit || !window.confirm('Excluir empresa?')) return;
+                await apiPost('deleteCompany', { id: empresa.id });
+                reload();
+            };
+
+            const parseDateTime = (dtStr) => {
+                const matches = (dtStr || '').match(/(\d{2})\/(\d{2})\/(\d{4}).*?(\d{2}):(\d{2})/);
+                if (!matches) return 0;
+                const [_, day, month, year, hour, minute] = matches;
+                return new Date(year, month - 1, day, hour, minute).getTime();
+            };
+
+            const handleAddOrUpdateNote = async () => {
+                if(!noteTitle.trim() && !noteText.trim()) return;
+                if (!canEdit) return;
+                const note = { title: noteTitle.trim(), text: noteText.trim(), isAlert: noteIsAlert };
+                const editing = editingNoteIndex !== null ? currentProject.anotacoes[editingNoteIndex] : null;
+
+                if (currentProject.id) {
+                    // Projeto já salvo: grava a nota direto no servidor
+                    if (editing) await apiPost('updateNote', { id: editing.id, note });
+                    else await apiPost('addNote', { projetoId: currentProject.id, note });
+                    await reloadNotes(currentProject.id);
+                } else {
+                    // Projeto novo: guarda as notas na tela e envia junto ao salvar
+                    const ts = new Date().toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit' });
+                    let newAnotacoes = [...(currentProject.anotacoes || [])];
+                    if (editing) newAnotacoes[editingNoteIndex] = { ...editing, ...note };
+                    else newAnotacoes.unshift({ ...note, date: ts, author: profile.name });
+                    newAnotacoes.sort((a, b) => parseDateTime(b.date) - parseDateTime(a.date));
+                    setCurrentProject({ ...currentProject, anotacoes: newAnotacoes });
+                }
+                setNoteTitle(''); setNoteText(''); setNoteIsAlert(false); setEditingNoteIndex(null);
+            };
+
+            const handleDeleteNote = async (index) => {
+                if (!canEdit) return;
+                const note = currentProject.anotacoes[index];
+                if (currentProject.id && note?.id) {
+                    await apiPost('deleteNote', { id: note.id });
+                    await reloadNotes(currentProject.id);
+                } else {
+                    setCurrentProject({ ...currentProject, anotacoes: currentProject.anotacoes.filter((_, i) => i !== index) });
+                }
+                if (editingNoteIndex === index) { setNoteTitle(''); setNoteText(''); setEditingNoteIndex(null); setNoteIsAlert(false); }
+            };
+
+            const handleTogglePago = async (project) => {
+                if (!canEdit) return;
+                // Atualiza a tela na hora; o servidor confirma em seguida
+                setProjects(prev => prev.map(p => p.id === project.id ? { ...p, pago: !project.pago } : p));
+                try { await apiPost('togglePago', { id: project.id, pago: !project.pago }); } finally { reload(); }
+            };
+
+            const handleTransferConfirm = async () => {
+                if (!canEdit || !transferModal.project || !transferModal.project.id) return;
+                try {
+                    await apiPost('transfer', { id: transferModal.project.id, toMonth: transferModal.toMonth, motivo: transferModal.motivo });
+                    setTransferModal({ isOpen: false, project: null, toMonth: '', motivo: '' });
+                    reload();
+                } catch (error) {
+                    console.error("Erro ao transferir projeto:", error);
+                }
+            };
+
+            const parseCSVRow = (str, separator) => {
+                const result = []; let cur = ''; let inQuotes = false;
+                for (let i = 0; i < str.length; i++) {
+                    if (str[i] === '"') inQuotes = !inQuotes;
+                    else if (str[i] === separator && !inQuotes) { result.push(cur.trim()); cur = ''; } 
+                    else cur += str[i];
+                }
+                result.push(cur.trim());
+                return result;
+            };
+
+            const handleImportCSV = (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+                
+                const wipeFirst = isAdmin && window.confirm("⚠️ IMPORTAÇÃO DE PLANILHA\n\nDeseja APAGAR TODOS os projetos antigos antes de importar?\n\n[OK] = Limpar tudo e colocar novos\n[Cancelar] = Apenas adicionar aos existentes");
+
+                const reader = new FileReader();
+                reader.onload = async (event) => {
+                    const text = event.target.result;
+                    const rows = text.split('\n').filter(r => r.trim().length > 0);
+                    if(rows.length < 2) {
+                        alert("A planilha parece estar vazia ou sem estrutura válida.");
+                        return;
+                    }
+                    
+                    const headerRow = rows[0];
+                    const commas = (headerRow.match(/,/g) || []).length;
+                    const semis = (headerRow.match(/;/g) || []).length;
+                    const separator = semis > commas ? ';' : ',';
+                    
+                    const headers = parseCSVRow(headerRow, separator).map(h => safeLower(h));
+                    const getIdx = (keywords) => headers.findIndex(h => keywords.some(k => h.includes(k)));
+                    
+                    const idxMes = getIdx(['mês', 'mes']);
+                    const idxCriadoEm = getIdx(['criado', 'data']);
+                    const idxCliente = getIdx(['cliente', 'projeto']);
+                    const idxLink = getIdx(['link', 'url']);
+                    const idxTipo = getIdx(['tipo', 'serviço', 'categoria']);
+                    const idxInicio = getIdx(['início', 'inicio']);
+                    const idxEntrega = getIdx(['entrega', 'prazo']);
+                    const idxStatus = getIdx(['status', 'situação']);
+
+                    if (idxCliente === -1) {
+                        alert("ERRO: Não encontrei a coluna 'Cliente' no seu Excel. Verifique os títulos.");
+                        return;
+                    }
+                    
+                    const importRows = [];
+                    
+                    for (let i = 1; i < rows.length; i++) {
+                        const cols = parseCSVRow(rows[i], separator).map(col => col.replace(/^"|"$/g, '').trim());
+                        
+                        if (cols[idxCliente]) {
+                            let finalStatus = 'Em Processo';
+                            if (idxStatus !== -1) {
+                                const sLow = safeLower(cols[idxStatus]);
+                                if (sLow === 'finalizado' || sLow === 'concluído' || sLow === 'concluido' || sLow === 'ok') finalStatus = 'Finalizado';
+                                else if (sLow.includes('cancelado') || sLow.includes('desistiu') || sLow.includes('pausado') || sLow.includes('continuidade')) finalStatus = 'Não vai dar continuidade';
+                                else if (sLow.includes('falta') || sLow.includes('aguardando') || sLow.includes('alerta') || sLow.includes('urgente') || sLow.includes('pendente')) finalStatus = 'Aguardando Informação';
+                            }
+
+                            importRows.push({
+                                mes: idxMes !== -1 ? cols[idxMes] : monthsList[new Date().getMonth() + 1],
+                                criadoEm: idxCriadoEm !== -1 ? cols[idxCriadoEm] : new Date().toLocaleDateString('pt-BR'),
+                                cliente: cols[idxCliente],
+                                link: idxLink !== -1 ? cols[idxLink] : '',
+                                tipo: idxTipo !== -1 ? cols[idxTipo] : 'Site',
+                                inicio: idxInicio !== -1 ? cols[idxInicio] : new Date().toLocaleDateString('pt-BR'),
+                                entrega: idxEntrega !== -1 ? cols[idxEntrega] : '',
+                                status: finalStatus
+                            });
+                        }
+                    }
+
+                    try {
+                        const { count } = await apiPost('import', { rows: importRows, wipe: wipeFirst });
+                        alert(`✅ Sucesso! ${count} projetos foram lidos e importados.`);
+                        reload();
+                    } finally { e.target.value = null; }
+                };
+                reader.readAsText(file);
+            };
+
+            if (loading) return <div className="h-screen w-full flex items-center justify-center bg-[#f3f6fa]"><div className="w-12 h-12 border-4 border-brand border-t-transparent rounded-full animate-spin"></div></div>;
+            if (!me) return (
+                <div className="h-screen w-full flex flex-col items-center justify-center gap-4 bg-[#f3f6fa] text-gray-700 p-6 text-center">
+                    <p className="font-bold">{loadError || 'Não foi possível carregar os projetos.'}</p>
+                    <button type="button" onClick={() => { setLoading(true); reload(); }} className="px-5 py-3 bg-brand text-white font-black rounded-md text-xs uppercase tracking-widest cursor-pointer">Tentar novamente</button>
+                </div>
+            );
+
+            const displayMonthText = selectedMonths.length === 0 ? 'Todos' : selectedMonths.length <= 3 ? selectedMonths.join(', ') : `${selectedMonths.length} Meses`;
+
+            return (
+                <div className="flex h-screen w-full bg-[#F8F9FA] dark:bg-darkbg text-gray-900 dark:text-gray-100 overflow-hidden fade-in transition-colors duration-300">
+                    
+                    {/* Alerta Popup de Expiração */}
+                    {showExpirationModal && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[10000] p-6 fade-in text-left">
+                            <div className="bg-white dark:bg-darkpanel rounded-lg w-full max-w-md shadow-2xl p-8 border border-red-500/20">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-red-100 text-red-500 flex items-center justify-center shrink-0">
+                                        <AlertTriangle size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black uppercase text-gray-900 dark:text-white">Aviso de Suporte</h3>
+                                        <p className="text-xs font-bold text-red-500 uppercase tracking-widest mt-1">Empresas a vencer em breve!</p>
+                                    </div>
+                                </div>
+                                <div className="max-h-60 overflow-y-auto custom-scrollbar pr-2 space-y-3 mb-8">
+                                    {expiringCompanies.map(c => {
+                                        const dias = getDiasParaVencer(c.suporteFim);
+                                        return (
+                                            <div key={c.id} className="p-4 bg-gray-50 dark:bg-[#1a1a1a] rounded-md border border-gray-100 dark:border-white/5 flex justify-between items-center">
+                                                <span className="font-bold text-sm truncate max-w-[200px]">{c.nome}</span>
+                                                <span className={`text-[10px] font-black uppercase tracking-widest px-2 py-1 rounded border ${dias < 0 ? 'bg-red-100 text-red-700 border-red-200' : 'bg-orange-100 text-orange-700 border-orange-200'}`}>
+                                                    {dias < 0 ? 'Vencido!' : `Vence em ${dias} dia${dias !== 1 ? 's' : ''}`}
+                                                </span>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <button onClick={() => { setShowExpirationModal(false); setExpiringPopupDismissed(true); }} className="w-full py-4 bg-gray-900 dark:bg-white dark:text-black text-white font-black rounded-sm uppercase tracking-widest hover:opacity-90 transition-opacity outline-none">
+                                    Entendi
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Alerta Popup de Lembretes Banners */}
+                    {showBannerModal && (
+                        <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-[10000] p-6 fade-in text-left">
+                            <div className="bg-white dark:bg-darkpanel rounded-lg w-full max-w-md shadow-2xl p-8 border border-orange-500/20">
+                                <div className="flex items-center gap-4 mb-6">
+                                    <div className="w-12 h-12 rounded-full bg-orange-100 text-brand flex items-center justify-center shrink-0">
+                                        <Bell size={24} />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-xl font-black uppercase text-gray-900 dark:text-white">Lembrete de Banners</h3>
+                                        <p className="text-xs font-bold text-orange-500 uppercase tracking-widest mt-1">Mensagens pendentes</p>
+                                    </div>
+                                </div>
+                                <p className="text-sm font-medium text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">
+                                    Chegou a data de envio dos lembretes para os seguintes clientes:
+                                </p>
+                                <div className="max-h-60 overflow-y-auto custom-scrollbar pr-2 space-y-3 mb-8">
+                                    {manualBanners.map(c => (
+                                        <div key={c.id} className="p-4 bg-orange-50 dark:bg-orange-500/10 rounded-md border border-orange-100 dark:border-orange-500/20 flex flex-col gap-2">
+                                            <div className="flex justify-between items-center">
+                                                <span className="font-bold text-sm truncate max-w-[200px]">{c.nome}</span>
+                                                <span className="text-[10px] font-black text-orange-600 bg-white px-2 py-0.5 rounded-full border border-orange-200">Dia {c.diaLembrete}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                                <button onClick={() => { setShowBannerModal(false); setBannerPopupDismissed(true); }} className="w-full py-4 bg-brand border-none text-white font-black rounded-sm uppercase tracking-widest hover:opacity-90 transition-opacity outline-none">
+                                    Ir para a tabela enviar
+                                </button>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* Overlay Mobile */}
+                    {isSidebarOpen && (
+                        <div className="fixed inset-0 bg-black/50 z-[40] md:hidden" onClick={() => setIsSidebarOpen(false)}></div>
+                    )}
+
+                    {/* BARRA LATERAL */}
+                    <aside className={`w-64 bg-[#071222] text-white flex flex-col shrink-0 h-full fixed md:relative z-[50] border-r border-white/5 transition-transform duration-300 ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+                        <button onClick={() => setIsSidebarOpen(false)} className="md:hidden absolute top-6 right-4 text-gray-400 hover:text-white">
+                            <X size={24} />
+                        </button>
+                        <div className="p-6 sm:p-8 border-b border-white/5 flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                                <img src="/favicon.svg" alt="Periflow" className="w-8 h-8 object-contain" />
+                                <h1 className="text-base sm:text-lg font-black uppercase tracking-tighter">Peri<span className="text-brand">flow</span></h1>
+                            </div>
+                        </div>
+                        <div className="p-6 bg-white/5 border-b border-white/5 flex items-center justify-between">
+                            <div>
+                                <p className="text-[9px] text-gray-500 font-bold uppercase tracking-widest">Usuário</p>
+                                <p className="text-sm font-bold text-white mt-1 truncate max-w-[120px]">{profile?.name}</p>
+                                <div className="flex items-center gap-2 mt-2"><span className={`w-1.5 h-1.5 rounded-full ${isAdmin ? 'bg-brand' : isViewer ? 'bg-gray-400' : 'bg-blue-500'}`}></span><p className="text-[10px] text-gray-400 font-black uppercase tracking-widest">{isAdmin ? 'Admin' : isViewer ? 'Visualizador' : 'Equipe'}</p></div>
+                            </div>
+                            <button type="button" onClick={() => setIsDark(!isDark)} className="p-2.5 bg-white/5 hover:bg-white/10 rounded-lg border border-white/10 text-brand transition-colors cursor-pointer outline-none hidden md:block">
+                                {isDark ? <Sun size={16}/> : <Moon size={16}/>}
+                            </button>
+                        </div>
+                        <nav className="p-4 flex-1 space-y-2 overflow-y-auto custom-scrollbar">
+                            <a href="/" target="_top" className="w-full flex items-center gap-3 px-5 py-3 mb-2 rounded-lg text-xs font-bold text-gray-400 hover:text-white hover:bg-white/5 transition-all border border-white/10">
+                                <ChevronRight size={16} className="rotate-180" /> Voltar à Gestão
+                            </a>
+                            <button type="button" onClick={() => {setActiveTab('dashboard'); setRiskOnly(false); setIsSidebarOpen(false);}} className={`w-full flex items-center gap-3 px-5 py-4 rounded-lg text-sm font-bold transition-all border outline-none cursor-pointer ${activeTab === 'dashboard' && !riskOnly ? 'border-brand bg-[#1c1c1c] text-white shadow-sm' : 'border-transparent text-gray-400 hover:bg-[#1c1c1c] hover:text-white'}`}>
+                                <LayoutDashboard size={18} className={activeTab === 'dashboard' && !riskOnly ? 'text-brand' : ''} /> Dashboard
+                            </button>
+                            <button type="button" onClick={() => {setActiveTab('projetos'); setRiskOnly(false); setIsSidebarOpen(false);}} className={`w-full flex items-center gap-3 px-5 py-4 rounded-lg text-sm font-bold transition-all border outline-none cursor-pointer ${activeTab === 'projetos' && !riskOnly ? 'border-brand bg-[#1c1c1c] text-white shadow-sm' : 'border-transparent text-gray-400 hover:bg-[#1c1c1c] hover:text-white'}`}>
+                                <FolderKanban size={18} className={activeTab === 'projetos' && !riskOnly ? 'text-brand' : ''} /> Projetos
+                            </button>
+                            <button type="button" onClick={() => {setActiveTab('empresas'); setRiskOnly(false); setIsSidebarOpen(false);}} className={`w-full flex items-center gap-3 px-5 py-4 rounded-lg text-sm font-bold transition-all border outline-none cursor-pointer ${activeTab === 'empresas' ? 'border-brand bg-[#1c1c1c] text-white shadow-sm' : 'border-transparent text-gray-400 hover:bg-[#1c1c1c] hover:text-white'}`}>
+                                <Building size={18} className={activeTab === 'empresas' ? 'text-brand' : ''} /> Empresas
+                            </button>
+                            <button type="button" onClick={() => {setActiveTab('acessos'); setRiskOnly(false); setIsSidebarOpen(false);}} className={`w-full flex items-center gap-3 px-5 py-4 rounded-lg text-sm font-bold transition-all border outline-none cursor-pointer ${activeTab === 'acessos' ? 'border-brand bg-[#1c1c1c] text-white shadow-sm' : 'border-transparent text-gray-400 hover:bg-[#1c1c1c] hover:text-white'}`}>
+                                <Key size={18} className={activeTab === 'acessos' ? 'text-brand' : ''} /> Acessos
+                            </button>
+                            <button type="button" onClick={() => {setActiveTab('projetos'); setRiskOnly(true); setIsSidebarOpen(false);}} className={`w-full flex items-center justify-between px-5 py-4 rounded-lg text-sm font-bold transition-all border outline-none cursor-pointer ${riskOnly ? 'border-brand bg-[#1c1c1c] text-white shadow-sm' : 'border-transparent text-gray-400 hover:bg-[#1c1c1c] hover:text-white'}`}>
+                                <div className="flex items-center gap-3"><AlertTriangle size={18} className={riskOnly ? 'text-brand' : ''} /> Risco</div>
+                                {stats.risk > 0 && <span className="bg-brand text-white px-2 py-0.5 rounded-full text-[10px] font-black">{stats.risk}</span>}
+                            </button>
+                        </nav>
+                        <div className="p-6 border-t border-white/5 shrink-0 bg-black/20">
+                            {activeTab !== 'empresas' && activeTab !== 'acessos' && activeTab !== 'equipe' && (
+                                <>
+                                    <button type="button" onClick={() => setSelectedMonths([])} className={`w-full py-3 mb-4 rounded-lg text-[11px] font-black tracking-widest transition-all uppercase outline-none cursor-pointer border-none ${selectedMonths.length === 0 ? 'bg-brand text-white shadow-lg' : 'bg-[#1c1c1c] text-gray-400 hover:bg-[#2a2a2a] hover:text-white'}`}>EXIBIR TODOS</button>
+                                    <div className="grid grid-cols-3 gap-2 mb-6">
+                                        {monthsList.filter(m => m !== 'Todos').map(m => {
+                                            const isSelected = selectedMonths.includes(m);
+                                            return (
+                                                <button key={m} type="button" onClick={() => {
+                                                    setSelectedMonths(prev => isSelected ? prev.filter(x => x !== m) : [...prev, m]);
+                                                }} className={`text-[10px] font-black py-3 rounded-lg transition-all border border-transparent outline-none cursor-pointer ${isSelected ? 'bg-brand text-white shadow-md' : 'bg-[#1c1c1c] text-gray-400 hover:text-white hover:bg-[#2a2a2a]'}`}>{m.substring(0,3).toUpperCase()}</button>
+                                            );
+                                        })}
+                                    </div>
+                                </>
+                            )}
+                            <a href="/api/auth/logout" target="_top" className="w-full flex items-center justify-center gap-2 py-4 rounded-lg text-[11px] font-black uppercase text-gray-500 hover:text-white hover:bg-red-500/10 transition-colors border border-white/5 bg-transparent outline-none cursor-pointer"><LogOut size={14} /> Sair</a>
+                        </div>
+                    </aside>
+
+                    <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative">
+                        
+                        <header className="bg-white dark:bg-darkpanel border-b border-gray-200 dark:border-white/5 shrink-0 z-20 shadow-sm transition-colors duration-300 flex flex-col">
+                            <div className="flex items-center justify-between px-6 py-4">
+                                <div className="flex items-center gap-4">
+                                    <button type="button" onClick={() => setIsSidebarOpen(true)} className="md:hidden text-gray-600 dark:text-gray-300 outline-none">
+                                        <Menu size={24} />
+                                    </button>
+                                    <div>
+                                        <h2 className="text-lg md:text-xl font-black uppercase tracking-tighter truncate max-w-[150px] sm:max-w-none">
+                                            {activeTab === 'equipe' ? 'Gerir Equipe' : activeTab === 'empresas' ? 'Gerir Empresas' : activeTab === 'acessos' ? 'Acessos e Domínios' : activeTab === 'dashboard' ? `Resultados: ${displayMonthText}` : riskOnly ? `Risco: ${displayMonthText}` : `Projetos: ${displayMonthText}`}
+                                        </h2>
+                                        <p className="text-[10px] font-bold text-brand uppercase tracking-widest mt-1 hidden sm:block">Painel de Projetos</p>
+                                    </div>
+                                </div>
+
+                                <div className="flex items-center gap-2 sm:gap-3">
+                                    <button type="button" onClick={() => setIsDark(!isDark)} className="md:hidden p-2 text-gray-600 dark:text-gray-300 outline-none">
+                                        {isDark ? <Sun size={20}/> : <Moon size={20}/>}
+                                    </button>
+
+                                    {activeTab !== 'equipe' && activeTab !== 'acessos' && (
+                                        <div className="hidden sm:flex items-center gap-2">
+                                            {activeTab !== 'empresas' && (
+                                                <button type="button" onClick={handleExportCSV} className="bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white font-bold py-2.5 px-4 rounded-md text-[10px] uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-[#222] transition-all flex items-center gap-2 cursor-pointer outline-none shadow-sm">
+                                                    <Download size={14} className="text-blue-500" /> EXPORTAR
+                                                </button>
+                                            )}
+                                            
+                                            {canEdit && (
+                                                <>
+                                                    {activeTab !== 'empresas' && (
+                                                        <>
+                                                            <input type="file" accept=".csv" ref={fileInputRef} style={{ display: 'none' }} onChange={handleImportCSV} />
+                                                            <button type="button" onClick={() => fileInputRef.current.click()} className="bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 text-gray-700 dark:text-white font-bold py-2.5 px-4 rounded-md text-[10px] uppercase tracking-widest hover:bg-gray-100 dark:hover:bg-[#222] transition-all flex items-center gap-2 cursor-pointer outline-none shadow-sm">
+                                                                <UploadCloud size={14} className="text-brand" /> IMPORTAR
+                                                            </button>
+                                                        </>
+                                                    )}
+                                                    <button type="button" onClick={() => {
+                                                        if (activeTab === 'empresas') {
+                                                            setCurrentCompany({ id: null, nome: '', tipos: [], temSuporte: false, suporteInicio: '', suporteFim: '', diaLembrete: '', linkGrupoWhatsapp: '', webhookUrl: '', codigoLoja: '', usuarioLoja: '', senhaLoja: '', dominio: '', usuarioDominio: '', senhaDominio: '', provedorDominio: 'Registro Br' });
+                                                            setIsCompanyModalOpen(true);
+                                                        } else {
+                                                            handleNewProject();
+                                                        }
+                                                    }} className="bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-brand dark:hover:bg-brand font-black py-2.5 px-4 rounded-md text-[10px] uppercase tracking-widest shadow-lg border-none transition-all flex items-center gap-1.5 cursor-pointer outline-none">
+                                                        <Plus size={16} strokeWidth={3} className="text-current" /> {activeTab === 'empresas' ? 'EMPRESA' : 'PROJETO'}
+                                                    </button>
+                                                </>
+                                            )}
+                                        </div>
+                                    )}
+
+                                    {activeTab !== 'equipe' && (
+                                        <div className="flex sm:hidden items-center gap-2">
+                                            {activeTab !== 'empresas' && activeTab !== 'acessos' && (
+                                                <button type="button" onClick={() => setShowMobileFilters(!showMobileFilters)} className={`p-2 rounded-md border transition-colors ${showMobileFilters ? 'bg-orange-50 border-orange-200 text-orange-500' : 'bg-gray-50 border-gray-200 text-gray-600 dark:bg-[#1a1a1a] dark:border-white/10 dark:text-gray-300'}`}>
+                                                    <Filter size={20} />
+                                                </button>
+                                            )}
+                                            {canEdit && (
+                                                <button type="button" onClick={() => {
+                                                    if (activeTab === 'empresas') {
+                                                        setCurrentCompany({ id: null, nome: '', tipos: [], temSuporte: false, suporteInicio: '', suporteFim: '', diaLembrete: '', linkGrupoWhatsapp: '', webhookUrl: '', codigoLoja: '', usuarioLoja: '', senhaLoja: '', dominio: '', usuarioDominio: '', senhaDominio: '', provedorDominio: 'Registro Br' });
+                                                        setIsCompanyModalOpen(true);
+                                                    } else {
+                                                        handleNewProject();
+                                                    }
+                                                }} className="bg-gray-900 dark:bg-white text-white dark:text-black hover:bg-brand dark:hover:bg-brand p-2 rounded-md shadow-lg border-none outline-none transition-colors">
+                                                    <Plus size={20} strokeWidth={3} className="text-current" />
+                                                </button>
+                                            )}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            {activeTab !== 'equipe' && activeTab !== 'acessos' && activeTab !== 'empresas' && (
+                                <div className={`px-6 py-3 bg-gray-50 dark:bg-[#151515] border-t border-gray-100 dark:border-white/5 flex flex-wrap items-center gap-2 md:gap-3 transition-all ${showMobileFilters ? 'block' : 'hidden md:flex'}`}>
+                                    
+                                    <div className="relative flex-1 min-w-[200px] max-w-sm">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                        <input type="text" placeholder="Pesquisar..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-md shadow-sm outline-none font-bold text-[11px] transition-all focus:border-brand dark:text-white" />
+                                    </div>
+
+                                    {(isAdmin || isViewer) && (
+                                        <div className="relative shrink-0 w-full sm:w-auto">
+                                            <select value={filterUser} onChange={e => setFilterUser(e.target.value)} className="w-full appearance-none bg-orange-50 dark:bg-orange-500/10 border border-orange-200 dark:border-orange-500/20 text-orange-700 dark:text-orange-400 px-4 pr-10 py-3 md:py-2.5 rounded-md text-[11px] font-black outline-none shadow-sm cursor-pointer transition-colors sm:max-w-[150px] truncate uppercase tracking-widest">
+                                                <option value="Todos">Visão Geral</option>
+                                                {isAdmin && <option value={user.uid}>Meu Painel</option>}
+                                                {ownerOptions.filter(u => u.id !== user.uid).map(u => (
+                                                    <option key={u.id} value={u.id}>Painel: {u.name.split(' ')[0]}</option>
+                                                ))}
+                                            </select>
+                                            <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 text-orange-500 rotate-90 pointer-events-none" size={14} />
+                                        </div>
+                                    )}
+
+                                    <div className="relative shrink-0 w-full sm:w-auto hidden sm:block">
+                                        <select value={sortOrder} onChange={e => setSortOrder(e.target.value)} className="w-full appearance-none bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 px-4 pr-10 py-2.5 rounded-md text-[11px] font-bold outline-none shadow-sm cursor-pointer transition-colors dark:text-white text-gray-900 sm:max-w-[130px] truncate">
+                                            <option value="newest">Mais Recentes</option>
+                                            <option value="oldest">Mais Antigos</option>
+                                        </select>
+                                        <ChevronRight className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 rotate-90 pointer-events-none" size={14} />
+                                    </div>
+
+                                    <div className="flex items-center gap-2 px-3 py-2 md:py-1.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-md shadow-sm transition-colors shrink-0 w-full sm:w-auto">
+                                        <input type="date" value={dateRange.start} onChange={e => setDateRange({...dateRange, start: e.target.value})} className="w-full sm:w-auto bg-transparent text-[11px] font-bold outline-none cursor-pointer dark:text-white text-gray-900 border-none appearance-none" />
+                                        <span className="text-gray-300 dark:text-gray-700">/</span>
+                                        <input type="date" value={dateRange.end} onChange={e => setDateRange({...dateRange, end: e.target.value})} className="w-full sm:w-auto bg-transparent text-[11px] font-bold outline-none cursor-pointer dark:text-white text-gray-900 border-none appearance-none" />
+                                    </div>
+
+                                    <div className="flex flex-col sm:flex-row items-stretch gap-2 w-full sm:w-auto">
+                                        <MultiSelectDropdown options={activeClients} selected={filterClient} onChange={setFilterClient} placeholder="Todos Clientes" />
+                                        <MultiSelectDropdown options={activeCategories} selected={filterCategory} onChange={setFilterCategory} placeholder="Todos Tipos" />
+                                        <MultiSelectDropdown options={FIXED_STATUSES.map(t => t.name)} selected={filterStatus} onChange={setFilterStatus} placeholder="Todos Status" />
+                                    </div>
+
+                                    {hasActiveFilters && (
+                                        <button type="button" onClick={clearFilters} className="w-full sm:w-auto border-none text-[10px] font-black text-red-500 hover:text-white hover:bg-red-500 px-4 py-3 md:py-2.5 rounded-md bg-red-50 dark:bg-red-500/10 uppercase tracking-widest transition-colors cursor-pointer outline-none shrink-0 shadow-sm text-center">
+                                            Limpar Pesquisa
+                                        </button>
+                                    )}
+                                </div>
+                            )}
+
+                            {activeTab === 'empresas' && (
+                                <div className="px-6 py-3 bg-gray-50 dark:bg-[#151515] border-t border-gray-100 dark:border-white/5 flex items-center gap-3 transition-all">
+                                    <div className="relative flex-1 max-w-sm">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                        <input type="text" placeholder="Pesquisar Empresa..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-3 py-2.5 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-md shadow-sm outline-none font-bold text-[11px] transition-all focus:border-brand dark:text-white" />
+                                    </div>
+                                </div>
+                            )}
+
+                            {activeTab === 'acessos' && (
+                                <div className="px-6 py-3 bg-gray-50 dark:bg-[#151515] border-t border-gray-100 dark:border-white/5 flex items-center gap-3 transition-all">
+                                    <div className="flex gap-2">
+                                        <button onClick={() => setAccessSubTab('tray')} className={`px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest cursor-pointer outline-none transition-all ${accessSubTab === 'tray' ? 'bg-brand text-white shadow' : 'bg-white dark:bg-[#222] text-gray-600 dark:text-gray-400'}`}>Tray (E-commerce)</button>
+                                        <button onClick={() => setAccessSubTab('site')} className={`px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest cursor-pointer outline-none transition-all ${accessSubTab === 'site' ? 'bg-brand text-white shadow' : 'bg-white dark:bg-[#222] text-gray-600 dark:text-gray-400'}`}>Site Institucional</button>
+                                        <button onClick={() => setAccessSubTab('site_catalogo')} className={`px-4 py-2 rounded-md text-xs font-black uppercase tracking-widest cursor-pointer outline-none transition-all ${accessSubTab === 'site_catalogo' ? 'bg-brand text-white shadow' : 'bg-white dark:bg-[#222] text-gray-600 dark:text-gray-400'}`}>Site Catálogo</button>
+                                    </div>
+                                    <div className="relative flex-1 max-w-sm ml-auto">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" size={14} />
+                                        <input type="text" placeholder="Pesquisar nos acessos..." value={searchQuery} onChange={e => setSearchQuery(e.target.value)} className="w-full pl-9 pr-3 py-2 bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-md shadow-sm outline-none font-bold text-[11px] transition-all focus:border-brand dark:text-white" />
+                                    </div>
+                                </div>
+                            )}
+                        </header>
+
+                        <div className="flex-1 overflow-y-auto p-4 sm:p-8 custom-scrollbar bg-[#F8F9FA] dark:bg-darkbg">
+                            <div className="max-w-6xl mx-auto space-y-8">
+                                
+                                {activeTab === 'empresas' && (
+                                    <div className="bg-white dark:bg-darkpanel rounded-lg shadow-xl overflow-x-auto border border-gray-100 dark:border-white/5 custom-scrollbar fade-in transition-colors">
+                                        <table className="w-full min-w-[800px] border-collapse">
+                                            <thead><tr className="bg-gray-900 dark:bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]"><th className="px-6 py-5 text-left border-none rounded-tl-lg">Empresa</th><th className="px-6 py-5 text-left border-none">Serviços Ativos</th><th className="px-6 py-5 text-center border-none">Suporte Mensal</th><th className="px-6 py-5 text-center border-none rounded-tr-lg">Gestão</th></tr></thead>
+                                            <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-[11px] sm:text-sm">
+                                                {companies.filter(c => safeLower(c.nome).includes(safeLower(searchQuery))).length === 0 ? (<tr><td colSpan="4" className="py-16 text-center text-gray-400 italic font-medium border-none bg-gray-50 dark:bg-[#1a1a1a]">Nenhuma empresa encontrada.</td></tr>) : companies.filter(c => safeLower(c.nome).includes(safeLower(searchQuery))).map(c => {
+                                                    const temEcommerce = c.tipos?.includes('E-commerce');
+                                                    const diasVencer = getDiasParaVencer(c.suporteFim);
+                                                    return (
+                                                        <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                                            <td className="px-6 py-4 font-black text-gray-900 dark:text-white border-none">{c.nome}</td>
+                                                            <td className="px-6 py-4 border-none">
+                                                                <div className="flex gap-2 flex-wrap">
+                                                                    {c.tipos?.map(t => <span key={t} className="bg-gray-100 dark:bg-[#222] px-2 py-1 rounded-sm text-[9px] font-black uppercase text-gray-600 dark:text-gray-300">{t}</span>)}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 py-4 border-none">
+                                                                {c.temSuporte ? (
+                                                                    <div className="flex flex-col items-center gap-1">
+                                                                        <span className="text-green-500 font-black text-[10px] uppercase tracking-widest bg-green-50 dark:bg-green-500/10 px-3 py-1 rounded-full border border-green-200 dark:border-green-500/30">Ativo</span>
+                                                                        {diasVencer !== null && (
+                                                                            <span className={`text-[9px] font-bold ${diasVencer < 0 ? 'text-red-500' : diasVencer <= 15 ? 'text-orange-500' : 'text-gray-400'}`}>
+                                                                                {diasVencer < 0 ? 'Vencido!' : `Vence em ${diasVencer}d`}
+                                                                            </span>
+                                                                        )}
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="text-center"><span className="text-gray-400 font-bold text-[10px] uppercase tracking-widest">Inativo</span></div>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-6 py-4 text-center border-none">
+                                                                {canEdit ? (
+                                                                    <div className="flex justify-center items-center gap-2">
+                                                                        {temEcommerce && (
+                                                                            <div className="flex flex-col items-center gap-1">
+                                                                                {c.ultimoLembreteEnviado === `${new Date().getMonth() + 1}-${new Date().getFullYear()}` ? (
+                                                                                    <button type="button" onClick={() => handleDesmarcarLembreteEnviado(c)} className="text-[9px] text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-500/10 px-2 py-1 rounded-md font-black uppercase tracking-widest border border-green-200 dark:border-green-500/30 cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 hover:text-red-500 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-500/30 transition-colors outline-none" title="Desmarcar envio">✅ Mês Atual</button>
+                                                                                ) : (
+                                                                                    <div className="flex items-center gap-1">
+                                                                                        <button type="button" onClick={() => handleEnviarMensagemBanner(c)} className="flex items-center gap-1 px-3 py-1.5 bg-orange-50 dark:bg-brand/10 text-brand rounded-md hover:bg-brand hover:text-white transition-colors cursor-pointer outline-none shadow-sm" title="Copiar Lembrete e Abrir WhatsApp">
+                                                                                            <Copy size={12}/> <span className="text-[9px] font-black uppercase tracking-widest">Banners</span>
+                                                                                        </button>
+                                                                                        <button type="button" onClick={() => handleMarcarLembreteEnviado(c)} className="p-1.5 bg-gray-50 dark:bg-[#222] border border-gray-200 dark:border-white/10 text-gray-400 hover:text-green-600 hover:bg-green-50 hover:border-green-200 rounded-md transition-colors shadow-sm outline-none" title="Marcar como Enviado neste mês">
+                                                                                            <CheckCircle size={14}/>
+                                                                                        </button>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        )}
+                                                                        <button type="button" onClick={() => {setCurrentCompany(c); setIsCompanyModalOpen(true);}} className="p-2 bg-gray-100 dark:bg-white/5 text-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors cursor-pointer outline-none"><Edit2 size={14}/></button>
+                                                                        <button type="button" onClick={() => handleDeleteCompany(c)} className="p-2 bg-gray-100 dark:bg-white/5 text-red-500 rounded-md hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors cursor-pointer outline-none"><Trash2 size={14}/></button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <span className="text-[10px] text-gray-400">Leitura</span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {activeTab === 'acessos' && (
+                                    <div className="bg-white dark:bg-darkpanel rounded-lg shadow-xl overflow-x-auto border border-gray-100 dark:border-white/5 custom-scrollbar fade-in transition-colors">
+                                        <table className="w-full min-w-[900px] border-collapse">
+                                            <thead>
+                                                <tr className="bg-gray-900 dark:bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]">
+                                                    <th className="px-6 py-5 text-left border-none rounded-tl-lg">Nome Cliente</th>
+                                                    {accessSubTab === 'tray' && <th className="px-6 py-5 text-left border-none">Código</th>}
+                                                    <th className="px-6 py-5 text-left border-none">{accessSubTab === 'tray' ? 'Usuário Loja' : 'Domínio'}</th>
+                                                    <th className="px-6 py-5 text-left border-none">{accessSubTab === 'tray' ? 'Senha Loja' : 'Usuário Domínio'}</th>
+                                                    <th className="px-6 py-5 text-left border-none">{accessSubTab === 'tray' ? 'Suporte' : 'Senha Domínio'}</th>
+                                                    {accessSubTab !== 'tray' && <th className="px-6 py-5 text-left border-none">Suporte</th>}
+                                                    {accessSubTab !== 'tray' && <th className="px-6 py-5 text-left border-none">Site / Provedor</th>}
+                                                    <th className="px-6 py-5 text-center border-none rounded-tr-lg">Ações</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-xs sm:text-sm">
+                                                {companies.filter(c => {
+                                                    const tipoMatch = accessSubTab === 'tray' ? c.tipos?.includes('E-commerce') : accessSubTab === 'site' ? c.tipos?.includes('Site') : c.tipos?.includes('Site Catálogo');
+                                                    const searchMatch = safeLower(c.nome).includes(safeLower(searchQuery)) || safeLower(c.dominio).includes(safeLower(searchQuery));
+                                                    return tipoMatch && searchMatch;
+                                                }).length === 0 ? (
+                                                    <tr><td colSpan="6" className="py-16 text-center text-gray-400 italic font-medium border-none bg-gray-50 dark:bg-[#1a1a1a]">Nenhum acesso registado nesta categoria.</td></tr>
+                                                ) : companies.filter(c => {
+                                                    const tipoMatch = accessSubTab === 'tray' ? c.tipos?.includes('E-commerce') : accessSubTab === 'site' ? c.tipos?.includes('Site') : c.tipos?.includes('Site Catálogo');
+                                                    const searchMatch = safeLower(c.nome).includes(safeLower(searchQuery)) || safeLower(c.dominio).includes(safeLower(searchQuery));
+                                                    return tipoMatch && searchMatch;
+                                                }).map(c => (
+                                                    <tr key={c.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors">
+                                                        <td className="px-6 py-4 font-black text-gray-900 dark:text-white border-none">{c.nome}</td>
+                                                        {accessSubTab === 'tray' && <td className="px-6 py-4 font-bold border-none text-gray-600 dark:text-gray-300">{c.codigoLoja || '---'}</td>}
+                                                        <td className="px-6 py-4 font-medium border-none text-gray-700 dark:text-gray-300">
+                                                            {accessSubTab === 'tray' ? (c.usuarioLoja || '---') : (c.dominio ? <a href={c.dominio.startsWith('http') ? c.dominio : `https://${c.dominio}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:underline">{c.dominio}</a> : '---')}
+                                                        </td>
+                                                        <td className="px-6 py-4 font-medium border-none text-gray-700 dark:text-gray-300">
+                                                            {accessSubTab === 'tray' ? (c.senhaLoja || '---') : (c.usuarioDominio || '---')}
+                                                        </td>
+                                                        <td className="px-6 py-4 font-medium border-none text-gray-700 dark:text-gray-300">
+                                                            {accessSubTab === 'tray' ? (c.temSuporte ? 'Sim' : 'Não') : (c.senhaDominio || '---')}
+                                                        </td>
+                                                        {accessSubTab !== 'tray' && (
+                                                            <>
+                                                                <td className="px-6 py-4 font-bold border-none text-gray-700 dark:text-gray-300">{c.temSuporte ? 'Sim' : 'Não'}</td>
+                                                                <td className="px-6 py-4 font-bold border-none text-gray-700 dark:text-gray-300">{c.provedorDominio || 'Registro Br'}</td>
+                                                            </>
+                                                        )}
+                                                        <td className="px-6 py-4 text-center border-none">
+                                                            {canEdit ? (
+                                                                <button type="button" onClick={() => { setCurrentCompany(c); setIsCompanyModalOpen(true); }} className="p-2 bg-gray-100 dark:bg-white/5 text-blue-600 rounded-md hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-colors cursor-pointer outline-none"><Edit2 size={14}/></button>
+                                                            ) : (
+                                                                <span className="text-[10px] text-gray-400">Leitura</span>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                ))}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                                {activeTab === 'dashboard' && (
+                                    <div className="space-y-6 sm:space-y-8 fade-in">
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 text-left">
+                                            <div className="bg-white dark:bg-darkpanel p-6 sm:p-8 rounded-lg border border-gray-100 dark:border-white/5 shadow-sm transition-colors"><p className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Total Ativos</p><p className="text-4xl sm:text-5xl font-black mt-2 sm:mt-3">{stats.total}</p></div>
+                                            <div className="bg-white dark:bg-darkpanel p-6 sm:p-8 rounded-lg border-l-4 border-l-green-500 shadow-sm transition-colors"><p className="text-[10px] font-black text-green-500 uppercase tracking-widest">Finalizados</p><p className="text-4xl sm:text-5xl font-black mt-2 sm:mt-3">{stats.done}</p></div>
+                                            <div className="bg-white dark:bg-darkpanel p-6 sm:p-8 rounded-lg border-l-4 border-l-blue-500 shadow-sm transition-colors"><p className="text-[10px] font-black text-blue-500 uppercase tracking-widest">Em Processo / Normal</p><p className="text-4xl sm:text-5xl font-black mt-2 sm:mt-3">{stats.ongoing}</p></div>
+                                            <div onClick={() => {setRiskOnly(true); setActiveTab('projetos');}} className="bg-white dark:bg-darkpanel p-6 sm:p-8 rounded-lg border-l-4 border-l-red-500 shadow-sm cursor-pointer hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors"><p className="text-[10px] font-black text-red-500 uppercase tracking-widest">Mapa Risco (Alertas)</p><p className="text-4xl sm:text-5xl font-black mt-2 sm:mt-3">{stats.risk}</p></div>
+                                        </div>
+                                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+                                            <div className="bg-white dark:bg-darkpanel p-6 sm:p-8 rounded-lg border border-gray-100 dark:border-white/5 h-[350px] sm:h-96 flex flex-col shadow-sm transition-colors"><h3 className="text-xs font-black uppercase mb-4 sm:mb-6 flex items-center gap-2"><div className="w-1.5 h-4 bg-brand rounded"></div> Volume por Status</h3><div className="flex-1 min-h-0"><ResponsiveContainer width="100%" height="100%"><BarChart data={chartData} layout="vertical" margin={{ top: 0, right: 20, left: 0, bottom: 0 }}><CartesianGrid strokeDasharray="2 2" horizontal={false} stroke={isDark ? '#222' : '#f0f0f0'} /><XAxis type="number" hide /><YAxis dataKey="name" type="category" width={100} tick={{fontSize: 9, fontWeight: 700, fill: isDark ? '#ccc' : '#333'}} axisLine={false} tickLine={false} /><RechartsTooltip cursor={{fill: isDark ? '#222' : '#f0f0f0'}} contentStyle={{backgroundColor: isDark ? '#1a1a1a' : '#fff', borderColor: isDark ? '#333' : '#eee', borderRadius: '8px', color: isDark ? '#fff' : '#000', fontSize: '12px', fontWeight: 'bold'}} itemStyle={{color: '#f97316', fontWeight: '900'}}/><Bar dataKey="Quantidade" radius={[0, 4, 4, 0]} barSize={20}>{chartData.map((e, i) => { const eLow = safeLower(e.name); return <Cell key={i} fill={eLow === 'finalizado' ? '#22c55e' : eLow === 'aguardando informação' ? '#f97316' : eLow.includes('continuidade') ? '#6b7280' : '#3b82f6'} />; })}</Bar></BarChart></ResponsiveContainer></div></div>
+                                            <div className="bg-white dark:bg-darkpanel p-6 sm:p-8 rounded-lg border border-gray-100 dark:border-white/5 h-[350px] sm:h-96 flex flex-col shadow-sm transition-colors"><h3 className="text-xs font-black uppercase mb-4 sm:mb-6 flex items-center gap-2"><div className="w-1.5 h-4 bg-red-500 rounded"></div> Clientes em Alerta</h3><div className="flex-1 overflow-y-auto custom-scrollbar space-y-3">{filteredProjects.filter(p => isRiskProject(p)).map(p => (<div key={p.id} className="flex items-center justify-between p-4 sm:p-5 bg-red-50 dark:bg-red-500/5 rounded-md border border-red-100 dark:border-red-500/20"><div className="truncate pr-2"><p className="text-[13px] sm:text-sm font-bold truncate flex items-center gap-2"><AlertTriangle size={14} className="text-red-500 shrink-0"/> {p.cliente}</p><p className="text-[9px] sm:text-[10px] text-red-600 dark:text-red-400 font-black uppercase tracking-widest mt-1 ml-5">Nota de alerta ativa!</p></div>{canEdit ? <button type="button" onClick={() => {setCurrentProject(p); setIsEditModalOpen(true);}} className="p-2 sm:p-3 border-none bg-white dark:bg-[#222] text-red-500 hover:text-white hover:bg-red-500 rounded-sm shadow-sm transition-all cursor-pointer outline-none shrink-0"><Edit2 size={14}/></button> : <button type="button" onClick={() => {setCurrentProject(p); setIsEditModalOpen(true);}} className="p-2 sm:p-3 border-none bg-white dark:bg-[#222] text-red-500 hover:text-white hover:bg-red-500 rounded-sm shadow-sm transition-all cursor-pointer outline-none shrink-0"><Eye size={14}/></button>}</div>))}</div></div>
+                                        </div>
+                                    </div>
+                                )}
+
+                                {(activeTab === 'projetos' || riskOnly) && (
+                                    <div className="bg-white dark:bg-darkpanel rounded-lg shadow-xl overflow-x-auto border border-gray-100 dark:border-white/5 custom-scrollbar fade-in transition-colors">
+                                        <table className="w-full min-w-[800px] border-collapse">
+                                            <thead><tr className="bg-gray-900 dark:bg-black text-white text-[9px] sm:text-[10px] font-black uppercase tracking-[0.2em]"><th className="px-6 sm:px-10 py-5 sm:py-6 text-left border-none rounded-tl-lg">Cliente / Site</th><th className="px-6 sm:px-8 py-5 sm:py-6 text-left border-none">Tipo Serviço</th><th className="px-6 sm:px-8 py-5 sm:py-6 text-left border-none">Ciclo</th><th className="px-6 sm:px-8 py-5 sm:py-6 text-left border-none">Status</th><th className="px-6 sm:px-10 py-5 sm:py-6 text-center border-none rounded-tr-lg">Gestão</th></tr></thead>
+                                            <tbody className="divide-y divide-gray-100 dark:divide-white/5 text-[11px] sm:text-sm">
+                                                {filteredProjects.length === 0 ? (<tr><td colSpan="5" className="py-16 sm:py-24 text-center text-gray-400 italic font-medium border-none bg-gray-50 dark:bg-[#1a1a1a]">Nenhum projeto encontrado.</td></tr>) : filteredProjects.map(p => {
+                                                    const tag = getFixedTagColor(p.status);
+                                                    const risk = isRiskProject(p);
+                                                    return(
+                                                        <tr key={p.id} className="hover:bg-gray-50 dark:hover:bg-white/5 transition-colors group">
+                                                            <td className="px-6 sm:px-10 py-4 sm:py-5 font-bold border-none">
+                                                                <div className="flex items-center gap-2 text-gray-900 dark:text-white">{risk && <AlertTriangle size={14} className="text-red-500 shrink-0" />} <span className="truncate max-w-[150px] sm:max-w-[200px]">{p.cliente}</span></div>
+                                                                {p.link ? (
+                                                                    <a href={p.link.startsWith('http') ? p.link : `https://${p.link}`} target="_blank" rel="noopener noreferrer" className="text-[9px] sm:text-[10px] text-blue-500 hover:text-blue-600 dark:hover:text-blue-400 font-medium mt-1 flex items-center gap-1 transition-colors w-fit bg-blue-50 dark:bg-blue-500/10 px-2 py-1 rounded-sm">
+                                                                        <ExternalLink size={10} /> Link
+                                                                    </a>
+                                                                ) : (
+                                                                    <p className="text-[9px] sm:text-[10px] text-gray-400 font-medium mt-1 truncate max-w-[150px] sm:max-w-[200px]">Sem Link</p>
+                                                                )}
+                                                                {p.ownerName && filterUser === 'Todos' && (
+                                                                    <p className="text-[8px] sm:text-[9px] text-gray-400 font-bold mt-1.5 flex items-center gap-1 uppercase tracking-widest"><User size={9} /> RESP: {p.ownerName.split(' ')[0]}</p>
+                                                                )}
+                                                            </td>
+                                                            <td className="px-6 sm:px-8 py-4 sm:py-5 border-none"><span className="inline-block whitespace-nowrap bg-gray-100 dark:bg-[#222] px-3 py-1.5 rounded-sm text-[8px] sm:text-[9px] font-black uppercase text-gray-600 dark:text-gray-300">{p.tipo}</span></td>
+                                                            <td className="px-6 sm:px-8 py-4 sm:py-5 text-[9px] sm:text-[10px] text-gray-400 font-bold border-none"><p>CRI: <span className="text-gray-700 dark:text-gray-300">{p.criadoEm}</span></p><p className="mt-1">ENT: <span className="text-gray-700 dark:text-gray-300">{p.entrega || '--/--/--'}</span></p></td>
+                                                            <td className="px-6 sm:px-8 py-4 sm:py-5 border-none">
+                                                                <div className="flex flex-col gap-1 items-start">
+                                                                    <span className={`inline-block whitespace-nowrap px-3 py-1.5 rounded-sm text-[8px] sm:text-[9px] font-black uppercase tracking-widest border shadow-sm ${tag.bg} ${tag.text} ${tag.border}`}>{p.status}</span>
+                                                                    {risk && <span className="text-[7px] sm:text-[8px] font-black text-red-500 uppercase tracking-widest bg-red-50 dark:bg-red-500/10 px-2 py-0.5 rounded border border-red-200 dark:border-red-500/30">ALERTA ATIVO</span>}
+                                                                </div>
+                                                            </td>
+                                                            <td className="px-6 sm:px-10 py-4 sm:py-5 text-center border-none">
+                                                                {canEdit ? (
+                                                                    <div className="flex justify-center gap-2">
+                                                                        <button type="button" onClick={() => handleTogglePago(p)} className={`p-2 sm:p-2.5 rounded-md transition-colors cursor-pointer outline-none ${p.pago ? 'bg-green-100 dark:bg-green-500/20 text-green-600 dark:text-green-400 border border-green-200 dark:border-green-500/30' : 'bg-gray-100 dark:bg-white/5 border border-transparent text-gray-400 hover:text-green-600 hover:bg-green-50 dark:hover:bg-green-500/10'}`} title={p.pago ? "Marcar como Pendente" : "Marcar como Pago"}>
+                                                                            <DollarSign size={14}/>
+                                                                        </button>
+                                                                        <button type="button" onClick={() => setTransferModal({ isOpen: true, project: p, toMonth: p.mes, motivo: '' })} className="p-2 sm:p-2.5 bg-gray-100 dark:bg-white/5 border border-transparent text-blue-600 hover:text-blue-700 hover:bg-blue-100 dark:hover:bg-blue-500/20 rounded-md transition-colors cursor-pointer outline-none" title="Mover Mês">
+                                                                            <ArrowRightLeft size={14}/>
+                                                                        </button>
+                                                                        <button type="button" onClick={() => {setCurrentProject(p); setNoteTitle(''); setNoteText(''); setNoteIsAlert(false); setIsEditModalOpen(true);}} className="flex items-center gap-1 sm:gap-2 p-2 sm:p-2.5 bg-gray-100 dark:bg-white/5 border border-transparent text-gray-700 dark:text-gray-300 hover:text-brand hover:bg-orange-50 dark:hover:bg-brand/20 rounded-md transition-all cursor-pointer outline-none" title="Editar Projeto / Notas">
+                                                                            <Edit2 size={14}/>
+                                                                            <div className="flex items-center gap-1 bg-white dark:bg-black px-1.5 sm:px-2 py-0.5 rounded-sm shadow-sm border border-gray-200 dark:border-white/10">
+                                                                                <MessageSquare size={10} className={p.anotacoes?.length > 0 ? "text-brand" : "text-gray-400"} />
+                                                                                <span className={`text-[9px] sm:text-[10px] font-black ${p.anotacoes?.length > 0 ? "text-brand" : "text-gray-400"}`}>{p.anotacoes?.length || 0}</span>
+                                                                            </div>
+                                                                        </button>
+                                                                    </div>
+                                                                ) : (
+                                                                    <div className="flex justify-center gap-2">
+                                                                        {p.pago && (
+                                                                            <div className="flex items-center justify-center bg-green-50 dark:bg-green-500/10 px-3 py-1.5 rounded-md shadow-sm border border-green-200 dark:border-green-500/20 w-fit" title="Pagamento Recebido">
+                                                                                <DollarSign size={14} className="text-green-600 dark:text-green-400" />
+                                                                            </div>
+                                                                        )}
+                                                                        <button type="button" onClick={() => {setCurrentProject(p); setNoteTitle(''); setNoteText(''); setNoteIsAlert(false); setIsEditModalOpen(true);}} className="flex items-center justify-center gap-1.5 bg-white dark:bg-black px-3 py-1.5 rounded-md shadow-sm border border-gray-200 dark:border-white/10 w-fit hover:bg-gray-50 dark:hover:bg-white/5 transition-colors cursor-pointer outline-none" title="Visualizar Prontuário e Notas">
+                                                                            <Eye size={14} className="text-gray-500 dark:text-gray-400" />
+                                                                            <MessageSquare size={12} className={p.anotacoes?.length > 0 ? "text-brand" : "text-gray-500"} />
+                                                                            <span className={`text-[10px] font-black ${p.anotacoes?.length > 0 ? "text-brand" : "text-gray-500"}`}>{p.anotacoes?.length || 0}</span>
+                                                                        </button>
+                                                                    </div>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    );
+                                                })}
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                )}
+
+                            </div>
+                        </div>
+                    </main>
+
+                    {/* MODAL EDIÇÃO (PRONTUÁRIO E EMPRESAS) */}
+                    {isCompanyModalOpen && currentCompany && canEdit && (
+                        <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4 sm:p-6 overflow-y-auto fade-in">
+                            <div className="bg-white dark:bg-darkpanel rounded-lg w-full max-w-lg shadow-2xl p-8 border border-gray-100 dark:border-white/5 max-h-[90vh] overflow-y-auto custom-scrollbar">
+                                <div className="flex justify-between items-center mb-6">
+                                    <h3 className="text-xl font-black uppercase tracking-tighter">Empresa e Acessos</h3>
+                                    <button type="button" onClick={() => setIsCompanyModalOpen(false)} className="text-gray-400 hover:text-red-500 transition-colors cursor-pointer outline-none border-none bg-transparent">
+                                        <X size={24}/>
+                                    </button>
+                                </div>
+                                <form onSubmit={handleSaveCompany} className="space-y-6">
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Nome da Empresa</label>
+                                        <input required type="text" value={currentCompany.nome} onChange={e => setCurrentCompany({...currentCompany, nome: e.target.value})} className="w-full p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-sm outline-none focus:border-brand transition-colors" placeholder="Ex: Sedia Textil..." />
+                                    </div>
+                                    <div className="space-y-3">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Serviços Contratados</label>
+                                        <div className="flex gap-4 flex-wrap">
+                                            {['Site', 'Site Catálogo', 'E-commerce'].map(t => (
+                                                <label key={t} className="flex items-center gap-2 cursor-pointer p-2 hover:bg-gray-50 dark:hover:bg-[#1a1a1a] rounded-md transition-colors border border-transparent hover:border-gray-100 dark:hover:border-white/5">
+                                                    <input type="checkbox" checked={(currentCompany.tipos || []).includes(t)} onChange={e => {
+                                                        let tps = [...(currentCompany.tipos || [])];
+                                                        if(e.target.checked) tps.push(t);
+                                                        else tps = tps.filter(x => x !== t);
+                                                        setCurrentCompany({...currentCompany, tipos: tps});
+                                                    }} className="w-4 h-4 text-brand cursor-pointer border-gray-300 rounded" />
+                                                    <span className="text-xs font-bold text-gray-700 dark:text-gray-300">{t}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {/* SUPORTE E ALERTAS */}
+                                    <div className="pt-4 border-t border-gray-100 dark:border-white/5 space-y-4">
+                                        <h4 className="text-xs font-black uppercase text-brand tracking-widest">Suporte & Lembretes</h4>
+                                        <label className="flex items-center gap-3 cursor-pointer p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded-md border border-gray-100 dark:border-white/5 hover:border-green-300 dark:hover:border-green-500/30 transition-colors">
+                                            <input type="checkbox" checked={currentCompany.temSuporte} onChange={e => setCurrentCompany({...currentCompany, temSuporte: e.target.checked})} className="w-4 h-4 text-green-500 cursor-pointer rounded" />
+                                            <span className="text-xs font-black uppercase text-gray-900 dark:text-white tracking-tighter">Empresa possui Suporte?</span>
+                                        </label>
+                                        
+                                        {currentCompany.temSuporte && (
+                                            <div className="grid grid-cols-2 gap-3 p-3 bg-green-50 dark:bg-green-500/5 rounded-md border border-green-100 dark:border-green-500/20 fade-in">
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-black text-green-700 dark:text-green-500 uppercase tracking-widest">Início Suporte</label>
+                                                    <input type="date" required={currentCompany.temSuporte} value={currentCompany.suporteInicio} onChange={e => setCurrentCompany({...currentCompany, suporteInicio: e.target.value})} className="w-full p-2.5 bg-white dark:bg-[#111] border border-green-200 dark:border-green-500/30 rounded font-bold text-xs outline-none focus:border-green-500 text-gray-900 dark:text-white" />
+                                                </div>
+                                                <div className="space-y-1">
+                                                    <label className="text-[9px] font-black text-red-600 dark:text-red-500 uppercase tracking-widest">Fim do Suporte</label>
+                                                    <input type="date" required={currentCompany.temSuporte} value={currentCompany.suporteFim} onChange={e => setCurrentCompany({...currentCompany, suporteFim: e.target.value})} className="w-full p-2.5 bg-white dark:bg-[#111] border border-red-200 dark:border-red-500/30 rounded font-bold text-xs outline-none focus:border-red-500 text-gray-900 dark:text-white" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        {(currentCompany.tipos || []).includes('E-commerce') && (
+                                            <div className="p-3 bg-orange-50 dark:bg-orange-500/5 rounded-md border border-orange-100 dark:border-orange-500/20 fade-in space-y-3">
+                                                <div>
+                                                    <label className="text-[10px] font-black text-orange-700 dark:text-orange-500 uppercase tracking-widest flex items-center gap-1.5"><Bell size={12} /> Dia de Lembrete (Banners)</label>
+                                                    <p className="text-[9px] text-gray-500 dark:text-gray-400 font-medium mt-1">Dia do mês para enviar o alerta sobre a criação dos 2 banners.</p>
+                                                    <select value={currentCompany.diaLembrete} onChange={e => setCurrentCompany({...currentCompany, diaLembrete: e.target.value})} className="w-full p-2.5 bg-white dark:bg-[#111] border border-orange-200 dark:border-orange-500/30 rounded font-bold text-xs outline-none focus:border-orange-500 text-gray-900 dark:text-white cursor-pointer mt-1">
+                                                        <option value="">Selecione o Dia...</option>
+                                                        {[...Array(31)].map((_, i) => <option key={i+1} value={i+1}>Dia {i+1}</option>)}
+                                                    </select>
+                                                </div>
+                                                <div className="border-t border-orange-200/50 dark:border-orange-500/20 pt-3 space-y-3">
+                                                    <div>
+                                                        <label className="text-[10px] font-black text-orange-700 dark:text-orange-500 uppercase tracking-widest flex items-center gap-1.5">Link do Grupo (Envio Manual)</label>
+                                                        <input type="text" value={currentCompany.linkGrupoWhatsapp || ''} onChange={e => setCurrentCompany({...currentCompany, linkGrupoWhatsapp: e.target.value})} className="w-full p-3 bg-white dark:bg-[#111] border border-orange-200 dark:border-orange-500/30 rounded font-bold text-xs outline-none focus:border-orange-500 text-gray-900 dark:text-white mt-1" placeholder="Ex: https://chat.whatsapp.com/ABC123XYZ..." />
+                                                    </div>
+                                                    <div className="pt-2">
+                                                        <label className="text-[10px] font-black text-green-600 dark:text-green-500 uppercase tracking-widest flex items-center gap-1.5">Webhook (Envio 100% Automático)</label>
+                                                        <p className="text-[9px] text-gray-500 dark:text-gray-400 font-medium leading-tight mt-1">Cole aqui a URL do seu Zapier/Make. O sistema envia os dados automaticamente e marca como concluído.</p>
+                                                        <input type="text" value={currentCompany.webhookUrl || ''} onChange={e => setCurrentCompany({...currentCompany, webhookUrl: e.target.value})} className="w-full p-3 bg-white dark:bg-[#111] border border-green-200 dark:border-green-500/30 rounded font-bold text-xs outline-none focus:border-green-500 text-gray-900 dark:text-white mt-2" placeholder="Ex: https://hook.us1.make.com/..." />
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* SEÇÃO DE ACESSOS */}
+                                    <div className="pt-4 border-t border-gray-100 dark:border-white/5 space-y-4">
+                                        <h4 className="text-xs font-black uppercase text-brand tracking-widest">Informações de Acesso & Domínio</h4>
+                                        
+                                        {(currentCompany.tipos || []).includes('E-commerce') && (
+                                            <div className="grid grid-cols-3 gap-3 p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded border border-gray-200 dark:border-white/10">
+                                                <div>
+                                                    <label className="text-[9px] font-bold text-gray-400 uppercase">Código Loja</label>
+                                                    <input type="text" value={currentCompany.codigoLoja || ''} onChange={e => setCurrentCompany({...currentCompany, codigoLoja: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1" placeholder="Ex: 1470750" />
+                                                </div>
+                                                <div>
+                                                    <label className="text-[9px] font-bold text-gray-400 uppercase">Usuário Loja</label>
+                                                    <input type="text" value={currentCompany.usuarioLoja || ''} onChange={e => setCurrentCompany({...currentCompany, usuarioLoja: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1" placeholder="E-mail/User" />
+                                                </div>
+                                                <div>
+                                                    <label className="text-[9px] font-bold text-gray-400 uppercase">Senha Loja</label>
+                                                    <input type="text" value={currentCompany.senhaLoja || ''} onChange={e => setCurrentCompany({...currentCompany, senhaLoja: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1" placeholder="Senha" />
+                                                </div>
+                                            </div>
+                                        )}
+
+                                        <div className="grid grid-cols-2 gap-3 p-3 bg-gray-50 dark:bg-[#1a1a1a] rounded border border-gray-200 dark:border-white/10">
+                                            <div className="col-span-2">
+                                                <label className="text-[9px] font-bold text-gray-400 uppercase">Domínio (Site)</label>
+                                                <input type="text" value={currentCompany.dominio || ''} onChange={e => setCurrentCompany({...currentCompany, dominio: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1" placeholder="Ex: www.site.com.br" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[9px] font-bold text-gray-400 uppercase">Usuário Domínio</label>
+                                                <input type="text" value={currentCompany.usuarioDominio || ''} onChange={e => setCurrentCompany({...currentCompany, usuarioDominio: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1" placeholder="User" />
+                                            </div>
+                                            <div>
+                                                <label className="text-[9px] font-bold text-gray-400 uppercase">Senha Domínio</label>
+                                                <input type="text" value={currentCompany.senhaDominio || ''} onChange={e => setCurrentCompany({...currentCompany, senhaDominio: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1" placeholder="Senha" />
+                                            </div>
+                                            <div className="col-span-2">
+                                                <label className="text-[9px] font-bold text-gray-400 uppercase">Onde está o Domínio?</label>
+                                                <select value={currentCompany.provedorDominio || 'Registro Br'} onChange={e => setCurrentCompany({...currentCompany, provedorDominio: e.target.value})} className="w-full p-2 bg-white dark:bg-[#111] border border-gray-200 dark:border-white/10 rounded text-xs font-bold mt-1 cursor-pointer">
+                                                    <option value="Registro Br">Registro Br</option>
+                                                    <option value="Hostinger">Hostinger</option>
+                                                    <option value="Hostgator">Hostgator</option>
+                                                    <option value="Locaweb">Locaweb</option>
+                                                    <option value="Godaddy">Godaddy</option>
+                                                    <option value="Wix">Wix</option>
+                                                    <option value="Outros">Outros</option>
+                                                </select>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <button type="submit" className="w-full py-4 bg-gray-900 dark:bg-white dark:text-black border-none text-white font-black rounded-md uppercase tracking-[0.2em] shadow-xl hover:bg-brand dark:hover:bg-brand dark:hover:text-white transition-all text-xs cursor-pointer outline-none mt-2">
+                                        Salvar Empresa e Acessos
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    )}
+
+                    {isEditModalOpen && currentProject && (
+                        <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-md flex items-center justify-center z-[9999] p-4 sm:p-6 overflow-y-auto fade-in text-left">
+                            <div className="bg-white dark:bg-darkpanel rounded-lg w-full max-w-5xl shadow-2xl my-auto flex flex-col lg:flex-row overflow-hidden max-h-[95vh] md:max-h-[90vh]">
+                                <form onSubmit={handleSaveProject} className="flex-1 p-6 sm:p-12 space-y-6 overflow-y-auto custom-scrollbar">
+                                    <div className="flex justify-between items-center mb-4 sm:mb-8">
+                                        <h3 className="text-xl sm:text-3xl font-black uppercase tracking-tighter">Prontuário</h3>
+                                        <button type="button" onClick={() => setIsEditModalOpen(false)} className="text-gray-400 border-none bg-transparent hover:text-red-500 transition-colors cursor-pointer outline-none">
+                                            <X size={28}/>
+                                        </button>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Cliente / Link do Site</label>
+                                        <div className="flex flex-col sm:flex-row gap-3">
+                                            <input required type="text" value={currentProject.cliente} onChange={e => setCurrentProject({...currentProject, cliente: e.target.value})} disabled={!canEdit} className="w-full sm:w-1/2 px-4 sm:px-6 py-4 sm:py-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md outline-none font-black text-lg sm:text-xl focus:border-brand transition-colors shadow-inner disabled:opacity-70 disabled:cursor-not-allowed" placeholder="Nome do Cliente" />
+                                            <input type="text" value={currentProject.link || ''} onChange={e => setCurrentProject({...currentProject, link: e.target.value})} disabled={!canEdit} className="w-full sm:w-1/2 px-4 sm:px-6 py-4 sm:py-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md outline-none font-bold text-sm text-blue-500 focus:border-brand transition-colors shadow-inner disabled:opacity-70 disabled:cursor-not-allowed" placeholder="Ex: www.site.com" />
+                                        </div>
+                                    </div>
+                                    
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5">
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Mês Ref.</label>
+                                            <select value={currentProject.mes} onChange={e => setCurrentProject({...currentProject, mes: e.target.value})} disabled={!canEdit} className="w-full p-4 sm:p-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-sm outline-none cursor-pointer focus:border-brand disabled:opacity-70 disabled:cursor-not-allowed">
+                                                {monthsList.filter(m => m !== 'Todos').map(m => <option key={m} value={m}>{m}</option>)}
+                                            </select>
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Responsável (Dono)</label>
+                                            <select value={currentProject.ownerId || user.uid} onChange={e => {
+                                                const selectedId = e.target.value;
+                                                const selectedUser = teamUsers.find(u => u.id === selectedId) || { id: user.uid, name: profile.name };
+                                                setCurrentProject({...currentProject, ownerId: selectedUser.id, ownerName: selectedUser.name});
+                                            }} disabled={!canEdit} className="w-full p-4 sm:p-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-sm outline-none cursor-pointer focus:border-brand text-brand disabled:opacity-70 disabled:cursor-not-allowed">
+                                                <option value={user.uid}>{profile.name} (Eu)</option>
+                                                {isAdmin && teamUsers.filter(u => u.id !== user.uid).map(u => (
+                                                    <option key={u.id} value={u.id}>{u.name}</option>
+                                                ))}
+                                            </select>
+                                        </div>
+                                        <div className="sm:col-span-2 space-y-2">
+                                            <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Tipo de Serviço</label>
+                                            {!showAddCategory ? (
+                                                <div className="flex gap-2">
+                                                    <select value={currentProject.tipo} onChange={e => setCurrentProject({...currentProject, tipo: e.target.value})} disabled={!canEdit} className="w-full p-4 sm:p-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-sm outline-none cursor-pointer focus:border-brand disabled:opacity-70 disabled:cursor-not-allowed">
+                                                        {[...new Set([...activeCategories, currentProject.tipo || 'Site'])].map(c => <option key={c} value={c}>{c}</option>)}
+                                                    </select>
+                                                    {canEdit && (
+                                                        <button type="button" onClick={() => setShowAddCategory(true)} className="px-4 sm:px-5 bg-gray-100 dark:bg-[#222] text-gray-500 hover:text-brand hover:bg-orange-50 dark:hover:bg-brand/20 rounded-md transition-colors cursor-pointer outline-none flex items-center justify-center shrink-0 border-none">
+                                                            <PlusCircle size={20} />
+                                                        </button>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <div className="flex gap-2">
+                                                    <input type="text" value={newCategoryVal} onChange={e => setNewCategoryVal(e.target.value)} className="w-full p-4 sm:p-5 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-sm outline-none focus:border-brand" placeholder="Novo Tipo..." />
+                                                    <button type="button" onClick={() => { if (newCategoryVal.trim()) setCurrentProject({...currentProject, tipo: newCategoryVal.trim()}); setShowAddCategory(false); setNewCategoryVal(''); }} className="px-4 sm:px-5 bg-green-500 text-white rounded-md hover:bg-green-600 transition-colors cursor-pointer outline-none flex items-center justify-center shrink-0 border-none"><Check size={20} /></button>
+                                                    <button type="button" onClick={() => setShowAddCategory(false)} className="px-4 sm:px-5 bg-red-500 text-white rounded-md hover:bg-red-600 transition-colors cursor-pointer outline-none flex items-center justify-center shrink-0 border-none"><X size={20} /></button>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-[10px] font-black text-gray-400 uppercase tracking-widest">Status do Trabalho (Fixo)</label>
+                                        <div className="flex gap-2">
+                                            <select value={currentProject.status} onChange={e => setCurrentProject({...currentProject, status: e.target.value})} disabled={!canEdit} className={`w-full p-4 sm:p-5 rounded-md font-black border-2 outline-none uppercase tracking-widest text-xs cursor-pointer focus:border-brand disabled:opacity-70 disabled:cursor-not-allowed ${isDark ? 'bg-[#1a1a1a] border-white/10' : getFixedTagColor(currentProject.status).bg + ' ' + getFixedTagColor(currentProject.status).border} ${getFixedTagColor(currentProject.status).text}`}>
+                                                {FIXED_STATUSES.map(t => <option key={t.name} value={t.name}>{t.name}</option>)}
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 pt-6 border-t border-gray-100 dark:border-white/5 mt-4">
+                                        <div className="space-y-2"><label className="text-[10px] font-black uppercase text-gray-400">Data de Cadastro</label><input type="date" value={toInputDate(currentProject.criadoEm)} onChange={e => setCurrentProject({...currentProject, criadoEm: toBRDate(e.target.value)})} disabled={!canEdit} className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-xs outline-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed" /></div>
+                                        <div className="space-y-2"><label className="text-[10px] font-black uppercase text-gray-400">Início</label><input type="date" value={toInputDate(currentProject.inicio)} onChange={e => setCurrentProject({...currentProject, inicio: toBRDate(e.target.value)})} disabled={!canEdit} className="w-full p-3 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-100 dark:border-white/5 rounded-md font-bold text-xs outline-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed" /></div>
+                                        <div className="space-y-2"><label className="text-[10px] font-black uppercase text-gray-400">Entrega</label><input type="date" value={toInputDate(currentProject.entrega)} onChange={e => setCurrentProject({...currentProject, entrega: toBRDate(e.target.value)})} disabled={!canEdit} className="w-full p-3 bg-green-50 dark:bg-green-500/10 border border-green-200 dark:border-green-500/20 rounded-md font-bold text-xs text-green-700 dark:text-green-400 outline-none cursor-pointer disabled:opacity-70 disabled:cursor-not-allowed" /></div>
+                                        <div className="space-y-2">
+                                            <label className="text-[10px] font-black uppercase text-gray-400">Pagamento</label>
+                                            <button type="button" onClick={() => canEdit && setCurrentProject({...currentProject, pago: !currentProject.pago})} className={`w-full p-3 rounded-md font-bold text-xs flex items-center justify-center gap-2 transition-colors border ${currentProject.pago ? 'bg-green-100 border-green-300 text-green-700 dark:bg-green-500/20 dark:border-green-500/30 dark:text-green-400' : 'bg-gray-50 border-gray-100 text-gray-400 dark:bg-[#1a1a1a] dark:border-white/5'} ${!canEdit ? 'opacity-70 cursor-not-allowed' : 'cursor-pointer'}`}>
+                                                <DollarSign size={14} /> {currentProject.pago ? 'Pago' : 'Pendente'}
+                                            </button>
+                                        </div>
+                                    </div>
+                                    {canEdit && (
+                                        <button type="submit" className="w-full py-4 sm:py-5 bg-gray-900 dark:bg-white dark:text-black border-none text-white font-black rounded-md uppercase tracking-[0.2em] shadow-xl hover:bg-[#ea580c] transition-all text-xs mt-6 cursor-pointer outline-none">
+                                            Sincronizar Alterações
+                                        </button>
+                                    )}
+                                </form>
+
+                                <div className="w-full lg:w-[400px] bg-gray-50 dark:bg-[#1a1a1a] p-6 sm:p-10 flex flex-col border-t lg:border-t-0 lg:border-l border-gray-200 dark:border-white/5 overflow-hidden">
+                                    <h4 className="text-[11px] font-black uppercase tracking-[0.2em] text-gray-400 mb-4 sm:mb-6 flex items-center gap-2"><MessageSquare size={16} className="text-brand" /> Timeline & Notas</h4>
+                                    
+                                    {canEdit && (
+                                        <div className={`bg-white dark:bg-[#222] p-4 sm:p-5 rounded-md shadow-sm space-y-3 mb-6 border-2 transition-colors shrink-0 ${noteIsAlert ? 'border-red-500' : 'border-transparent dark:border-white/5'}`}>
+                                            <input type="text" value={noteTitle} onChange={e => setNoteTitle(e.target.value)} className="w-full text-sm font-bold border-none outline-none border-b border-gray-100 dark:border-white/10 pb-2 focus:border-brand bg-transparent" placeholder="Assunto da nota..." />
+                                            <textarea value={noteText} onChange={e => setNoteText(e.target.value)} className="w-full text-sm border-none outline-none resize-none h-16 placeholder-gray-400 dark:placeholder-gray-600 bg-transparent custom-scrollbar mt-2" placeholder="Detalhes do andamento ou feedback..."></textarea>
+                                            
+                                            <div className="flex items-center gap-2 py-2">
+                                                <input type="checkbox" id="alerta-check" checked={noteIsAlert} onChange={e => setNoteIsAlert(e.target.checked)} className="w-4 h-4 text-red-500 cursor-pointer" />
+                                                <label htmlFor="alerta-check" className={`text-xs font-bold cursor-pointer ${noteIsAlert ? 'text-red-500' : 'text-gray-500'}`}>⚠️ Marcar como Alerta (Risco)</label>
+                                            </div>
+
+                                            <button type="button" onClick={handleAddOrUpdateNote} className={`w-full py-3 border-none text-white rounded-md text-[10px] font-black uppercase tracking-widest shadow-sm transition-colors cursor-pointer outline-none ${noteIsAlert ? 'bg-red-500 hover:bg-red-600' : 'bg-brand hover:bg-orange-600'}`}>
+                                                {editingNoteIndex !== null ? 'Atualizar Registro' : 'Adicionar Registro'}
+                                            </button>
+                                        </div>
+                                    )}
+
+                                    <div className="flex-1 overflow-y-auto custom-scrollbar space-y-5 pr-2 sm:pr-3 min-h-[150px]">
+                                        {(currentProject.anotacoes || []).map((n, idx) => (
+                                            <div key={idx} className={`relative pl-5 sm:pl-6 border-l-2 py-1 group ${n.isAlert ? 'border-red-400' : 'border-brand/30'}`}>
+                                                <div className={`absolute -left-[6px] top-2 w-2.5 h-2.5 rounded-full border-2 border-white dark:border-[#1a1a1a] ${n.isAlert ? 'bg-red-500' : 'bg-brand'}`}></div>
+                                                <div className="absolute right-0 top-0 opacity-100 lg:opacity-0 lg:group-hover:opacity-100 flex gap-1 sm:gap-2 bg-gray-50 dark:bg-[#1a1a1a] pl-2 sm:pl-4 py-1 transition-opacity">
+                                                    <button type="button" onClick={() => setExpandedNotes(prev => ({...prev, [idx]: !prev[idx]}))} className="p-1 sm:p-1.5 bg-white dark:bg-[#222] border-none text-blue-500 rounded-md shadow-sm hover:bg-blue-50 dark:hover:bg-blue-500/10 transition-all cursor-pointer outline-none">{expandedNotes[idx] ? <EyeOff size={12}/> : <Eye size={12}/>}</button>
+                                                    {canEdit && (
+                                                        <button type="button" onClick={() => { setNoteTitle(n.title||''); setNoteText(n.text||''); setNoteIsAlert(n.isAlert||false); setEditingNoteIndex(idx); }} className="p-1 sm:p-1.5 bg-white dark:bg-[#222] border-none text-brand rounded-md shadow-sm hover:bg-orange-50 dark:hover:bg-brand/10 transition-all cursor-pointer outline-none"><Edit2 size={12}/></button>
+                                                    )}
+                                                    {canEdit && (
+                                                        <button type="button" onClick={() => handleDeleteNote(idx)} className="p-1 sm:p-1.5 bg-white dark:bg-[#222] border-none text-red-500 rounded-md shadow-sm hover:bg-red-50 dark:hover:bg-red-500/10 transition-all cursor-pointer outline-none"><Trash2 size={12}/></button>
+                                                    )}
+                                                </div>
+                                                <p className={`text-[11px] sm:text-xs font-black leading-tight pr-16 sm:pr-20 ${n.isAlert ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`}>
+                                                    {n.isAlert && <AlertTriangle size={10} className="inline mr-1 mb-0.5" />}
+                                                    {n.title || 'Sem título'}
+                                                </p>
+                                                <p className={`text-[10px] sm:text-[11px] mt-1 whitespace-pre-wrap leading-relaxed break-words ${n.isAlert ? 'text-red-500/80 dark:text-red-300/80 font-medium' : 'text-gray-500 dark:text-gray-400'} ${expandedNotes[idx] ? '' : 'line-clamp-2'}`}>{n.text}</p>
+                                                <p className="text-[7px] sm:text-[8px] font-black text-gray-400 mt-2 uppercase tracking-widest flex items-center gap-1.5"><Clock size={9}/> {n.date} • {n.author}</p>
+                                            </div>
+                                        ))}
+                                        {(!currentProject.anotacoes || currentProject.anotacoes.length === 0) && (
+                                            <div className="h-full flex flex-col items-center justify-center opacity-20 py-10">
+                                              <FileText size={40} strokeWidth={1} className="m-0" />
+                                              <p className="text-[10px] font-bold uppercase mt-2 m-0">Sem histórico</p>
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    {/* MODAL TRANSFERÊNCIA */}
+                    {transferModal.isOpen && canEdit && (
+                        <div className="fixed inset-0 bg-gray-900/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-6 fade-in text-left">
+                            <div className="bg-white dark:bg-darkpanel rounded-lg w-full max-w-md shadow-2xl animate-in zoom-in duration-200">
+                                <div className="p-8 space-y-6">
+                                    <div className="flex items-center gap-4 border-b border-gray-100 dark:border-white/5 pb-4">
+                                        <div className="bg-blue-50 dark:bg-blue-500/10 p-3 rounded-md text-blue-500 shadow-sm"><ArrowRightLeft size={24} /></div>
+                                        <div><h3 className="text-lg font-black uppercase tracking-tighter">Mover Mês</h3><p className="text-[10px] text-gray-400 font-bold mt-1 truncate max-w-[200px]">{transferModal.project.cliente}</p></div>
+                                    </div>
+                                    <div className="space-y-4 pt-2">
+                                        <select value={transferModal.toMonth} onChange={e => setTransferModal({...transferModal, toMonth: e.target.value})} className="w-full p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/5 rounded-md font-bold outline-none focus:border-blue-500 cursor-pointer shadow-inner appearance-none"><option value="" disabled>Escolha o destino...</option>{monthsList.filter(m => m !== 'Todos').map(m => <option key={m} value={m}>{m}</option>)}</select>
+                                        <textarea value={transferModal.motivo} onChange={e => setTransferModal({...transferModal, motivo: e.target.value})} rows="3" className="w-full p-4 bg-gray-50 dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/5 rounded-md text-sm outline-none resize-none font-medium focus:border-blue-500 shadow-inner" placeholder="Motivo do adiamento..."></textarea>
+                                    </div>
+                                    <div className="flex gap-3 pt-4">
+                                        <button type="button" onClick={() => setTransferModal({ isOpen: false, project: null, toMonth: '', motivo: '' })} className="flex-1 py-3 text-[10px] font-black uppercase border-none bg-gray-100 dark:bg-[#222] text-gray-500 hover:text-gray-900 dark:hover:text-white rounded-md transition-colors cursor-pointer outline-none">Sair</button>
+                                        <button type="button" onClick={handleTransferConfirm} className="flex-1 py-3 bg-blue-600 border-none text-white font-black rounded-md text-[10px] uppercase shadow-xl shadow-blue-200 dark:shadow-none active:scale-95 transition-all cursor-pointer outline-none">Confirmar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                </div>
+            );
+        }
+
+        const renderApp = () => {
+            const container = document.getElementById('leads-periferica-root');
+            if (container) {
+                try {
+                    const root = ReactDOM.createRoot(container);
+                    root.render(<App />);
+                } catch (err) {
+                    console.error('Erro React:', err);
+                }
+            } else {
+                setTimeout(renderApp, 100);
+            }
+        };
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', renderApp);
+        } else {
+            renderApp();
+        }
+    </script>
+</body>
+</html>

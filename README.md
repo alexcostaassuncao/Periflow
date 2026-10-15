@@ -28,3 +28,4 @@ Variáveis: veja `.env.example`. No computador, use `.env.local`.
 | `proxy.ts`, `lib/session.ts`, `lib/auth.ts` | Login e proteção das rotas |
 | `db/raw.ts` | Conexão com o Turso |
 | `scripts/` | Migrações, exportação do site antigo e importação de dados |
+| `public/projetos.html`, `app/api/projetos/*` | Aba Projetos (antigo GestãoPro). Veja **[docs/ABA-PROJETOS.md](docs/ABA-PROJETOS.md)** |

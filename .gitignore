@@ -52,3 +52,4 @@ next-env.d.ts
 *.db
 *.db-*
 periflow-export*.json
+gestaopro-export*.json
