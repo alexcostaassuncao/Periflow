@@ -12,6 +12,7 @@
     "lint": "eslint . --ignore-pattern .next",
     "db:migrate": "node --env-file-if-exists=.env.local scripts/db-migrate.mjs",
     "db:import": "node --env-file-if-exists=.env.local scripts/import-data.mjs",
+    "db:import-projetos": "node --env-file-if-exists=.env.local scripts/importar-gestaopro.mjs",
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
