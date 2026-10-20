@@ -1,0 +1,92 @@
+/* Moldura igual à aba Projetos (GestãoPro) + tema escuro do Periflow.
+   Carregado depois do brand.css. A moldura é montada pelo tema.js (classe .side-shell no menu lateral). */
+
+/* ---------- Moldura: menu lateral com logo, usuário, itens e Sair ---------- */
+body.shell-ready>header{display:none}
+.layout,.layout.global-area,.layout.users-area{grid-template-columns:256px minmax(0,1fr);min-height:100vh}
+.layout>aside.side-shell{position:sticky;top:0;height:100vh;max-height:none;display:flex!important;flex-direction:column;padding:0;background:#111;border-right:1px solid #ffffff0d;overflow:hidden}
+.side-brand{display:flex;align-items:center;gap:12px;padding:30px 32px;border-bottom:1px solid #ffffff0d}
+.side-brand img{width:32px;height:32px;object-fit:contain}
+.side-brand strong{font-size:18px;font-weight:900;text-transform:uppercase;letter-spacing:-.05em;color:#fff}
+.side-brand strong span{color:var(--orange)}
+.side-user{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:24px;background:#ffffff0d;border-bottom:1px solid #ffffff0d}
+.side-user-label{display:block;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.1em;color:#6b7280}
+.side-user #userName{display:block;margin-top:4px;font-size:14px;font-weight:700;color:#fff;max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.side-user-role{display:flex;align-items:center;gap:8px;margin-top:8px}
+.side-user-role i{width:6px;height:6px;border-radius:50%;background:var(--orange)}
+.side-user #userRole{display:block;margin:0;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;color:#9ca3af}
+.theme-toggle{display:grid;place-items:center;width:38px;height:38px;flex:none;padding:0;border:1px solid #ffffff1a;border-radius:8px;background:#ffffff0d;color:var(--orange);cursor:pointer}
+.theme-toggle:hover{background:#ffffff1a}
+.side-nav{flex:1;min-height:0;overflow-y:auto;padding:16px}
+.side-nav::-webkit-scrollbar{width:6px}.side-nav::-webkit-scrollbar-thumb{background:var(--orange);border-radius:4px}
+.side-nav .label{padding:0 4px;margin:4px 0 10px}
+.side-shell .nav{gap:12px;padding:16px 20px;margin:0 0 6px;border-radius:8px;font-size:14px;font-weight:700}
+.side-shell .nav-ico{width:18px;height:18px}
+.side-foot{padding:24px;border-top:1px solid #ffffff0d;background:#0003}
+.side-foot .logout{display:flex;align-items:center;justify-content:center;gap:8px;width:100%;padding:16px;border:1px solid #ffffff0d;border-radius:8px;background:transparent;color:#6b7280;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.1em;text-decoration:none}
+.side-foot .logout:hover{color:#fff;background:#ef44441a}
+.layout>main>.syncbar{margin:-22px -22px 18px;padding:8px 22px;font-size:12px}
+@media(max-width:900px){
+  .layout,.layout.global-area,.layout.users-area{grid-template-columns:1fr;min-height:0}
+  .layout>aside.side-shell{position:static;height:auto;display:grid!important;grid-template-columns:1fr auto;overflow:visible}
+  .side-brand{padding:14px 16px;border:0}
+  .side-user{padding:10px 16px;background:transparent;border:0}
+  .side-user>div{display:none}
+  .side-nav{grid-column:1/-1;display:flex;gap:6px;overflow-x:auto;padding:8px 10px;border-top:1px solid #ffffff0d}
+  .side-nav .label{display:none}
+  .side-shell .nav{width:auto;white-space:nowrap;margin:0;padding:10px 14px}
+  .side-foot{grid-column:1/-1;padding:8px 10px}
+  .side-foot .logout{padding:10px}
+  .layout>main>.syncbar{margin:-16px -16px 14px;padding:8px 16px}
+}
+
+/* ---------- Tema escuro (mesmas cores da aba Projetos: fundo #0a0a0a, painéis #111) ---------- */
+html.dark{color-scheme:dark;--bg:#0a0a0a;--card:#111;--text:#f3f4f6;--muted:#9ca3af;--line:#ffffff14;--soft:#ff50001a}
+html.dark body{background:#0a0a0a;color:#f3f4f6}
+html.dark .layout>aside.side-shell{background:#000}
+
+/* Painéis e cartões */
+html.dark :is(.plan,.task,.modal-card,.steps,.channel-grid,.upload,.ref,.preview,.squad-box,.assignee-strip,.person-chip,.flow-stage,.client-dialog,.employee-row,.record-card,.module-note,.management-filters,.stage-assignment,.wallet-card,.calendar-day,.calendar-btn,.client,dialog){background:#111;border-color:#ffffff14;color:#f3f4f6}
+html.dark .publication-drawer>.modal-card,html.dark .publication-drawer .modal-head{background:#111}
+html.dark :is(.empty,.task-preview,.box,.squad-member,.workflow-strip,.cancelled-task,.array-item,.object-item,.crm-column,.linkchip,.chip,.upload-btn,.stage-avatar){background:#161616;border-color:#ffffff14;color:#d1d5db}
+html.dark .calendar-btn:hover{background:#1c1c1c}
+
+/* Linhas divisórias */
+html.dark :is(.modal-head,.footer,.detail-tabs,.client-progress-wrap,.template-bar,.branch-context,.nested-fields,.object-key,.wallet-clients,.wallet-clients li,.platform){border-color:#ffffff14}
+html.dark :is(.divider,.steps>span,.progress-track,.mini-progress){background:#ffffff14}
+html.dark .step b{background:#262626;color:#d1d5db}
+
+/* Textos secundários */
+html.dark :is(.crumb,.month,.stat small,.stat em,.task p,.modal-head small,.step,.section-head p,.upload small,.platform small,.box p,.detail-tab,.progress-head span,.squad-head small,.squad-person small,.person-chip small,.workflow-title span,.template-bar small,.employee-main p,.branch-path,.record-card p,.record-card dt,.module-count,.task-summary,.task-caption,.calendar-day span,.field small,.profile small){color:#9ca3af}
+html.dark .task-description{color:#d1d5db!important}
+html.dark .task-caption-preview{color:#9ca3af!important}
+html.dark .field{color:#6b7280}
+html.dark .field :is(label,span,option){color:#f3f4f6}
+
+/* Campos */
+html.dark :is(.field input,.field select,.field textarea,.month input,.stage-person select,.wallet-clients select,input,select,textarea):not([type=checkbox]):not([type=radio]):not([type=range]){background:#0a0a0a;color:#f3f4f6;border-color:#ffffff1a}
+html.dark :is(.field input,.field textarea,input,textarea)::placeholder{color:#6b7280}
+html.dark option{background:#111;color:#f3f4f6}
+
+/* Botões */
+html.dark .secondary{background:#111;border-color:#ffffff1a;color:#e5e7eb!important}
+html.dark .secondary:hover{border-color:var(--orange)}
+html.dark .text-button{color:#ff7a38}
+
+/* Selos e destaques em laranja/cores, versão escura */
+html.dark :is(.note,.mini,.template-btn,.person-chip.active,.stage-assignment.active,.calendar-day.chosen){background:#ff50001a;border-color:#ff500066;color:#ff8a4c}
+html.dark :is(.employee-avatar,.ico){background:#ff50001a;color:#ff7a38}
+html.dark .stage-badge{background:#ff50001f!important;color:#ff8a4c!important}
+html.dark .owner-badge{background:#3b82f61f!important;color:#93c5fd!important}
+html.dark .verified-badge{background:#22c55e1f;color:#86efac}
+html.dark .cancelled-badge{background:#ef44441f;color:#fca5a5}
+html.dark .flow-stage.done{background:#22c55e1a;color:#86efac}
+html.dark .flow-stage.active{background:var(--orange);border-color:var(--orange);color:#fff}
+html.dark .syncbar{background:#111;color:#9ca3af}
+
+/* Assistente de tarefa (usa !important no connect.html) */
+html.dark :is(.task-wizard,.task-wizard form,.task-wizard .wizard-page,.task-wizard .page,.task-wizard .modal-head,.task-wizard .steps){background:#111!important;color:#f3f4f6!important}
+html.dark .task-wizard :is(input,select,textarea){background:#0a0a0a!important;color:#f3f4f6!important;-webkit-text-fill-color:#f3f4f6!important}
+html.dark .task-wizard select option{background:#111!important;color:#f3f4f6!important}
+html.dark .task-wizard :is(label,.field,h2,h3,h4){color:#e5e7eb}
+html.dark .task-wizard .step:not(.active){color:#9ca3af!important}

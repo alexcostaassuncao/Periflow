@@ -20,7 +20,7 @@ const walletGroup=document.createElement('div');walletGroup.className='wallet-gr
 const dialog=document.createElement('dialog');dialog.id='recordDialog';dialog.className='client-dialog record-dialog';dialog.innerHTML='<div class="modal-head"><h2 id="recordTitle"></h2><button type="button" class="close" id="recordClose" aria-label="Fechar">×</button></div><form id="recordForm"><div id="recordFields" class="grid2"></div><p id="recordError" role="alert"></p><div class="footer"><button class="primary" id="recordSave" type="submit">Salvar registro</button></div></form>';document.body.append(dialog);
 $('#recordClose').onclick=()=>dialog.close();
 const notices={data:'Registre os dados importados e consulte o histórico. O processamento automático de CSV e a conexão com o eKyte ainda precisam ser integrados.',time:'Os horários e as solicitações ficam registrados aqui. Os links das fotos podem ser informados no cadastro.',rewards:'Cadastre e acompanhe recompensas. A concessão automática de XP ainda precisa ser ligada às regras de produção.',chat:'Organize grupos e registre mensagens. As mensagens são atualizadas ao clicar em Atualizar.',campaigns:'Organize os briefings e as peças por tarefa. A publicação no Instagram continua disponível no botão Publicar da tarefa.'};
-function scopedClients(){return activeArea==='management'?visibleClients():state.clients;}
+function scopedClients(){return activeArea==='management'?visibleClients():activeClients();}
 function scopeTasks(){return state.tasks.filter(t=>scopedClients().some(c=>c.id===t.clientId)&&(activeArea!=='management'||!scopeClient||t.clientId===scopeClient));}
 function recordWallet(r){return r.clientId?(state.clients.find(c=>c.id===r.clientId)?.wallet||r.wallet):r.wallet;}
 function scopedRecords(entity){return moduleState.records.filter(r=>(!entity||r.entity===entity)&&(activeArea!=='management'||((recordWallet(r)==='all'||recordWallet(r)===state.wallet)&&(!scopeClient||r.clientId===scopeClient||(!r.clientId&&r.wallet==='all'))&&(!scopeTask||r.data.task_id===scopeTask))));}
@@ -76,7 +76,7 @@ $('#recordFields').addEventListener('click',e=>{const add=e.target.closest('[dat
 $('#recordFields').addEventListener('change',async e=>{const path=e.target.dataset.uploadField;if(!path||!e.target.files[0])return;const input=e.target;input.disabled=true;uploads++;try{const d=await periflowUpload(input.files[0],'/api/media');$(`[data-field="${path}"]`).value=new URL(d.data,location.origin).href;$('#recordError').textContent='Arquivo anexado. Salve o registro para concluir.';}catch(err){$('#recordError').textContent=err.message;}finally{input.disabled=false;uploads--;}});
 function openRecord(entity,record=null){if(!moduleLoaded)return;const schema=schemas[entity];if(!schema)return;const readOnly=!!record?.data?.task_id&&!!state.tasks.find(t=>t.id===record.data.task_id)?.cancelled;$('#recordSave').classList.toggle('hidden',readOnly);$('#recordTitle').textContent=(record?'Editar: ':'Novo registro: ')+ENTITY_NAMES[entity];$('#recordError').textContent='';const data=record?.data||((entity==='FormularioTarefa'||entity==='PostForm')&&scopeTask?{task_id:scopeTask}:{});
  fieldRegistry.clear();$('#recordFields').innerHTML=`<label class="field ${activeArea==='management'?'':'hidden'}">Carteira *<select id="recordWallet" required>${['C1','C2','C3','C4','all'].map(w=>`<option value="${w}" ${(record?.wallet||(activeArea==='management'?state.wallet:'all'))===w?'selected':''}>${w==='all'?'Todas as carteiras':w}</option>`).join('')}</select></label><label class="field">Cliente<select id="recordClient"></select></label>`+Object.entries(schema.properties).map(([k,s])=>fieldHtml(k,s,data[k],(schema.required||[]).includes(k))).join('');
- const fillClients=selected=>{$('#recordClient').innerHTML='<option value="">Sem cliente específico</option>'+state.clients.filter(c=>activeArea!=='management'||(c.wallet||'C1')===$('#recordWallet').value).map(c=>`<option value="${esc(c.id)}" ${c.id===selected?'selected':''}>${esc(c.name)}</option>`).join('');};fillClients(record?.clientId||scopeClient);$('#recordWallet').onchange=()=>fillClients('');$('#recordClient').onchange=e=>{const c=state.clients.find(c=>c.id===e.target.value);$('#recordWallet').value=c?.wallet||(c?'C1':'all');};if($('[data-field="client_id"]'))$('[data-field="client_id"]').onchange=e=>{const c=state.clients.find(c=>c.id===e.target.value);if(c){$('#recordWallet').value=c.wallet||'C1';fillClients(c.id);}};if($('[data-field="task_id"]'))$('[data-field="task_id"]').onchange=e=>{const t=state.tasks.find(t=>t.id===e.target.value),c=state.clients.find(c=>c.id===t?.clientId);if(c){$('#recordWallet').value=c.wallet||'C1';fillClients(c.id);}};
+ const fillClients=selected=>{$('#recordClient').innerHTML='<option value="">Sem cliente específico</option>'+activeClients().filter(c=>activeArea!=='management'||(c.wallet||'C1')===$('#recordWallet').value).map(c=>`<option value="${esc(c.id)}" ${c.id===selected?'selected':''}>${esc(c.name)}</option>`).join('');};fillClients(record?.clientId||scopeClient);$('#recordWallet').onchange=()=>fillClients('');$('#recordClient').onchange=e=>{const c=state.clients.find(c=>c.id===e.target.value);$('#recordWallet').value=c?.wallet||(c?'C1':'all');};if($('[data-field="client_id"]'))$('[data-field="client_id"]').onchange=e=>{const c=state.clients.find(c=>c.id===e.target.value);if(c){$('#recordWallet').value=c.wallet||'C1';fillClients(c.id);}};if($('[data-field="task_id"]'))$('[data-field="task_id"]').onchange=e=>{const t=state.tasks.find(t=>t.id===e.target.value),c=state.clients.find(c=>c.id===t?.clientId);if(c){$('#recordWallet').value=c.wallet||'C1';fillClients(c.id);}};
  $('#recordForm').onsubmit=async e=>{e.preventDefault();const button=$('#recordSave');button.disabled=true;try{const values={};for(const [k,s] of Object.entries(schema.properties)){const v=readField(k,s);if(v!==undefined)values[k]=v;}if(values.client_id)values.client_id=$('#recordClient').value||values.client_id;await mutateModules({action:'save',id:record?.id,entity,wallet:$('#recordWallet').value,clientId:$('#recordClient').value,data:values});dialog.close();refreshArea();showToast();}catch(err){$('#recordError').textContent=err.message;}finally{button.disabled=false;}};if(readOnly){$('#recordFields').querySelectorAll('input,select,textarea,button').forEach(el=>el.disabled=true);$('#recordError').textContent='Tarefa cancelada: formulário disponível somente para consulta.';}dialog.showModal();}
 function renderTaskDirectory(){const tasks=scopeTasks().filter(t=>!scopeSearch||t.name.toLocaleLowerCase().includes(scopeSearch.toLocaleLowerCase()));section.innerHTML=header('Tarefas')+`<div class="module-tools"><label class="field">Buscar tarefa<input id="taskDirectorySearch" value="${esc(scopeSearch)}"></label><button type="button" class="primary" id="directoryNew">+ Criar tarefa</button></div><div class="module-records">${tasks.length?tasks.map(t=>`<article class="record-card"><h2>${esc(t.name)}</h2><p>${esc(state.clients.find(c=>c.id===t.clientId)?.name)} • ${esc(t.month||'')}</p><div class="chips"><span class="chip">${t.cancelled?'Cancelada':esc(stageObj(t.workflowStage).label)}</span><span class="chip">${esc(t.currentOwner||t.responsible||'Sem responsável')}</span><span class="chip">Prazo: ${esc(fmt(t.dueDate))}</span></div><div class="task-actions"><button class="secondary" data-open-task="${esc(t.id)}">${t.cancelled?'Consultar':'Abrir tarefa'}</button><button class="secondary" data-task-forms="${esc(t.id)}">Formulários</button></div></article>`).join(''):'<div class="empty">Nenhuma tarefa neste contexto.</div>'}</div>`;bindRefresh();$('#directoryNew').onclick=()=>{if(!scopedClients().length){navigateArea('registrations');activeEntity='clients';refreshArea();return;}state.selected=scopeClient||state.selected||scopedClients()[0].id;navigateArea('management');$('#newTask').click();};$('#taskDirectorySearch').oninput=e=>{scopeSearch=e.target.value;renderTaskDirectory();$('#taskDirectorySearch').focus();};$$('[data-open-task]').forEach(b=>b.onclick=()=>{const t=state.tasks.find(t=>t.id===b.dataset.openTask);state.selected=t.clientId;state.wallet=state.clients.find(c=>c.id===t.clientId)?.wallet||'C1';state.month=t.month;navigateArea('management');const button=document.querySelector(`[data-view="${t.id}"]`);if(button)button.click();else openDetail(t.id);});$$('[data-task-forms]').forEach(b=>b.onclick=()=>{openClientCampaigns(state.tasks.find(t=>t.id===b.dataset.taskForms).clientId,b.dataset.taskForms);});}
 function renderMetrics(){const tasks=scopeTasks(),active=tasks.filter(t=>!t.cancelled),approved=active.filter(t=>t.workflowStage==='approved');const today=new Date().toLocaleDateString('sv-SE',{timeZone:'America/Sao_Paulo'});const late=active.filter(t=>t.dueDate&&t.dueDate<today&&t.workflowStage!=='approved');const forms=scopedRecords('FormularioTarefa');const counts=[['Clientes',scopedClients().length],['Tarefas ativas',active.length],['Aprovadas',approved.length],['Atrasadas',late.length],['Formulários',forms.length],['Canceladas',tasks.filter(t=>t.cancelled).length]];section.innerHTML=header(MODULES[activeArea].name)+`<div class="metric-grid">${counts.map(([name,n])=>`<article class="record-card"><span>${name}</span><strong>${n}</strong></article>`).join('')}</div><div class="plan"><h2>Fluxo de trabalho</h2><div class="flow-summary">${STAGES.map(s=>`<div><span>${esc(s.label)}</span><strong>${active.filter(t=>t.workflowStage===s.id).length}</strong></div>`).join('')}</div></div><div class="plan"><h2>Clientes</h2><div class="module-records">${scopedClients().filter(c=>activeArea!=='management'||!scopeClient||c.id===scopeClient).map(c=>`<article class="record-card"><h3>${esc(c.name)}</h3><p>${c.arts||0} artes / ${c.videos||0} vídeos no plano</p><p>${active.filter(t=>t.clientId===c.id).length} tarefas ativas</p><button class="secondary" data-metric-client="${c.id}">Abrir na Gestão</button></article>`).join('')||'<p>Nenhum cliente cadastrado.</p>'}</div></div>${activeArea==='reports'?'<button class="secondary" id="exportReport">Exportar relatório CSV</button>':''}`;bindRefresh();$$('[data-metric-client]').forEach(b=>b.onclick=()=>{state.selected=b.dataset.metricClient;state.wallet=state.clients.find(c=>c.id===state.selected)?.wallet||'C1';navigateArea('management');});if($('#exportReport'))$('#exportReport').onclick=()=>{const rows=[['Cliente','Tarefa','Etapa','Responsável','Prazo'],...active.map(t=>[state.clients.find(c=>c.id===t.clientId)?.name,t.name,stageObj(t.workflowStage).label,t.currentOwner,t.dueDate])];const csv='\ufeff'+rows.map(row=>row.map(v=>'"'+String(v??'').replaceAll('"','""')+'"').join(';')).join('\r\n');const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([csv],{type:'text/csv;charset=utf-8'}));a.download='relatorio-periferica.csv';a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);};}
@@ -105,3 +105,142 @@ async function bootModules(){const ok=await loadModuleState();if(!ok)return;cons
 bootModules();
 
 const detailForms=document.createElement('button');detailForms.type='button';detailForms.className='secondary';detailForms.textContent='Formulários da tarefa';$('#detailEdit').before(detailForms);detailForms.onclick=()=>{if(!currentTask)return;$('#detailModal').classList.add('hidden');openClientCampaigns(currentTask.clientId,currentTask.id);};
+
+Object.assign(FIELD_NAMES,{logo_url:'Logo do cliente'});
+clientExtra.logo_url={type:'string'};
+function safeClientLogoUrl(value){if(value===null||value===undefined||!String(value).trim())return '';try{const url=new URL(String(value),location.origin);return url.protocol==='https:'||url.origin===location.origin?url.href:'';}catch{return '';}}
+let clientLogoUploading=false;
+const fillClientExtraWithoutLogo=fillClientExtra;
+function updateClientLogoPreview(value,name='cliente'){
+ const preview=extra.querySelector('.client-logo-preview');
+ if(!preview)return;
+ const url=safeClientLogoUrl(value);
+ preview.replaceChildren();
+ if(url){const image=document.createElement('img');image.src=url;image.alt=`Logo de ${name}`;preview.append(image);}
+ else{const empty=document.createElement('span');empty.textContent='Nenhuma logo enviada';preview.append(empty);}
+ const removeButton=extra.querySelector('[data-remove-client-logo]');
+ if(removeButton)removeButton.disabled=!url;
+}
+fillClientExtra=c=>{
+ fillClientExtraWithoutLogo(c);
+ const logoField=extra.querySelector('[data-field="client.logo_url"]')?.closest('label');
+ if(!logoField)return;
+ const urlField=logoField.querySelector('[data-field="client.logo_url"]');
+ urlField.type='hidden';
+ logoField.classList.add('client-logo-field');
+ const controls=document.createElement('div');
+ controls.className='client-logo-controls full';
+ const preview=document.createElement('div');
+ preview.className='client-logo-preview';
+ const fileInput=document.createElement('input');
+ fileInput.type='file';
+ fileInput.accept='image/png,image/jpeg,image/webp,image/gif,image/avif';
+ fileInput.setAttribute('aria-label','Enviar logo do cliente');
+ fileInput.dataset.clientLogoUpload='';
+ const removeButton=document.createElement('button');
+ removeButton.type='button';
+ removeButton.className='secondary';
+ removeButton.textContent='Remover logo';
+ removeButton.dataset.removeClientLogo='';
+ const feedback=document.createElement('p');
+ feedback.className='client-logo-feedback';
+ feedback.id='clientLogoFeedback';
+ feedback.setAttribute('role','status');
+ logoField.replaceChildren('Logo do cliente',urlField,fileInput);
+ controls.append(preview,removeButton,feedback);
+ extra.append(controls);
+ updateClientLogoPreview(urlField.value,c?.name);
+};
+extra.addEventListener('change',async event=>{
+ const input=event.target;
+ if(!input.matches('[data-client-logo-upload]')||!input.files?.[0]||clientLogoUploading)return;
+ const file=input.files[0];
+ const currentField=extra.querySelector('[data-field="client.logo_url"]');
+ const currentFeedback=extra.querySelector('#clientLogoFeedback');
+ const currentRemove=extra.querySelector('[data-remove-client-logo]');
+ clientLogoUploading=true;
+ uploads++;
+ input.disabled=true;
+ currentRemove.disabled=true;
+ currentFeedback.textContent='Enviando logo…';
+ $('#clientDialogClose').disabled=true;
+ try{
+  const result=await periflowUpload(file,'/api/media/client-logo');
+  const url=safeClientLogoUrl(result.data);
+  if(!url)throw Error('O armazenamento retornou um endereço inválido.');
+  currentField.value=url;
+  updateClientLogoPreview(url,$('#newClientName').value.trim()||'cliente');
+  currentFeedback.textContent='Logo enviada. Salve o cliente para confirmar.';
+ }catch(error){currentFeedback.textContent=error instanceof Error?error.message:'Não foi possível enviar a logo.';}
+ finally{input.disabled=false;input.value='';clientLogoUploading=false;uploads--;$('#clientDialogClose').disabled=false;}
+});
+extra.addEventListener('click',event=>{
+ const button=event.target.closest('[data-remove-client-logo]');
+ if(!button)return;
+ const field=extra.querySelector('[data-field="client.logo_url"]');
+ field.value='';
+ updateClientLogoPreview('');
+ extra.querySelector('#clientLogoFeedback').textContent='Logo removida. Salve o cliente para confirmar.';
+});
+clientDialog.addEventListener('cancel',event=>{if(clientLogoUploading)event.preventDefault();});
+$('#clientForm').addEventListener('submit',event=>{
+ if(!clientLogoUploading)return;
+ event.preventDefault();
+ event.stopImmediatePropagation();
+ $('#clientLogoFeedback').textContent='Aguarde o envio da logo terminar antes de salvar.';
+},true);
+const clientName=$('#clientName');
+const clientHeading=document.createElement('div');
+clientHeading.className='client-heading';
+const clientLogo=document.createElement('img');
+clientLogo.id='clientLogo';
+clientLogo.className='client-heading-logo hidden';
+clientName.parentElement.insertBefore(clientHeading,clientName);
+clientHeading.append(clientLogo,clientName);
+const renderWithClientLogo=render;
+render=()=>{
+ renderWithClientLogo();
+ const selected=client();
+ if(!selected)return;
+ const url=safeClientLogoUrl(selected.logo_url);
+ clientLogo.classList.toggle('hidden',!url);
+ if(url){clientLogo.src=url;clientLogo.alt=`Logo de ${selected.name}`;}else{clientLogo.removeAttribute('src');clientLogo.alt='';}
+ $('#clients').innerHTML=visibleClients().map(c=>{const logo=safeClientLogoUrl(c.logo_url);return `<button class="client ${c.id===state.selected?'active':''}" data-id="${esc(c.id)}">${logo?`<img class="client-chip-logo" src="${esc(logo)}" alt="">`:''}<span>${esc(c.name)}</span></button>`;}).join('');
+ $$('.client').forEach(button=>button.onclick=()=>{state.selected=button.dataset.id;render();});
+};
+const renderRegisteredClientsWithLogo=renderRegisteredClients;
+renderRegisteredClients=()=>{
+ renderRegisteredClientsWithLogo();
+ $$('#registeredClientsList article').forEach((card,index)=>{
+  const c=activeClients()[index];
+  const url=safeClientLogoUrl(c?.logo_url);
+  const title=card.querySelector('.employee-main h3');
+  if(!url||!title)return;
+  const row=document.createElement('div');
+  row.className='client-name-row';
+  const image=document.createElement('img');
+  image.className='client-list-logo';
+  image.src=url;
+  image.alt=`Logo de ${c.name}`;
+  title.before(row);
+  row.append(image,title);
+ });
+};
+const renderClientAccessesWithLogo=renderClientAccesses;
+renderClientAccesses=data=>{
+ renderClientAccessesWithLogo(data);
+ $$('#clientAccessList [data-access-client]').forEach(card=>{
+  const c=(data.clients||[]).find(client=>client.id===card.dataset.accessClient);
+  const url=safeClientLogoUrl(c?.logo_url);
+  const title=card.querySelector('.head h2');
+  if(!url||!title)return;
+  const row=document.createElement('div');
+  row.className='client-access-title';
+  const image=document.createElement('img');
+  image.className='client-list-logo';
+  image.src=url;
+  image.alt=`Logo de ${c.name}`;
+  title.before(row);
+  row.append(image,title);
+ });
+};

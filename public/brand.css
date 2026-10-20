@@ -58,3 +58,22 @@ body{font-family:var(--brand-font)}
 
 /* Barra de status: cinza neutro no lugar do azulado */
 .syncbar{background:#f1f1f1;color:#525252}
+
+/* Cadastros → Carteiras / Clientes cancelados */
+.wallet-admin{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:16px;margin-top:18px}
+.wallet-card{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:18px;display:flex;flex-direction:column;gap:14px}
+.wallet-card-head{display:flex;align-items:center;justify-content:space-between}
+.wallet-card-head h2{margin:0;font-size:22px;font-weight:900;letter-spacing:-.03em}
+.wallet-owner{display:flex;gap:8px;align-items:flex-end;padding:0}
+.wallet-owner .field{flex:1}
+.wallet-clients{list-style:none;margin:0;padding:0;border-top:1px solid #f0f0f0;max-height:420px;overflow:auto}
+.wallet-clients li{display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid #f5f5f5;font-size:13px;font-weight:600}
+.wallet-clients li>span{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis}
+.wallet-clients select{border:1px solid #e5e7eb;border-radius:6px;padding:5px 6px;font-size:12px;max-width:150px}
+.wallet-clients .empty-line{color:#9ca3af;font-style:italic}
+.danger{color:#dc2626!important}
+.secondary.danger:hover{border-color:#dc2626}
+.text-button.danger{background:none;border:0;cursor:pointer;font-size:11px;font-weight:900;text-transform:uppercase;letter-spacing:.08em;padding:4px}
+
+/* Gestão: a escolha do cliente fica só na caixa de lista "Cliente" dos filtros (os botões em linha ocupavam duas fileiras) */
+#clients{display:none}

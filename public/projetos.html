@@ -218,14 +218,14 @@
             const [showMobileFilters, setShowMobileFilters] = useState(false);
             
             const [isDark, setIsDark] = useState(() => {
-                try { return localStorage.getItem('periflow-projetos-theme') === 'dark'; } catch(e) { return false; }
+                try { return (localStorage.getItem('periflow-theme') || localStorage.getItem('periflow-projetos-theme')) === 'dark'; } catch(e) { return false; }
             });
 
             useEffect(() => {
                 const root = document.getElementById('leads-periferica-root');
                 if (root) {
                     root.classList.toggle('dark', isDark);
-                    try { localStorage.setItem('periflow-projetos-theme', isDark ? 'dark' : 'light'); } catch(e) {}
+                    try { localStorage.setItem('periflow-theme', isDark ? 'dark' : 'light'); } catch(e) {}
                 }
             }, [isDark]);
             
