@@ -90,3 +90,15 @@ html.dark .task-wizard :is(input,select,textarea){background:#0a0a0a!important;c
 html.dark .task-wizard select option{background:#111!important;color:#f3f4f6!important}
 html.dark .task-wizard :is(label,.field,h2,h3,h4){color:#e5e7eb}
 html.dark .task-wizard .step:not(.active){color:#9ca3af!important}
+
+/* Fluxo da tarefa (fluxo.js) no escuro */
+html.dark .flow-list{background:#111;border-color:#ffffff14}
+html.dark .flow-row{border-color:#ffffff0f}
+html.dark .flow-mark{background:#1f1f1f;color:#9ca3af}
+html.dark .flow-row.is-done .flow-mark{background:#22c55e1f;color:#86efac}
+html.dark .flow-row.is-current{background:#ff500014}
+html.dark .flow-row.is-current .flow-mark{background:var(--orange);color:#fff}
+html.dark :is(.flow-name small,.flow-row.is-pending .flow-name strong,.flow-next-hint){color:#9ca3af}
+html.dark .flow-fixed{color:#d1d5db}
+html.dark .flow-complete{color:#86efac}
+html.dark .flow-warning{background:#ff50001a;border-color:#ff500066;color:#ffb38a}
