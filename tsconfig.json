@@ -40,9 +40,6 @@
     "**/*.mts"
   ],
   "exclude": [
-    "node_modules",
-    "_plataforma-antiga",
-    "pasta para consultar",
-    "Periferica-Connect-completo-2026-10-14"
+    "node_modules"
   ]
 }
