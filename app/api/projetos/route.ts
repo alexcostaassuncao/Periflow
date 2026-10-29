@@ -11,7 +11,8 @@ const noStore={headers:{'Cache-Control':'no-store'}};
 export async function GET(req:Request){
   const role=projetosRole(req);
   try{
-    const data=await loadAll(role!=='viewer');
+    // Só administradores recebem senhas e webhook; os demais recebem "••••••" (até existir o cofre de credenciais).
+    const data=await loadAll(role==='admin');
     const equipe=await database().prepare("SELECT id,name FROM employees WHERE access<>'Somente leitura' ORDER BY name").all();
     return Response.json({me:{id:currentUserId(req),name:currentUserName(req),role},equipe:equipe.results,...data},noStore);
   }catch(e){console.error(e);return fail('Não foi possível carregar os projetos. Tente novamente.',503);}
@@ -99,7 +100,10 @@ export async function POST(req:Request){
       case 'saveCompany':{
         const f=empresaFields(p.company);
         if(!f.nome)return fail('Informe o nome da empresa.');
-        const cols=Object.keys(f) as (keyof typeof f)[];
+        // Quem não é admin recebe as senhas mascaradas: não pode alterá-las numa empresa existente,
+        // e um valor mascarado ("••••••") nunca é gravado por cima da senha real.
+        const secret=(c:string)=>['senha_loja','senha_dominio','webhook_url'].includes(c);
+        const cols=(Object.keys(f) as (keyof typeof f)[]).filter(c=>!(secret(c)&&(/^•+$/.test(f[c] as string)||(p.company?.id&&role!=='admin'))));
         if(p.company?.id){
           const r=await db.prepare(`UPDATE projeto_empresas SET ${cols.map(c=>c+'=?').join(',')},updated_at=? WHERE id=?`).bind(...cols.map(c=>f[c]),now,p.company.id).run();
           if(!r.meta.changes)return fail('Empresa não encontrada.',404);
