@@ -1,6 +1,7 @@
 import {database} from '../../../db/raw';
 import {isAdmin,currentUserEmail,currentUserName} from '../../../db/employees';
 import {moduleSchemas} from '../../../db/module-schemas';
+import {allClients,taskById} from '../../../db/workspace';
 const rowId='connect-modules-v1';
 const wallets=['C1','C2','C3','C4','all'];
 export function validateValue(value:any,schema:any):boolean {
@@ -34,17 +35,17 @@ export async function POST(req:Request){
       if(!schema)return Response.json({error:'Cadastro inválido.'},{status:400});
       const index=old.records.findIndex((r:any)=>r.id===id&&r.entity===p.entity);
       if(id&&index<0)return Response.json({error:'Registro não encontrado.'},{status:404});
-      const workspace:any=await database().prepare('SELECT payload FROM connect_state WHERE id=?').bind('workspace').first();const state=workspace?JSON.parse(workspace.payload):{clients:[],tasks:[]};
+      
       const linkedTask=index>=0?old.records[index].data?.task_id:null;
-      if(linkedTask&&state.tasks.find((t:any)=>t.id===linkedTask)?.cancelled)return Response.json({error:'Os formulários de uma tarefa cancelada são somente para consulta.'},{status:403});
+      if(linkedTask&&(await taskById(linkedTask))?.cancelled)return Response.json({error:'Os formulários de uma tarefa cancelada são somente para consulta.'},{status:403});
       if(p.action==='delete'){if(p.entity==='CRMLead'){const event=old.records.find((r:any)=>r.entity==='CalendarEvent'&&r.data.lead_id===id);if(event){event.data.meeting_status='cancelada';event.data.lead_id='';}}if(p.entity==='CalendarEvent'){const lead=old.records.find((r:any)=>r.entity==='CRMLead'&&r.data.calendar_event_id===id);if(lead){delete lead.data.calendar_event_id;delete lead.data.data_reuniao;if(lead.data.status==='reuniao_marcada')lead.data.status='prospeccao';}}if(index<0)return Response.json({error:'Registro não encontrado.'},{status:404});old.records.splice(index,1);}
       else{
         if(!wallets.includes(p.wallet)||!validateValue(p.data,schema)||!p.data||typeof p.data!=='object')return Response.json({error:'Confira os campos e a carteira.'},{status:400});
         for(const key of schema.required||[])if(p.data[key]===undefined||p.data[key]===null||p.data[key]==='')return Response.json({error:'Preencha todos os campos obrigatórios.'},{status:400});
-        if(p.clientId){const c=state.clients.find((c:any)=>c.id===p.clientId);if(!c||p.wallet==='all'||(c.wallet||'C1')!==p.wallet)return Response.json({error:'O cliente deve pertencer à carteira selecionada.'},{status:400});}
+        if(p.clientId){const c=(await allClients()).find((c:any)=>c.id===p.clientId);if(!c||p.wallet==='all'||(c.wallet||'C1')!==p.wallet)return Response.json({error:'O cliente deve pertencer à carteira selecionada.'},{status:400});}
         if(p.data.client_id&&p.data.client_id!==p.clientId)return Response.json({error:'O cliente do cadastro deve ser o mesmo cliente do vínculo.'},{status:400});
         if(p.entity==='EmployeeDetails'&&!await database().prepare('SELECT id FROM employees WHERE id=?').bind(p.data.employee_id).first())return Response.json({error:'Funcionário não encontrado.'},{status:400});
-        if(p.data.task_id){const task=state.tasks.find((t:any)=>t.id===p.data.task_id);if(!task||task.cancelled||task.clientId!==p.clientId)return Response.json({error:'Selecione uma tarefa ativa deste cliente.'},{status:400});}
+        if(p.data.task_id){const task=await taskById(p.data.task_id);if(!task||task.cancelled||task.clientId!==p.clientId)return Response.json({error:'Selecione uma tarefa ativa deste cliente.'},{status:400});}
         if(p.entity==='FormularioTarefa'){
           const previous=index>=0?old.records[index].data:null;
           const stage=p.data.workflow_stage||(p.data.status==='aprovado'?'approved':'briefing');

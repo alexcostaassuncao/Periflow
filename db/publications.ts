@@ -1,7 +1,8 @@
 import {publicationMedia} from './publication-media';
 import {database} from './raw';
 import {decryptToken} from './instagram';
-export async function taskById(id:string){const row:any=await database().prepare('SELECT payload FROM connect_state WHERE id=?').bind('workspace').first();return row?JSON.parse(row.payload).tasks.find((t:any)=>t.id===id):null;}
+import {taskById} from './workspace';
+export {taskById};
 export function publicMediaUrl(raw:string,siteHost:string){const u=new URL(raw);if(u.protocol!=='https:'||u.username||u.password||u.port||u.hostname===siteHost||/^(localhost|127\.|10\.|192\.168\.|169\.254\.|172\.(1[6-9]|2\d|3[01])\.|\[)/i.test(u.hostname))throw Error('Informe um link HTTPS público direto da mídia, fora deste site privado.');return u.href;}
 async function graph(path:string,token:string,body?:URLSearchParams){const r=await fetch('https://graph.instagram.com/v23.0/'+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token},body,signal:AbortSignal.timeout(25000)});const d:any=await r.json();if(!r.ok||d.error)throw Error('A Meta recusou a operação'+(d.error?.code?' (código '+d.error.code+')':'')+'. Confira a conta, as permissões e o formato/link da mídia.');return d;}
 export async function processPublication(id:string){const db=database();const now=Date.now();const job:any=await db.prepare("UPDATE instagram_publications SET lease_until=?,updated_at=? WHERE id=? AND due_at<=? AND status IN ('queued','processing','publishing') AND lease_until<? RETURNING *").bind(now+90000,now,id,now,now).first();if(!job)return;

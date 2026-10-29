@@ -18,6 +18,9 @@ const db=createClient({url:env.TURSO_DATABASE_URL,authToken:env.TURSO_AUTH_TOKEN
 
 const hasTables=(await db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='connect_state'")).rows.length>0;
 if(!hasTables){console.error('✖ As tabelas ainda não existem. Rode antes: npm run db:migrate');process.exit(1);}
+// Desde a Fundação (migração 0009), clientes e tarefas ficam nas tabelas clientes/tarefas, não mais no JSON.
+// Este importador grava só no JSON antigo; num banco já migrado, a importação não apareceria no sistema.
+if((await db.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='clientes'")).rows.length){console.error('✖ Este importador é da versão anterior à Fundação e grava só no JSON antigo, que o sistema não lê mais. Não use num banco migrado.');process.exit(1);}
 const existing=(await db.execute("SELECT revision FROM connect_state WHERE id='workspace'")).rows[0];
 if(existing&&!force){console.error('✖ O banco novo já tem dados. Para sobrescrever com a exportação, rode de novo com --force.');process.exit(1);}
 

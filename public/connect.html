@@ -182,7 +182,7 @@ const runSave=async()=>{
  while(saving)await new Promise(r=>setTimeout(r,100)); // outra operação (ex.: exclusão em evolution.js) ainda em andamento
  if(!ready||conflict)return false;
  saving=true;document.body.classList.add('saving');setStatus('Salvando online…');
- try{const r=await fetch('/api/connect',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({state,revision})});const d=await r.json().catch(()=>({}));if(!r.ok){if(r.status===409)conflict=true;throw Error(d.error||`Não foi possível salvar (HTTP ${r.status}).`)}revision=d.revision;if(pendingSaves===1)dirty=false;setStatus('Salvo online');return true;
+ try{const r=await fetch('/api/connect',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({state,revision})});const d=await r.json().catch(()=>({}));if(!r.ok){if(r.status===409)conflict=true;throw Error(d.error||`Não foi possível salvar (HTTP ${r.status}).`)}revision=d.revision;for(const [k,list] of [['clients',state.clients],['tasks',state.tasks]])for(const x of list||[])if(d.versions?.[k]?.[x.id])x._v=d.versions[k][x.id];if(pendingSaves===1)dirty=false;setStatus('Salvo online');return true;
  }catch(e){dirty=true;setStatus(e.message||'Não foi possível salvar.',true);return false;}finally{saving=false;document.body.classList.remove('saving');}
 };
 const save=()=>{dirty=true;pendingSaves++;const run=saveQueue.then(runSave).finally(()=>pendingSaves--);saveQueue=run.catch(()=>false);return run;};
