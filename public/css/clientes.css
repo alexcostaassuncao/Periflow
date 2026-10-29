@@ -1,0 +1,67 @@
+/* Central de Clientes (js/clientes.js) e grupos do menu (js/menu.js). Tema escuro no fim do arquivo. */
+.layout aside .menu-group{margin:18px 4px 8px}
+.cl-sub{margin:4px 0 0;color:#6b7280;font-size:13px}
+.cl-add{position:relative}
+.cl-add-menu{position:absolute;right:0;top:calc(100% + 6px);z-index:30;width:340px;padding:6px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;box-shadow:0 18px 40px #0002}
+.cl-add-menu button{display:flex;flex-direction:column;gap:3px;width:100%;padding:12px;border:0;border-radius:8px;background:none;text-align:left;cursor:pointer;color:inherit;font:inherit}
+.cl-add-menu button:hover:not(:disabled){background:#fff6f1}
+.cl-add-menu button:disabled{opacity:.55;cursor:not-allowed}
+.cl-add-menu strong{font-size:13px;font-weight:800}.cl-add-menu small{font-size:12px;color:#6b7280}
+.cl-toolbar{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;margin:18px 0 10px;border-bottom:1px solid #e5e7eb}
+.cl-tabs{display:flex;gap:4px}
+.cl-tab{border:0;background:none;padding:10px 14px;font:inherit;font-size:13px;font-weight:800;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.cl-tab.active{color:var(--orange);border-bottom-color:var(--orange)}
+.cl-tab small{font-weight:700;color:#9ca3af;margin-left:4px}
+.cl-view{display:flex;gap:6px;padding-bottom:8px}
+.cl-filters{display:grid;grid-template-columns:2fr 1fr 1fr auto;gap:12px;align-items:end;margin:12px 0 16px}
+.cl-table-wrap{overflow-x:auto;border:1px solid #e5e7eb;border-radius:10px;background:#fff}
+.cl-table{width:100%;border-collapse:collapse;font-size:13px}
+.cl-table th{text-align:left;padding:12px 14px;font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#6b7280;background:#f9fafb;border-bottom:1px solid #e5e7eb}
+.cl-table td{padding:10px 14px;border-bottom:1px solid #f0f0f0;vertical-align:middle}
+.cl-table tbody tr[data-cl-open]{cursor:pointer}.cl-table tbody tr[data-cl-open]:hover{background:#fff6f1}
+.cl-name{display:flex;align-items:center;gap:10px}.cl-name div{display:flex;flex-direction:column}.cl-name small{color:#6b7280;font-size:11px}
+.cl-logo{width:32px;height:32px;border-radius:8px;object-fit:contain;background:#fff;border:1px solid #e5e7eb;flex:none}
+.cl-logo-letter{display:grid;place-items:center;font-size:11px;font-weight:900;color:var(--orange);background:#fff2ea;border-color:#ffd8c4}
+.cl-logo-big{width:72px;height:72px;border-radius:12px;font-size:20px}
+.cl-squad{display:inline-block;padding:3px 9px;border-radius:6px;font-size:11px;font-weight:900;background:#111;color:#fff}
+.cl-badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:800;vertical-align:middle}
+.cl-ativo{background:#e7f5e9;color:#24753c}.cl-onboarding{background:#e8f0ff;color:#2f5fb3}.cl-lead{background:#f3e8ff;color:#7c3aed}
+.cl-pausado{background:#fef3c7;color:#92400e}.cl-inativo{background:#f1f1f1;color:#525252}.cl-cancelado{background:#fee4e2;color:#b42318}
+.cl-hint{font-size:12px;color:#6b7280;margin:6px 0 12px}
+.cl-squads{display:grid;grid-template-columns:repeat(4,minmax(220px,1fr));gap:14px;overflow-x:auto}
+.cl-col{background:#f3f4f6;border:2px dashed transparent;border-radius:12px;padding:12px;min-height:180px}
+.cl-col.over{border-color:var(--orange);background:#fff6f1}
+.cl-col-head{display:flex;flex-direction:column;margin:2px 4px 10px}.cl-col-head strong{font-size:18px;font-weight:900}.cl-col-head small{color:#6b7280;font-size:12px}
+.cl-card{display:flex;align-items:center;gap:10px;padding:10px;margin-bottom:8px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:pointer}
+.cl-card[draggable="true"]{cursor:grab}.cl-card div{display:flex;flex-direction:column;min-width:0}.cl-card strong{font-size:13px}.cl-card small{font-size:11px;color:#6b7280}
+.cl-empty-col{font-size:12px;color:#9ca3af;text-align:center;margin-top:30px}
+.cl-fhead{display:flex;align-items:center;gap:18px;margin:10px 0 18px}.cl-fhead>div{flex:1}.cl-fhead h1{margin:0;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.cl-contacts{display:flex;gap:10px;flex-wrap:wrap;margin:8px 0 0;font-size:13px;color:#374151}.cl-contacts span{color:#d1d5db}
+.cl-ftabs{display:flex;gap:4px;flex-wrap:wrap;border-bottom:1px solid #e5e7eb;margin-bottom:16px}
+.cl-ftabs button{border:0;background:none;padding:10px 14px;font:inherit;font-size:13px;font-weight:800;color:#6b7280;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px}
+.cl-ftabs button.active{color:var(--orange);border-bottom-color:var(--orange)}
+.cl-grid{display:grid;grid-template-columns:2fr 1fr;gap:16px}
+.cl-dl{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:12px 20px;margin:12px 0}
+.cl-dl dt{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#9ca3af}.cl-dl dd{margin:4px 0 0;font-size:14px;font-weight:600}
+.cl-meta{font-size:13px;color:#6b7280}
+#clObs{width:100%;box-sizing:border-box;margin:10px 0;border:1px solid #e5e7eb;border-radius:8px;padding:10px;font:inherit}
+.cl-links{margin:8px 0;padding-left:18px}.cl-links a{color:var(--orange);word-break:break-all}
+.cl-import{margin-bottom:16px}.cl-err{color:#b42318;font-weight:700}.cl-ok{color:#24753c;font-weight:700}
+@media(max-width:900px){.cl-filters{grid-template-columns:1fr 1fr}.cl-grid{grid-template-columns:1fr}.cl-add-menu{width:min(340px,90vw)}}
+
+html.dark .cl-add-menu,html.dark .cl-table-wrap,html.dark .cl-card{background:#111;border-color:#ffffff1a}
+html.dark .cl-add-menu button:hover:not(:disabled),html.dark .cl-table tbody tr[data-cl-open]:hover{background:#ff500014}
+html.dark .cl-table th{background:#161616;border-color:#ffffff14;color:#9ca3af}
+html.dark .cl-table td{border-color:#ffffff0f}
+html.dark .cl-toolbar,html.dark .cl-ftabs{border-color:#ffffff14}
+html.dark .cl-col{background:#161616}html.dark .cl-col.over{background:#ff500014}
+html.dark .cl-squad{background:#262626}
+html.dark .cl-logo{background:#1c1c1c;border-color:#ffffff1a}html.dark .cl-logo-letter{background:#ff50001a;border-color:#ff500044}
+html.dark .cl-contacts{color:#d1d5db}html.dark #clObs{background:#0a0a0a;color:#f3f4f6;border-color:#ffffff1a}
+html.dark .cl-ativo{background:#22c55e1f;color:#86efac}html.dark .cl-onboarding{background:#3b82f61f;color:#93c5fd}html.dark .cl-lead{background:#a855f71f;color:#d8b4fe}
+html.dark .cl-pausado{background:#f59e0b1f;color:#fcd34d}html.dark .cl-inativo{background:#ffffff14;color:#d1d5db}html.dark .cl-cancelado{background:#ef44441f;color:#fca5a5}
+.cl-box{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:20px;margin-bottom:16px}
+.cl-box h2{margin:0 0 10px;font-size:16px;font-weight:900;text-transform:uppercase;letter-spacing:-.02em}
+.cl-box .field{display:flex;flex-direction:column;gap:6px;margin-bottom:14px}
+.cl-fhead h1 .cl-badge{text-transform:none;letter-spacing:0;font-size:11px}
+html.dark .cl-box{background:#111;border-color:#ffffff14;color:#f3f4f6}
