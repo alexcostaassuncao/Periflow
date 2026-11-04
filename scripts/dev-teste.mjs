@@ -12,6 +12,7 @@ const env={
   ADMIN_PASSWORD:'senha-de-teste-123',
   SESSION_SECRET:'segredo-de-sessao-local-de-teste-1234567890',
   CRON_SECRET:'cron-secreto-de-teste-123',
+  LEADS_TOKEN:'token-de-teste-leads-123',
 };
 const run=(cmd,args)=>new Promise((resolve,reject)=>{const p=spawn(cmd,args,{env,stdio:'inherit',shell:true});p.on('exit',code=>code?reject(Error(cmd+' saiu com código '+code)):resolve());});
 

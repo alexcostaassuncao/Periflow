@@ -1,0 +1,43 @@
+/* Comercial (js/comercial.js). Usa também as classes da Central de Clientes (cl-*). Tema escuro no fim. */
+.com-filters{display:grid;grid-template-columns:2fr repeat(4,1fr);gap:12px;align-items:end;margin:12px 0 10px}
+.com-board{display:grid;grid-template-columns:repeat(6,minmax(210px,1fr));gap:12px;overflow-x:auto;padding-bottom:8px}
+.com-col{background:#f3f4f6;border:2px dashed transparent;border-radius:12px;padding:10px;min-height:220px}
+.com-col.over{border-color:var(--orange);background:#fff6f1}
+.com-col-head{display:flex;justify-content:space-between;align-items:center;padding:8px 10px;margin:-2px -2px 10px;border-radius:8px;font-size:13px}
+.com-col-head span{min-width:22px;text-align:center;border-radius:999px;background:#ffffffaa;font-size:11px;font-weight:900;padding:2px 6px}
+.com-et-novo .com-col-head{background:#dbeafe}.com-et-contato .com-col-head{background:#ffedd5}.com-et-reuniao .com-col-head{background:#ede9fe}
+.com-et-proposta .com-col-head{background:#fef3c7}.com-et-negociacao .com-col-head{background:#fce7f3}.com-et-fechado .com-col-head{background:#dcfce7}
+.com-card{display:flex;flex-direction:column;gap:4px;padding:10px;margin-bottom:8px;border:1px solid #e5e7eb;border-radius:10px;background:#fff;cursor:grab}
+.com-card>strong{font-size:13px}.com-card>small{font-size:11px;color:#6b7280}
+.com-origem{align-self:flex-start;padding:2px 8px;border-radius:999px;background:#fee2e2;color:#b91c1c;font-size:10px;font-weight:800}
+.com-pessoa{margin:2px 0 0;font-size:12px;color:#374151}
+.com-contato{display:flex;gap:8px;align-items:center;font-size:13px}.com-contato a{text-decoration:none}
+.com-wa{padding:3px 8px;border-radius:6px;background:#16a34a;color:#fff!important;font-size:11px;font-weight:800}
+.com-resp{margin-top:4px;border:1px solid #e5e7eb;border-radius:6px;padding:4px 6px;font:inherit;font-size:11px;background:#f9fafb}
+.com-alerta{color:#b42318;font-size:11px;font-weight:800;margin:2px 0 0}
+.com-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:14px 0}
+.com-kpis small{font-size:10px;font-weight:900;text-transform:uppercase;letter-spacing:.12em;color:#6b7280}.com-kpis strong{display:block;font-size:34px;font-weight:900;margin:6px 0}.com-kpis p{margin:0;font-size:12px;color:#6b7280}
+.com-box-alerta{border-color:#fecaca;background:#fff7f6}
+.com-lista{list-style:none;margin:0;padding:0}.com-lista li{padding:8px 0;border-bottom:1px solid #f0f0f0;cursor:pointer;font-size:13px}.com-lista small{color:#6b7280}
+.com-overlay{position:fixed;inset:0;background:#0006;z-index:40}
+.com-painel{position:fixed;top:0;right:0;bottom:0;width:min(520px,100vw);z-index:41;overflow-y:auto;background:#fff;padding:20px;box-shadow:-20px 0 40px #0003}
+.com-painel-head{display:flex;justify-content:space-between;gap:12px;margin-bottom:10px}.com-painel-head h2{margin:0 0 6px;font-size:20px;font-weight:900}
+.com-form{display:grid;grid-template-columns:1fr 1fr;gap:10px 12px}.com-form .full,.com-form button{grid-column:1/-1}
+.com-form .field,.com-sub .field{display:flex;flex-direction:column;gap:5px}
+.com-acoes{margin-top:18px;padding-top:14px;border-top:1px solid #e5e7eb;display:flex;flex-direction:column;gap:10px}
+.com-acoes details{border:1px solid #e5e7eb;border-radius:8px;padding:10px}.com-acoes summary{cursor:pointer;font-weight:800;font-size:13px}
+.com-sub{display:grid;gap:8px;margin-top:10px}
+.com-timeline{list-style:none;margin:16px 0 0;padding:0;border-left:2px solid #e5e7eb}
+.com-timeline li{position:relative;padding:0 0 14px 16px}.com-timeline li::before{content:'';position:absolute;left:-6px;top:4px;width:10px;height:10px;border-radius:50%;background:var(--orange)}
+.com-timeline small{display:block;color:#6b7280;font-size:11px}.com-timeline p{margin:4px 0 0;font-size:13px;white-space:pre-wrap}
+@media(max-width:900px){.com-filters{grid-template-columns:1fr 1fr}.com-kpis{grid-template-columns:1fr}.com-form{grid-template-columns:1fr}}
+
+html.dark .com-col{background:#161616}html.dark .com-col.over{background:#ff500014}
+html.dark .com-card,html.dark .com-painel{background:#111;border-color:#ffffff1a;color:#f3f4f6}
+html.dark .com-et-novo .com-col-head{background:#1e3a8a66}html.dark .com-et-contato .com-col-head{background:#9a341266}html.dark .com-et-reuniao .com-col-head{background:#5b21b666}
+html.dark .com-et-proposta .com-col-head{background:#92400e66}html.dark .com-et-negociacao .com-col-head{background:#9d174d66}html.dark .com-et-fechado .com-col-head{background:#14532d66}
+html.dark .com-col-head span{background:#0006}
+html.dark .com-origem{background:#ef44441f;color:#fca5a5}html.dark .com-pessoa{color:#d1d5db}
+html.dark .com-resp{background:#0a0a0a;border-color:#ffffff1a;color:#f3f4f6}
+html.dark .com-box-alerta{background:#ef444414;border-color:#ef444455}
+html.dark .com-lista li,html.dark .com-acoes,html.dark .com-acoes details,html.dark .com-timeline{border-color:#ffffff14}
